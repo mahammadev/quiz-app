@@ -28,6 +28,7 @@ export default function QuizSetup({
   const [numQuestions, setNumQuestions] = useState(Math.min(10, totalQuestions))
   const [shuffleAnswers, setShuffleAnswers] = useState(true)
   const [answeredQuestions, setAnsweredQuestions] = useState<Set<number>>(new Set())
+  const [startingQuestion, setStartingQuestion] = useState(1)
 
   useEffect(() => {
     if (quizId) {
@@ -57,11 +58,16 @@ export default function QuizSetup({
       questionsToUse = shuffled.slice(0, numQuestions)
     } else if (selectedMode === 'sequential') {
       questionsToUse = [...allQuestions]
+        .slice(startingQuestion - 1)
+        .map((q, idx) => ({
+          ...q,
+          _originalIndex: startingQuestion - 1 + idx
+        }))
     } else if (selectedMode === 'practice') {
       const unansweredWithIndices = allQuestions
         .map((q, idx) => ({ question: q, originalIndex: idx }))
         .filter(item => !answeredQuestions.has(item.originalIndex))
-      
+
       if (unansweredWithIndices.length === 0) {
         alert('Bütün suallar cavablandırılıb! Proqresi sıfırlayın.')
         return
@@ -73,7 +79,7 @@ export default function QuizSetup({
         const j = Math.floor(Math.random() * (i + 1));
         [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
       }
-      
+
       // Attach original index to each question for tracking
       questionsToUse = shuffled.map(item => ({
         ...item.question,
@@ -185,6 +191,27 @@ export default function QuizSetup({
                 />
                 <p className="mt-2 text-sm text-muted-foreground">
                   {getTranslation(language, 'setup.available', { count: totalQuestions })}
+                </p>
+              </div>
+            )}
+
+            {selectedMode === 'sequential' && (
+              <div>
+                <label className="block text-sm font-semibold text-foreground mb-3">
+                  Başlanğıc sualı
+                </label>
+                <input
+                  type="number"
+                  min="1"
+                  max={totalQuestions}
+                  value={startingQuestion}
+                  onChange={(e) =>
+                    setStartingQuestion(Math.max(1, Math.min(totalQuestions, parseInt(e.target.value) || 1)))
+                  }
+                  className="cursor-target w-full rounded-lg border-2 border-input bg-background px-4 py-3 text-foreground focus:border-ring focus:outline-none"
+                />
+                <p className="mt-2 text-sm text-muted-foreground">
+                  {totalQuestions - startingQuestion + 1} sual cavablandırılacaq (sual {startingQuestion} - {totalQuestions})
                 </p>
               </div>
             )}
