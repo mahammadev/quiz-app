@@ -805,6 +805,7 @@ function QuizSetup({ totalQuestions, onQuizStart, allQuestions, language = 'az',
     const [numQuestions, setNumQuestions] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(Math.min(10, totalQuestions));
     const [shuffleAnswers, setShuffleAnswers] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(true);
     const [answeredQuestions, setAnsweredQuestions] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(new Set());
+    const [startingQuestion, setStartingQuestion] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(1);
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
         "QuizSetup.useEffect": ()=>{
             if (quizId) {
@@ -840,7 +841,10 @@ function QuizSetup({ totalQuestions, onQuizStart, allQuestions, language = 'az',
         } else if (selectedMode === 'sequential') {
             questionsToUse = [
                 ...allQuestions
-            ];
+            ].slice(startingQuestion - 1).map((q, idx)=>({
+                    ...q,
+                    _originalIndex: startingQuestion - 1 + idx
+                }));
         } else if (selectedMode === 'practice') {
             const unansweredWithIndices = allQuestions.map((q, idx)=>({
                     question: q,
@@ -886,7 +890,7 @@ function QuizSetup({ totalQuestions, onQuizStart, allQuestions, language = 'az',
                     children: (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$translations$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["getTranslation"])(language, 'setup.title')
                 }, void 0, false, {
                     fileName: "[project]/components/quiz-setup.tsx",
-                    lineNumber: 99,
+                    lineNumber: 105,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -894,7 +898,7 @@ function QuizSetup({ totalQuestions, onQuizStart, allQuestions, language = 'az',
                     children: (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$translations$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["getTranslation"])(language, 'setup.subtitle')
                 }, void 0, false, {
                     fileName: "[project]/components/quiz-setup.tsx",
-                    lineNumber: 102,
+                    lineNumber: 108,
                     columnNumber: 9
                 }, this),
                 !selectedMode ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -909,7 +913,7 @@ function QuizSetup({ totalQuestions, onQuizStart, allQuestions, language = 'az',
                                     children: (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$translations$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["getTranslation"])(language, 'setup.mode.quick')
                                 }, void 0, false, {
                                     fileName: "[project]/components/quiz-setup.tsx",
-                                    lineNumber: 112,
+                                    lineNumber: 118,
                                     columnNumber: 15
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -917,13 +921,13 @@ function QuizSetup({ totalQuestions, onQuizStart, allQuestions, language = 'az',
                                     children: (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$translations$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["getTranslation"])(language, 'setup.mode.quickDesc')
                                 }, void 0, false, {
                                     fileName: "[project]/components/quiz-setup.tsx",
-                                    lineNumber: 115,
+                                    lineNumber: 121,
                                     columnNumber: 15
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/components/quiz-setup.tsx",
-                            lineNumber: 108,
+                            lineNumber: 114,
                             columnNumber: 13
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -935,7 +939,7 @@ function QuizSetup({ totalQuestions, onQuizStart, allQuestions, language = 'az',
                                     children: (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$translations$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["getTranslation"])(language, 'setup.mode.sequential')
                                 }, void 0, false, {
                                     fileName: "[project]/components/quiz-setup.tsx",
-                                    lineNumber: 124,
+                                    lineNumber: 130,
                                     columnNumber: 15
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -943,13 +947,13 @@ function QuizSetup({ totalQuestions, onQuizStart, allQuestions, language = 'az',
                                     children: (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$translations$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["getTranslation"])(language, 'setup.mode.sequentialDesc')
                                 }, void 0, false, {
                                     fileName: "[project]/components/quiz-setup.tsx",
-                                    lineNumber: 127,
+                                    lineNumber: 133,
                                     columnNumber: 15
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/components/quiz-setup.tsx",
-                            lineNumber: 120,
+                            lineNumber: 126,
                             columnNumber: 13
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -961,7 +965,7 @@ function QuizSetup({ totalQuestions, onQuizStart, allQuestions, language = 'az',
                                     children: (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$translations$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["getTranslation"])(language, 'setup.mode.practice')
                                 }, void 0, false, {
                                     fileName: "[project]/components/quiz-setup.tsx",
-                                    lineNumber: 136,
+                                    lineNumber: 142,
                                     columnNumber: 15
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -969,7 +973,7 @@ function QuizSetup({ totalQuestions, onQuizStart, allQuestions, language = 'az',
                                     children: (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$translations$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["getTranslation"])(language, 'setup.mode.practiceDesc')
                                 }, void 0, false, {
                                     fileName: "[project]/components/quiz-setup.tsx",
-                                    lineNumber: 139,
+                                    lineNumber: 145,
                                     columnNumber: 15
                                 }, this),
                                 answeredQuestions.size > 0 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -980,19 +984,19 @@ function QuizSetup({ totalQuestions, onQuizStart, allQuestions, language = 'az',
                                     })
                                 }, void 0, false, {
                                     fileName: "[project]/components/quiz-setup.tsx",
-                                    lineNumber: 143,
+                                    lineNumber: 149,
                                     columnNumber: 17
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/components/quiz-setup.tsx",
-                            lineNumber: 132,
+                            lineNumber: 138,
                             columnNumber: 13
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/components/quiz-setup.tsx",
-                    lineNumber: 107,
+                    lineNumber: 113,
                     columnNumber: 11
                 }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                     className: "space-y-6",
@@ -1007,7 +1011,7 @@ function QuizSetup({ totalQuestions, onQuizStart, allQuestions, language = 'az',
                                             children: (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$translations$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["getTranslation"])(language, `setup.mode.${selectedMode}`)
                                         }, void 0, false, {
                                             fileName: "[project]/components/quiz-setup.tsx",
-                                            lineNumber: 156,
+                                            lineNumber: 162,
                                             columnNumber: 17
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1015,13 +1019,13 @@ function QuizSetup({ totalQuestions, onQuizStart, allQuestions, language = 'az',
                                             children: (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$translations$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["getTranslation"])(language, `setup.mode.${selectedMode}Desc`)
                                         }, void 0, false, {
                                             fileName: "[project]/components/quiz-setup.tsx",
-                                            lineNumber: 159,
+                                            lineNumber: 165,
                                             columnNumber: 17
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/quiz-setup.tsx",
-                                    lineNumber: 155,
+                                    lineNumber: 161,
                                     columnNumber: 15
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -1030,13 +1034,13 @@ function QuizSetup({ totalQuestions, onQuizStart, allQuestions, language = 'az',
                                     children: "← Geri"
                                 }, void 0, false, {
                                     fileName: "[project]/components/quiz-setup.tsx",
-                                    lineNumber: 163,
+                                    lineNumber: 169,
                                     columnNumber: 15
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/components/quiz-setup.tsx",
-                            lineNumber: 154,
+                            lineNumber: 160,
                             columnNumber: 13
                         }, this),
                         selectedMode === 'quick' && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1046,7 +1050,7 @@ function QuizSetup({ totalQuestions, onQuizStart, allQuestions, language = 'az',
                                     children: (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$translations$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["getTranslation"])(language, 'setup.numQuestions')
                                 }, void 0, false, {
                                     fileName: "[project]/components/quiz-setup.tsx",
-                                    lineNumber: 173,
+                                    lineNumber: 179,
                                     columnNumber: 17
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -1058,7 +1062,7 @@ function QuizSetup({ totalQuestions, onQuizStart, allQuestions, language = 'az',
                                     className: "cursor-target w-full rounded-lg border-2 border-input bg-background px-4 py-3 text-foreground focus:border-ring focus:outline-none"
                                 }, void 0, false, {
                                     fileName: "[project]/components/quiz-setup.tsx",
-                                    lineNumber: 176,
+                                    lineNumber: 182,
                                     columnNumber: 17
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1068,13 +1072,56 @@ function QuizSetup({ totalQuestions, onQuizStart, allQuestions, language = 'az',
                                     })
                                 }, void 0, false, {
                                     fileName: "[project]/components/quiz-setup.tsx",
-                                    lineNumber: 186,
+                                    lineNumber: 192,
                                     columnNumber: 17
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/components/quiz-setup.tsx",
-                            lineNumber: 172,
+                            lineNumber: 178,
+                            columnNumber: 15
+                        }, this),
+                        selectedMode === 'sequential' && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                            children: [
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
+                                    className: "block text-sm font-semibold text-foreground mb-3",
+                                    children: "Başlanğıc sualı"
+                                }, void 0, false, {
+                                    fileName: "[project]/components/quiz-setup.tsx",
+                                    lineNumber: 200,
+                                    columnNumber: 17
+                                }, this),
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
+                                    type: "number",
+                                    min: "1",
+                                    max: totalQuestions,
+                                    value: startingQuestion,
+                                    onChange: (e)=>setStartingQuestion(Math.max(1, Math.min(totalQuestions, parseInt(e.target.value) || 1))),
+                                    className: "cursor-target w-full rounded-lg border-2 border-input bg-background px-4 py-3 text-foreground focus:border-ring focus:outline-none"
+                                }, void 0, false, {
+                                    fileName: "[project]/components/quiz-setup.tsx",
+                                    lineNumber: 203,
+                                    columnNumber: 17
+                                }, this),
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                    className: "mt-2 text-sm text-muted-foreground",
+                                    children: [
+                                        totalQuestions - startingQuestion + 1,
+                                        " sual cavablandırılacaq (sual ",
+                                        startingQuestion,
+                                        " - ",
+                                        totalQuestions,
+                                        ")"
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "[project]/components/quiz-setup.tsx",
+                                    lineNumber: 213,
+                                    columnNumber: 17
+                                }, this)
+                            ]
+                        }, void 0, true, {
+                            fileName: "[project]/components/quiz-setup.tsx",
+                            lineNumber: 199,
                             columnNumber: 15
                         }, this),
                         selectedMode === 'practice' && answeredQuestions.size > 0 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1088,7 +1135,7 @@ function QuizSetup({ totalQuestions, onQuizStart, allQuestions, language = 'az',
                                     })
                                 }, void 0, false, {
                                     fileName: "[project]/components/quiz-setup.tsx",
-                                    lineNumber: 194,
+                                    lineNumber: 221,
                                     columnNumber: 17
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -1097,13 +1144,13 @@ function QuizSetup({ totalQuestions, onQuizStart, allQuestions, language = 'az',
                                     children: (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$translations$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["getTranslation"])(language, 'setup.resetProgress')
                                 }, void 0, false, {
                                     fileName: "[project]/components/quiz-setup.tsx",
-                                    lineNumber: 200,
+                                    lineNumber: 227,
                                     columnNumber: 17
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/components/quiz-setup.tsx",
-                            lineNumber: 193,
+                            lineNumber: 220,
                             columnNumber: 15
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1117,7 +1164,7 @@ function QuizSetup({ totalQuestions, onQuizStart, allQuestions, language = 'az',
                                     className: "cursor-target w-4 h-4 rounded cursor-pointer"
                                 }, void 0, false, {
                                     fileName: "[project]/components/quiz-setup.tsx",
-                                    lineNumber: 210,
+                                    lineNumber: 237,
                                     columnNumber: 15
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
@@ -1126,13 +1173,13 @@ function QuizSetup({ totalQuestions, onQuizStart, allQuestions, language = 'az',
                                     children: (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$translations$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["getTranslation"])(language, 'setup.shuffle')
                                 }, void 0, false, {
                                     fileName: "[project]/components/quiz-setup.tsx",
-                                    lineNumber: 217,
+                                    lineNumber: 244,
                                     columnNumber: 15
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/components/quiz-setup.tsx",
-                            lineNumber: 209,
+                            lineNumber: 236,
                             columnNumber: 13
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -1141,28 +1188,28 @@ function QuizSetup({ totalQuestions, onQuizStart, allQuestions, language = 'az',
                             children: (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$translations$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["getTranslation"])(language, 'setup.startBtn')
                         }, void 0, false, {
                             fileName: "[project]/components/quiz-setup.tsx",
-                            lineNumber: 225,
+                            lineNumber: 252,
                             columnNumber: 13
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/components/quiz-setup.tsx",
-                    lineNumber: 153,
+                    lineNumber: 159,
                     columnNumber: 11
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/components/quiz-setup.tsx",
-            lineNumber: 98,
+            lineNumber: 104,
             columnNumber: 7
         }, this)
     }, void 0, false, {
         fileName: "[project]/components/quiz-setup.tsx",
-        lineNumber: 97,
+        lineNumber: 103,
         columnNumber: 5
     }, this);
 }
-_s(QuizSetup, "jqB0sPucs74KobNnzBVHAf5te5E=");
+_s(QuizSetup, "Ks/UvrzOQ9vDgOi19NsVYq1399U=");
 _c = QuizSetup;
 var _c;
 __turbopack_context__.k.register(_c, "QuizSetup");
@@ -1181,34 +1228,29 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/index.js [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$circle$2d$check$2d$big$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__CheckCircle$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/circle-check-big.js [app-client] (ecmascript) <export default as CheckCircle>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$circle$2d$x$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__XCircle$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/circle-x.js [app-client] (ecmascript) <export default as XCircle>");
-var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$framer$2d$motion$2f$dist$2f$es$2f$render$2f$components$2f$motion$2f$proxy$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/framer-motion/dist/es/render/components/motion/proxy.mjs [app-client] (ecmascript)");
-var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$framer$2d$motion$2f$dist$2f$es$2f$components$2f$AnimatePresence$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/framer-motion/dist/es/components/AnimatePresence/index.mjs [app-client] (ecmascript)");
 ;
 var _s = __turbopack_context__.k.signature();
 'use client';
 ;
 ;
-;
 function QuizDisplay({ questions, onComplete, shuffleAnswers, language = 'az', quizId, allQuestions }) {
     _s();
-    const [currentIndex, setCurrentIndex] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(0);
-    const [score, setScore] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(0);
-    const [answered, setAnswered] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
-    const [selectedAnswer, setSelectedAnswer] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(null);
-    const [isCorrect, setIsCorrect] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(null);
-    const [incorrectAnswers, setIncorrectAnswers] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])([]);
-    const currentQuestion = questions[currentIndex];
-    const progress = (currentIndex + 1) / questions.length * 100;
+    const [questionStates, setQuestionStates] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(questions.map({
+        "QuizDisplay.useState": ()=>({
+                selectedAnswer: null,
+                isCorrect: null
+            })
+    }["QuizDisplay.useState"]));
+    const [currentQuestionIndex, setCurrentQuestionIndex] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(0);
+    const questionRefs = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRef"])([]);
     const t = {
         en: {
-            nextQuestion: 'Next Question',
             finish: 'Finish',
             questionOf: 'Question',
             of: 'of',
             score: 'Score'
         },
         az: {
-            nextQuestion: 'Sonrakı Sual',
             finish: 'Bitir',
             questionOf: 'Sual',
             of: 'dən',
@@ -1236,257 +1278,301 @@ function QuizDisplay({ questions, onComplete, shuffleAnswers, language = 'az', q
         questions,
         shuffleAnswers
     ]);
-    const displayAnswers = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useMemo"])({
-        "QuizDisplay.useMemo[displayAnswers]": ()=>{
-            const shuffled = shuffledAnswersMap.get(currentQuestion.question);
-            return shuffled || currentQuestion.answers;
-        }
-    }["QuizDisplay.useMemo[displayAnswers]"], [
-        currentIndex,
-        shuffledAnswersMap,
-        currentQuestion.question,
-        currentQuestion.answers
-    ]);
-    const handleAnswer = (answer)=>{
-        if (answered) return;
-        setSelectedAnswer(answer);
-        const correct = answer === currentQuestion.correct_answer;
-        setIsCorrect(correct);
-        setAnswered(true);
-        if (correct) {
-            setScore(score + 1);
-        } else {
-            setIncorrectAnswers((prev)=>[
-                    ...prev,
-                    {
-                        question: currentQuestion.question,
-                        userAnswer: answer,
-                        correctAnswer: currentQuestion.correct_answer
-                    }
-                ]);
-        }
-    };
-    const handleNext = ()=>{
+    const handleAnswer = (questionIndex, answer)=>{
+        const question = questions[questionIndex];
+        const currentState = questionStates[questionIndex];
+        // Prevent re-answering
+        if (currentState.selectedAnswer !== null) return;
+        const correct = answer === question.correct_answer;
+        // Update question state
+        const newStates = [
+            ...questionStates
+        ];
+        newStates[questionIndex] = {
+            selectedAnswer: answer,
+            isCorrect: correct
+        };
+        setQuestionStates(newStates);
+        // Save progress to localStorage
         if (quizId && allQuestions) {
-            let questionIndex = currentQuestion._originalIndex;
-            // Fallback to findIndex if _originalIndex is not available
-            if (questionIndex === undefined) {
-                questionIndex = allQuestions.findIndex((q)=>q.question === currentQuestion.question);
+            let originalIndex = question._originalIndex;
+            if (originalIndex === undefined) {
+                originalIndex = allQuestions.findIndex((q)=>q.question === question.question);
             }
-            if (questionIndex !== -1 && questionIndex !== undefined) {
+            if (originalIndex !== -1 && originalIndex !== undefined) {
                 const stored = localStorage.getItem(`quiz-progress-${quizId}`);
                 const answeredSet = stored ? new Set(JSON.parse(stored)) : new Set();
-                answeredSet.add(questionIndex);
+                answeredSet.add(originalIndex);
                 localStorage.setItem(`quiz-progress-${quizId}`, JSON.stringify([
                     ...answeredSet
                 ]));
             }
         }
-        if (currentIndex + 1 < questions.length) {
-            setCurrentIndex(currentIndex + 1);
-            setSelectedAnswer(null);
-            setIsCorrect(null);
-            setAnswered(false);
-        } else {
-            onComplete(score, incorrectAnswers);
-        }
+        // Custom scroll function with ease-out curve (starts fast, ends slow)
+        const smoothScrollTo = (element)=>{
+            const targetPosition = element.getBoundingClientRect().top + window.pageYOffset;
+            const startPosition = window.pageYOffset;
+            const distance = targetPosition - startPosition - window.innerHeight / 2 + element.offsetHeight / 2;
+            const duration = 1000 // ms
+            ;
+            let start = null;
+            // Ease-in-out cubic function (slow-normal-slow)
+            const easeInOutCubic = (t)=>{
+                return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+            };
+            const animation = (currentTime)=>{
+                if (start === null) start = currentTime;
+                const timeElapsed = currentTime - start;
+                const progress = Math.min(timeElapsed / duration, 1);
+                const ease = easeInOutCubic(progress);
+                window.scrollTo(0, startPosition + distance * ease);
+                if (timeElapsed < duration) {
+                    requestAnimationFrame(animation);
+                }
+            };
+            requestAnimationFrame(animation);
+        };
+        // Auto-scroll to next question after a short delay
+        setTimeout(()=>{
+            if (questionIndex + 1 < questions.length) {
+                setCurrentQuestionIndex(questionIndex + 1);
+                const nextElement = questionRefs.current[questionIndex + 1];
+                if (nextElement) {
+                    smoothScrollTo(nextElement);
+                }
+            }
+        }, 800);
     };
+    const handleFinish = ()=>{
+        const score = questionStates.filter((state)=>state.isCorrect === true).length;
+        const incorrectAnswers = [];
+        questionStates.forEach((state, idx)=>{
+            if (state.isCorrect === false && state.selectedAnswer) {
+                incorrectAnswers.push({
+                    question: questions[idx].question,
+                    userAnswer: state.selectedAnswer,
+                    correctAnswer: questions[idx].correct_answer
+                });
+            }
+        });
+        onComplete(score, incorrectAnswers);
+    };
+    const allAnswered = questionStates.every((state)=>state.selectedAnswer !== null);
+    const score = questionStates.filter((state)=>state.isCorrect === true).length;
+    const answeredCount = questionStates.filter((state)=>state.selectedAnswer !== null).length;
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-        className: "w-full max-w-4xl mx-auto font-serif",
-        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$framer$2d$motion$2f$dist$2f$es$2f$components$2f$AnimatePresence$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["AnimatePresence"], {
-            mode: "wait",
-            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$framer$2d$motion$2f$dist$2f$es$2f$render$2f$components$2f$motion$2f$proxy$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["motion"].div, {
-                initial: {
-                    opacity: 0,
-                    y: 20
-                },
-                animate: {
-                    opacity: 1,
-                    y: 0
-                },
-                exit: {
-                    opacity: 0,
-                    y: -20
-                },
-                transition: {
-                    duration: 0.3
-                },
-                className: "bg-card border-2 border-border rounded-lg p-8 shadow-lg",
-                children: [
-                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                        className: "flex items-center justify-between mb-6",
-                        children: [
-                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                className: "flex items-center gap-3",
-                                children: [
-                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                        className: "w-10 h-10 bg-primary text-primary-foreground rounded-full flex items-center justify-center font-bold",
-                                        children: currentIndex + 1
-                                    }, void 0, false, {
-                                        fileName: "[project]/components/quiz-display.tsx",
-                                        lineNumber: 142,
-                                        columnNumber: 15
-                                    }, this),
-                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                        className: "text-sm text-muted-foreground",
-                                        children: [
-                                            getText('questionOf'),
-                                            " ",
-                                            currentIndex + 1,
-                                            " ",
-                                            getText('of'),
-                                            " ",
-                                            questions.length
-                                        ]
-                                    }, void 0, true, {
-                                        fileName: "[project]/components/quiz-display.tsx",
-                                        lineNumber: 145,
-                                        columnNumber: 15
-                                    }, this)
-                                ]
-                            }, void 0, true, {
-                                fileName: "[project]/components/quiz-display.tsx",
-                                lineNumber: 141,
-                                columnNumber: 13
-                            }, this),
-                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                className: "text-sm text-foreground",
-                                children: [
-                                    getText('score'),
-                                    ": ",
-                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                        className: "text-primary font-bold",
-                                        children: [
-                                            score,
-                                            "/",
-                                            currentIndex + (answered ? 1 : 0)
-                                        ]
-                                    }, void 0, true, {
-                                        fileName: "[project]/components/quiz-display.tsx",
-                                        lineNumber: 150,
-                                        columnNumber: 35
-                                    }, this)
-                                ]
-                            }, void 0, true, {
-                                fileName: "[project]/components/quiz-display.tsx",
-                                lineNumber: 149,
-                                columnNumber: 13
-                            }, this)
-                        ]
-                    }, void 0, true, {
-                        fileName: "[project]/components/quiz-display.tsx",
-                        lineNumber: 140,
-                        columnNumber: 11
-                    }, this),
-                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
-                        className: "text-2xl font-bold text-foreground mb-6",
-                        children: currentQuestion.question
-                    }, void 0, false, {
-                        fileName: "[project]/components/quiz-display.tsx",
-                        lineNumber: 155,
-                        columnNumber: 11
-                    }, this),
-                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                        className: "space-y-3 mb-6",
-                        children: displayAnswers.map((answer, ansIndex)=>{
-                            const isSelected = selectedAnswer === answer;
-                            const isCorrectAnswer = answer === currentQuestion.correct_answer;
-                            const letter = String.fromCharCode(65 + ansIndex);
-                            let buttonClass = 'border-2 border-border hover:bg-muted/50';
-                            let circleClass = 'border-2 border-foreground/30 text-foreground/70';
-                            if (answered) {
-                                if (isCorrectAnswer) {
-                                    buttonClass = 'border-success bg-success/10';
-                                    circleClass = 'bg-success text-success-foreground border-success';
-                                } else if (isSelected) {
-                                    buttonClass = 'border-error bg-error/10';
-                                    circleClass = 'bg-error text-error-foreground border-error';
-                                }
-                            } else if (isSelected) {
-                                buttonClass = 'border-primary bg-primary/5';
-                                circleClass = 'bg-primary text-primary-foreground border-primary';
-                            }
-                            return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
-                                onClick: ()=>handleAnswer(answer),
-                                disabled: answered,
-                                className: `w-full p-4 rounded-lg flex items-center gap-3 transition-colors focus:outline-none ${buttonClass} ${answered ? 'cursor-default' : 'cursor-pointer'}`,
-                                children: [
-                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                        className: `w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${circleClass}`,
-                                        children: letter
-                                    }, void 0, false, {
-                                        fileName: "[project]/components/quiz-display.tsx",
-                                        lineNumber: 190,
-                                        columnNumber: 19
-                                    }, this),
-                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                        className: "text-left flex-1",
-                                        children: answer
-                                    }, void 0, false, {
-                                        fileName: "[project]/components/quiz-display.tsx",
-                                        lineNumber: 193,
-                                        columnNumber: 19
-                                    }, this),
-                                    answered && isCorrectAnswer && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$circle$2d$check$2d$big$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__CheckCircle$3e$__["CheckCircle"], {
-                                        className: "w-5 h-5 text-success"
-                                    }, void 0, false, {
-                                        fileName: "[project]/components/quiz-display.tsx",
-                                        lineNumber: 194,
-                                        columnNumber: 51
-                                    }, this),
-                                    answered && isSelected && !isCorrect && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$circle$2d$x$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__XCircle$3e$__["XCircle"], {
-                                        className: "w-5 h-5 text-error"
-                                    }, void 0, false, {
-                                        fileName: "[project]/components/quiz-display.tsx",
-                                        lineNumber: 195,
-                                        columnNumber: 60
-                                    }, this)
-                                ]
-                            }, ansIndex, true, {
-                                fileName: "[project]/components/quiz-display.tsx",
-                                lineNumber: 183,
-                                columnNumber: 17
-                            }, this);
-                        })
-                    }, void 0, false, {
-                        fileName: "[project]/components/quiz-display.tsx",
-                        lineNumber: 160,
-                        columnNumber: 11
-                    }, this),
-                    answered && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                        className: "flex justify-end pt-4 border-t border-border",
-                        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
-                            onClick: handleNext,
-                            className: "bg-primary hover:bg-primary/90 text-white font-semibold py-2 px-6 rounded-lg transition-colors",
-                            children: currentIndex + 1 === questions.length ? getText('finish') : getText('nextQuestion')
-                        }, void 0, false, {
+        className: "w-full min-h-screen font-serif",
+        children: [
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                className: "fixed top-0 left-0 right-0 bg-background/80 backdrop-blur-sm border-b border-border z-10 py-4",
+                children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                    className: "container mx-auto max-w-4xl px-4 flex justify-between items-center",
+                    children: [
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                            className: "text-sm text-muted-foreground",
+                            children: [
+                                getText('questionOf'),
+                                " ",
+                                answeredCount,
+                                " ",
+                                getText('of'),
+                                " ",
+                                questions.length
+                            ]
+                        }, void 0, true, {
                             fileName: "[project]/components/quiz-display.tsx",
-                            lineNumber: 204,
+                            lineNumber: 170,
+                            columnNumber: 11
+                        }, this),
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                            className: "text-sm text-foreground",
+                            children: [
+                                getText('score'),
+                                ": ",
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                    className: "text-primary font-bold",
+                                    children: [
+                                        score,
+                                        "/",
+                                        answeredCount
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "[project]/components/quiz-display.tsx",
+                                    lineNumber: 174,
+                                    columnNumber: 33
+                                }, this)
+                            ]
+                        }, void 0, true, {
+                            fileName: "[project]/components/quiz-display.tsx",
+                            lineNumber: 173,
+                            columnNumber: 11
+                        }, this)
+                    ]
+                }, void 0, true, {
+                    fileName: "[project]/components/quiz-display.tsx",
+                    lineNumber: 169,
+                    columnNumber: 9
+                }, this)
+            }, void 0, false, {
+                fileName: "[project]/components/quiz-display.tsx",
+                lineNumber: 168,
+                columnNumber: 7
+            }, this),
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                className: "pt-20 pb-20 space-y-8 max-w-4xl mx-auto px-4",
+                children: questions.map((question, questionIndex)=>{
+                    const state = questionStates[questionIndex];
+                    const displayAnswers = shuffledAnswersMap.get(question.question) || question.answers;
+                    const questionNumber = question._originalIndex !== undefined ? question._originalIndex + 1 : questionIndex + 1;
+                    return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                        ref: (el)=>{
+                            questionRefs.current[questionIndex] = el;
+                        },
+                        className: "min-h-[60vh] flex items-center",
+                        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                            className: "w-full space-y-6",
+                            children: [
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                    className: "flex items-center gap-4",
+                                    children: [
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                            className: "w-12 h-12 bg-muted border-2 border-border rounded-full flex items-center justify-center font-bold text-lg shrink-0 text-foreground",
+                                            children: questionNumber
+                                        }, void 0, false, {
+                                            fileName: "[project]/components/quiz-display.tsx",
+                                            lineNumber: 195,
+                                            columnNumber: 19
+                                        }, this),
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
+                                            className: "text-2xl font-bold text-foreground",
+                                            children: question.question
+                                        }, void 0, false, {
+                                            fileName: "[project]/components/quiz-display.tsx",
+                                            lineNumber: 198,
+                                            columnNumber: 19
+                                        }, this)
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "[project]/components/quiz-display.tsx",
+                                    lineNumber: 194,
+                                    columnNumber: 17
+                                }, this),
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                    className: "space-y-3 pl-16",
+                                    children: displayAnswers.map((answer, ansIndex)=>{
+                                        const isSelected = state.selectedAnswer === answer;
+                                        const isCorrectAnswer = answer === question.correct_answer;
+                                        const letter = String.fromCharCode(65 + ansIndex);
+                                        const answered = state.selectedAnswer !== null;
+                                        let buttonClass = 'hover:bg-muted/50';
+                                        let circleClass = 'border-2 border-foreground/30 text-foreground/70';
+                                        if (answered) {
+                                            if (isCorrectAnswer) {
+                                                buttonClass = 'border-success bg-success/10';
+                                                circleClass = 'bg-success text-success-foreground border-success';
+                                            } else if (isSelected) {
+                                                buttonClass = 'border-error bg-error/10';
+                                                circleClass = 'bg-error text-error-foreground border-error';
+                                            }
+                                        } else if (isSelected) {
+                                            buttonClass = 'border-primary bg-primary/5';
+                                            circleClass = 'bg-primary text-primary-foreground border-primary';
+                                        }
+                                        return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                            onClick: ()=>handleAnswer(questionIndex, answer),
+                                            disabled: answered,
+                                            className: `w-full p-4 rounded-lg flex items-center gap-3 transition-colors focus:outline-none ${buttonClass} ${answered ? 'cursor-default' : 'cursor-pointer'}`,
+                                            children: [
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                    className: `w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${circleClass}`,
+                                                    children: letter
+                                                }, void 0, false, {
+                                                    fileName: "[project]/components/quiz-display.tsx",
+                                                    lineNumber: 235,
+                                                    columnNumber: 25
+                                                }, this),
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                    className: "text-left flex-1",
+                                                    children: answer
+                                                }, void 0, false, {
+                                                    fileName: "[project]/components/quiz-display.tsx",
+                                                    lineNumber: 238,
+                                                    columnNumber: 25
+                                                }, this),
+                                                answered && isCorrectAnswer && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$circle$2d$check$2d$big$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__CheckCircle$3e$__["CheckCircle"], {
+                                                    className: "w-5 h-5 text-success"
+                                                }, void 0, false, {
+                                                    fileName: "[project]/components/quiz-display.tsx",
+                                                    lineNumber: 239,
+                                                    columnNumber: 57
+                                                }, this),
+                                                answered && isSelected && !state.isCorrect && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$circle$2d$x$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__XCircle$3e$__["XCircle"], {
+                                                    className: "w-5 h-5 text-error"
+                                                }, void 0, false, {
+                                                    fileName: "[project]/components/quiz-display.tsx",
+                                                    lineNumber: 240,
+                                                    columnNumber: 72
+                                                }, this)
+                                            ]
+                                        }, ansIndex, true, {
+                                            fileName: "[project]/components/quiz-display.tsx",
+                                            lineNumber: 228,
+                                            columnNumber: 23
+                                        }, this);
+                                    })
+                                }, void 0, false, {
+                                    fileName: "[project]/components/quiz-display.tsx",
+                                    lineNumber: 204,
+                                    columnNumber: 17
+                                }, this)
+                            ]
+                        }, void 0, true, {
+                            fileName: "[project]/components/quiz-display.tsx",
+                            lineNumber: 192,
                             columnNumber: 15
                         }, this)
+                    }, questionIndex, false, {
+                        fileName: "[project]/components/quiz-display.tsx",
+                        lineNumber: 187,
+                        columnNumber: 13
+                    }, this);
+                })
+            }, void 0, false, {
+                fileName: "[project]/components/quiz-display.tsx",
+                lineNumber: 180,
+                columnNumber: 7
+            }, this),
+            allAnswered && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                className: "fixed bottom-0 left-0 right-0 bg-background/80 backdrop-blur-sm border-t border-border py-4",
+                children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                    className: "container mx-auto max-w-4xl px-4 flex justify-end",
+                    children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                        onClick: handleFinish,
+                        className: "bg-primary hover:bg-primary/90 text-white font-semibold py-3 px-8 rounded-lg transition-colors",
+                        children: getText('finish')
                     }, void 0, false, {
                         fileName: "[project]/components/quiz-display.tsx",
-                        lineNumber: 203,
+                        lineNumber: 255,
                         columnNumber: 13
                     }, this)
-                ]
-            }, currentIndex, true, {
+                }, void 0, false, {
+                    fileName: "[project]/components/quiz-display.tsx",
+                    lineNumber: 254,
+                    columnNumber: 11
+                }, this)
+            }, void 0, false, {
                 fileName: "[project]/components/quiz-display.tsx",
-                lineNumber: 131,
+                lineNumber: 253,
                 columnNumber: 9
             }, this)
-        }, void 0, false, {
-            fileName: "[project]/components/quiz-display.tsx",
-            lineNumber: 130,
-            columnNumber: 7
-        }, this)
-    }, void 0, false, {
+        ]
+    }, void 0, true, {
         fileName: "[project]/components/quiz-display.tsx",
-        lineNumber: 129,
+        lineNumber: 166,
         columnNumber: 5
     }, this);
 }
-_s(QuizDisplay, "LOAa3tm2ORM5qEMthL4+Z5H82T4=");
+_s(QuizDisplay, "+DbOuMd+8X1Ol1CTyEZK5VXGFFM=");
 _c = QuizDisplay;
 const __TURBOPACK__default__export__ = QuizDisplay;
 var _c;

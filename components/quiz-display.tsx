@@ -63,9 +63,9 @@ function QuizDisplay({
   const shuffledAnswersMap = useMemo(() => {
     if (!shuffleAnswers) return new Map()
 
-    const map = new Map<string, string[]>()
-    questions.forEach(q => {
-      map.set(q.question, [...q.answers].sort(() => Math.random() - 0.5))
+    const map = new Map<number, string[]>()
+    questions.forEach((q, idx) => {
+      map.set(idx, [...q.answers].sort(() => Math.random() - 0.5))
     })
     return map
   }, [questions, shuffleAnswers])
@@ -165,13 +165,13 @@ function QuizDisplay({
   return (
     <div className="w-full min-h-screen font-serif">
       {/* Fixed Header with Score */}
-      <div className="fixed top-0 left-0 right-0 bg-background/80 backdrop-blur-sm border-b border-border z-10 py-4">
+      <div className="fixed top-0 left-0 right-0 glass-dark border-b border-border/30 z-10 py-4 shadow-lg">
         <div className="container mx-auto max-w-4xl px-4 flex justify-between items-center">
-          <span className="text-sm text-muted-foreground">
+          <span className="text-sm font-medium text-muted-foreground">
             {getText('questionOf')} {answeredCount} {getText('of')} {questions.length}
           </span>
-          <span className="text-sm text-foreground">
-            {getText('score')}: <span className="text-primary font-bold">{score}/{answeredCount}</span>
+          <span className="text-sm font-semibold text-foreground">
+            {getText('score')}: <span className="text-primary text-lg">{score}/{answeredCount}</span>
           </span>
         </div>
       </div>
@@ -180,7 +180,7 @@ function QuizDisplay({
       <div className="pt-20 pb-20 space-y-8 max-w-4xl mx-auto px-4">
         {questions.map((question, questionIndex) => {
           const state = questionStates[questionIndex]
-          const displayAnswers = shuffledAnswersMap.get(question.question) || question.answers
+          const displayAnswers = shuffledAnswersMap.get(questionIndex) || question.answers
           const questionNumber = question._originalIndex !== undefined ? question._originalIndex + 1 : questionIndex + 1
 
           return (
@@ -192,10 +192,10 @@ function QuizDisplay({
               <div className="w-full space-y-6">
                 {/* Question Header */}
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-muted border-2 border-border rounded-full flex items-center justify-center font-bold text-lg shrink-0 text-foreground">
+                  <div className="w-14 h-14 bg-gradient-bg border-2 border-primary/20 rounded-2xl flex items-center justify-center font-bold text-xl shrink-0 text-white shadow-lg shadow-primary/20">
                     {questionNumber}
                   </div>
-                  <h2 className="text-2xl font-bold text-foreground">
+                  <h2 className="text-3xl font-bold text-foreground">
                     {question.question}
                   </h2>
                 </div>
@@ -208,20 +208,20 @@ function QuizDisplay({
                     const letter = String.fromCharCode(65 + ansIndex)
                     const answered = state.selectedAnswer !== null
 
-                    let buttonClass = 'hover:bg-muted/50'
-                    let circleClass = 'border-2 border-foreground/30 text-foreground/70'
+                    let buttonClass = 'hover:bg-primary/5 hover:border-primary/30 hover:scale-[1.01]'
+                    let circleClass = 'border-2 border-foreground/20 text-foreground/70 bg-muted/30'
 
                     if (answered) {
                       if (isCorrectAnswer) {
-                        buttonClass = 'border-success bg-success/10'
-                        circleClass = 'bg-success text-success-foreground border-success'
+                        buttonClass = 'border-success/50 bg-success/10 shadow-md shadow-success/10'
+                        circleClass = 'bg-gradient-to-br from-success to-success/80 text-success-foreground border-success shadow-lg shadow-success/30'
                       } else if (isSelected) {
-                        buttonClass = 'border-error bg-error/10'
-                        circleClass = 'bg-error text-error-foreground border-error'
+                        buttonClass = 'border-error/50 bg-error/10 shadow-md shadow-error/10'
+                        circleClass = 'bg-gradient-to-br from-error to-error/80 text-error-foreground border-error shadow-lg shadow-error/30'
                       }
                     } else if (isSelected) {
-                      buttonClass = 'border-primary bg-primary/5'
-                      circleClass = 'bg-primary text-primary-foreground border-primary'
+                      buttonClass = 'border-primary/50 bg-primary/5 scale-[1.01]'
+                      circleClass = 'bg-gradient-bg text-white border-primary shadow-lg shadow-primary/30'
                     }
 
                     return (
@@ -229,15 +229,15 @@ function QuizDisplay({
                         key={ansIndex}
                         onClick={() => handleAnswer(questionIndex, answer)}
                         disabled={answered}
-                        className={`w-full p-4 rounded-lg flex items-center gap-3 transition-colors focus:outline-none ${buttonClass} ${answered ? 'cursor-default' : 'cursor-pointer'
+                        className={`w-full p-4 rounded-xl border-2 border-border/30 flex items-center gap-3 transition-all duration-200 focus:outline-none ${buttonClass} ${answered ? 'cursor-default' : 'cursor-pointer'
                           }`}
                       >
-                        <span className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${circleClass}`}>
+                        <span className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold text-sm transition-all ${circleClass}`}>
                           {letter}
                         </span>
-                        <span className="text-left flex-1">{answer}</span>
-                        {answered && isCorrectAnswer && <CheckCircle className="w-5 h-5 text-success" />}
-                        {answered && isSelected && !state.isCorrect && <XCircle className="w-5 h-5 text-error" />}
+                        <span className="text-left flex-1 font-medium">{answer}</span>
+                        {answered && isCorrectAnswer && <CheckCircle className="w-6 h-6 text-success" />}
+                        {answered && isSelected && !state.isCorrect && <XCircle className="w-6 h-6 text-error" />}
                       </button>
                     )
                   })}
@@ -250,11 +250,11 @@ function QuizDisplay({
 
       {/* Fixed Finish Button */}
       {allAnswered && (
-        <div className="fixed bottom-0 left-0 right-0 bg-background/80 backdrop-blur-sm border-t border-border py-4">
+        <div className="fixed bottom-0 left-0 right-0 glass-dark border-t border-border/30 py-4 shadow-lg">
           <div className="container mx-auto max-w-4xl px-4 flex justify-end">
             <button
               onClick={handleFinish}
-              className="bg-primary hover:bg-primary/90 text-white font-semibold py-3 px-8 rounded-lg transition-colors"
+              className="btn-gradient animate-glow"
             >
               {getText('finish')}
             </button>
