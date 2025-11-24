@@ -237,7 +237,6 @@ function QuizComplete({
           <p className="text-xl font-bold text-foreground">
             {getTranslation(language, 'results.perfectScore')}
           </p>
-
         </div>
       )}
     </div>
