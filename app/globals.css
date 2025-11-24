@@ -4,73 +4,61 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* Light mode - Render.com inspired with purple accents */
-  --primary: 262 83% 58%; /* Purple #8B5CF6 */
+  /* Light mode - Clean Render.com style */
+  --primary: 262 80% 50%;
+  /* Render purple #6C47FF */
   --primary-foreground: 0 0% 100%;
-  --accent: 262 90% 96%; /* Light purple tint */
   --background: 0 0% 100%;
-  --foreground: 224 71% 4%;
+  --foreground: 222 47% 11%;
   --card: 0 0% 100%;
-  --card-foreground: 224 71% 4%;
+  --card-foreground: 222 47% 11%;
   --secondary: 220 14% 96%;
-  --secondary-foreground: 220 9% 46%;
+  --secondary-foreground: 222 47% 11%;
   --muted: 220 14% 96%;
-  --muted-foreground: 220 9% 46%;
+  --muted-foreground: 215 16% 47%;
   --destructive: 0 84% 60%;
   --destructive-foreground: 0 0% 98%;
   --success: 142 71% 45%;
   --success-foreground: 0 0% 98%;
   --error: 0 84% 60%;
   --error-foreground: 0 0% 98%;
-  --border: 220 13% 91%;
-  --input: 220 13% 91%;
-  --ring: 262 83% 58%;
-  --radius: 0.75rem;
-  
-  /* Gradient colors */
-  --gradient-from: 262 83% 58%; /* Purple */
-  --gradient-via: 280 100% 70%; /* Pink-purple */
-  --gradient-to: 250 100% 75%; /* Light purple */
+  --border: 214 32% 91%;
+  --input: 214 32% 91%;
+  --ring: 262 80% 50%;
 }
 
 .dark {
-  /* Dark mode - Render.com style with vibrant purple */
-  --primary: 262 83% 70%; /* Bright purple #A78BFA */
-  --primary-foreground: 224 71% 4%;
-  --accent: 262 50% 20%;
-  --background: 224 71% 4%; /* Deep dark blue */
+  /* Dark mode - Clean dark theme */
+  --primary: 262 80% 60%;
+  /* Brighter purple for dark mode */
+  --primary-foreground: 0 0% 100%;
+  --background: 222 47% 11%;
   --foreground: 210 40% 98%;
-  --card: 224 45% 10%; /* Dark card with blue tint */
+  --card: 222 47% 14%;
   --card-foreground: 210 40% 98%;
-  --secondary: 215 28% 17%;
+  --secondary: 217 33% 17%;
   --secondary-foreground: 210 40% 98%;
-  --muted: 215 28% 17%;
-  --muted-foreground: 217 11% 65%;
+  --muted: 217 33% 17%;
+  --muted-foreground: 215 20% 65%;
   --destructive: 0 63% 60%;
   --destructive-foreground: 210 40% 98%;
   --success: 142 71% 45%;
   --success-foreground: 210 40% 98%;
   --error: 0 63% 60%;
   --error-foreground: 210 40% 98%;
-  --border: 215 28% 17%;
-  --input: 215 28% 17%;
-  --ring: 262 83% 70%;
-  
-  /* Gradient colors for dark mode */
-  --gradient-from: 262 83% 58%;
-  --gradient-via: 280 100% 70%;
-  --gradient-to: 217 91% 60%;
+  --border: 217 33% 17%;
+  --input: 217 33% 17%;
+  --ring: 262 80% 60%;
 }
 
 @theme inline {
   --font-sans: 'Poppins', 'Poppins Fallback';
   --font-mono: 'Geist Mono', 'Geist Mono Fallback';
   --font-serif: "Times New Roman", Times, serif;
-  
+
   /* Map HSL values to Tailwind colors */
   --color-primary: hsl(var(--primary));
   --color-primary-foreground: hsl(var(--primary-foreground));
-  --color-accent: hsl(var(--accent));
   --color-background: hsl(var(--background));
   --color-foreground: hsl(var(--foreground));
   --color-card: hsl(var(--card));
@@ -97,39 +85,22 @@
 
   body {
     @apply bg-background text-foreground antialiased;
-    transition: background-color 0.3s ease, color 0.3s ease;
   }
 
-  /* Dot grid background for light mode */
-  body:not(.dark) {
-    background-image: 
-      radial-gradient(circle at 1px 1px, hsl(262 83% 58% / 0.08) 1px, transparent 0);
-    background-size: 32px 32px;
-    background-position: 0 0;
+  /* Simple subtle background */
+  body {
+    background-color: hsl(var(--background));
   }
 
-  /* Dot grid background for dark mode with gradient overlay */
-  body.dark {
-    background-image: 
-      radial-gradient(ellipse 80% 50% at 50% -20%, hsl(262 83% 58% / 0.15) 0%, transparent 60%),
-      radial-gradient(circle at 1px 1px, hsl(262 83% 70% / 0.1) 1px, transparent 0);
-    background-size: 
-      100% 100%,
-      32px 32px;
-    background-position: 
-      0 0,
-      0 0;
-  }
-
-  /* Hide scrollbar for all browsers */
+  /* Minimal scrollbar */
   * {
     scrollbar-width: thin;
-    scrollbar-color: hsl(var(--primary) / 0.3) transparent;
+    scrollbar-color: hsl(var(--muted)) transparent;
   }
 
   *::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
+    width: 8px;
+    height: 8px;
   }
 
   *::-webkit-scrollbar-track {
@@ -137,124 +108,46 @@
   }
 
   *::-webkit-scrollbar-thumb {
-    background: hsl(var(--primary) / 0.3);
-    border-radius: 3px;
+    background: hsl(var(--muted));
+    border-radius: 4px;
   }
 
   *::-webkit-scrollbar-thumb:hover {
-    background: hsl(var(--primary) / 0.5);
+    background: hsl(var(--muted-foreground) / 0.3);
   }
 
-  h1, h2, h3, h4, h5, h6 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     @apply font-semibold;
   }
 }
 
-/* Glassmorphism utilities */
-@layer utilities {
-  .glass {
-    background: hsl(var(--card) / 0.7);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-  }
-
-  .glass-dark {
-    background: hsl(var(--card) / 0.5);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-  }
-
-  .gradient-border {
-    position: relative;
-    border: 1px solid transparent;
-    background-clip: padding-box;
-  }
-
-  .gradient-border::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    padding: 1px;
-    border-radius: inherit;
-    background: linear-gradient(135deg, hsl(var(--gradient-from)), hsl(var(--gradient-via)), hsl(var(--gradient-to)));
-    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    -webkit-mask-composite: xor;
-    mask-composite: exclude;
-    pointer-events: none;
-  }
-
-  .gradient-text {
-    background: linear-gradient(135deg, hsl(var(--gradient-from)), hsl(var(--gradient-via)));
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-  }
-
-  .gradient-bg {
-    background: linear-gradient(135deg, hsl(var(--gradient-from)), hsl(var(--gradient-via)), hsl(var(--gradient-to)));
-  }
-}
-
-/* Animations */
+/* Simple animation */
 @keyframes slideIn {
   from {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
   }
 }
 
-@keyframes float {
-  0%, 100% {
-    transform: translateY(0px);
-  }
-  50% {
-    transform: translateY(-10px);
-  }
-}
-
-@keyframes glow {
-  0%, 100% {
-    box-shadow: 0 0 20px hsl(var(--primary) / 0.3);
-  }
-  50% {
-    box-shadow: 0 0 30px hsl(var(--primary) / 0.5);
-  }
-}
-
 @layer components {
   .animate-slideIn {
-    animation: slideIn 0.4s ease-out;
+    animation: slideIn 0.3s ease-out;
   }
 
-  .animate-float {
-    animation: float 3s ease-in-out infinite;
-  }
-
-  .animate-glow {
-    animation: glow 2s ease-in-out infinite;
-  }
-
-  /* Modern button styles */
+  /* Clean button style */
   .btn-primary {
-    @apply bg-primary text-primary-foreground font-semibold py-3 px-6 rounded-xl;
-    @apply transition-all duration-200 ease-out;
-    @apply hover:scale-105 hover:shadow-lg hover:shadow-primary/30;
-    @apply active:scale-95;
-  }
-
-  .btn-gradient {
-    @apply font-semibold py-3 px-6 rounded-xl text-white;
-    @apply transition-all duration-200 ease-out;
-    @apply hover:scale-105 hover:shadow-lg;
-    @apply active:scale-95;
-    background: linear-gradient(135deg, hsl(var(--gradient-from)), hsl(var(--gradient-via)));
-  }
-
-  .btn-gradient:hover {
-    box-shadow: 0 10px 40px hsl(var(--primary) / 0.4);
+    @apply bg-primary text-primary-foreground font-medium py-2.5 px-4 rounded-lg;
+    @apply transition-colors duration-150;
+    @apply hover:bg-primary/90;
   }
 }

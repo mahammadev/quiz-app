@@ -107,13 +107,13 @@ export default function Home() {
                     className={`col-start-1 row-start-1 w-full ${isCurrent ? 'pointer-events-auto' : 'pointer-events-none'
                       }`}
                   >
-                    <div className={`w-full rounded-3xl border shadow-2xl p-6 md:p-8 ${step === 'quiz' ? 'bg-transparent border-transparent shadow-none p-0' : 'glass border-border/50'
+                    <div className={`w-full rounded-lg border shadow-lg p-6 md:p-8 ${step === 'quiz' ? 'bg-transparent border-transparent shadow-none p-0' : 'bg-card border-border'
                       }`}>
 
                       {currentIndex > 0 && step !== 'complete' && (
                         <button
                           onClick={handleBack}
-                          className="mb-6 flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors font-medium"
+                          className="mb-6 flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
                         >
                           <ArrowLeft className="w-4 h-4" />
                           <span className="text-sm">Geri</span>
@@ -180,12 +180,12 @@ function QuizComplete({
 
   return (
     <div className="mt-12 space-y-8 max-w-4xl mx-auto">
-      <div className="glass rounded-2xl border border-border/50 p-8 text-center shadow-xl">
+      <div className="rounded-lg border border-border bg-card p-8 text-center shadow-sm">
         <h1 className="text-4xl font-bold text-card-foreground mb-4">
           {getTranslation(language, 'results.title')}
         </h1>
         <div className="mb-6">
-          <p className="text-7xl font-bold gradient-text mb-2 animate-float">
+          <p className="text-6xl font-bold text-primary mb-2">
             {percentage}%
           </p>
           <p className="text-xl text-muted-foreground">
@@ -194,7 +194,7 @@ function QuizComplete({
         </div>
         <button
           onClick={onReset}
-          className="btn-gradient"
+          className="btn-primary"
         >
           {getTranslation(language, 'results.resetBtn')}
         </button>
@@ -209,19 +209,19 @@ function QuizComplete({
             {incorrectAnswers.map((item, index) => (
               <div
                 key={index}
-                className="glass rounded-xl border border-border/50 p-6 shadow-lg"
+                className="rounded-lg border border-border bg-card p-6"
               >
                 <h3 className="text-lg font-semibold text-foreground mb-4">
                   {item.question}
                 </h3>
                 <div className="grid gap-3 md:grid-cols-2">
-                  <div className="p-4 rounded-xl bg-error/10 border-2 border-error/30">
+                  <div className="p-4 rounded-lg bg-error/10 border border-error/30">
                     <span className="font-bold block text-xs uppercase tracking-wider mb-2 text-error">
                       {getTranslation(language, 'results.yourAnswer')}
                     </span>
                     <span className="text-foreground font-medium">{item.userAnswer}</span>
                   </div>
-                  <div className="p-4 rounded-xl bg-success/10 border-2 border-success/30">
+                  <div className="p-4 rounded-lg bg-success/10 border border-success/30">
                     <span className="font-bold block text-xs uppercase tracking-wider mb-2 text-success">
                       {getTranslation(language, 'results.correctAnswer')}
                     </span>
@@ -233,11 +233,11 @@ function QuizComplete({
           </div>
         </div>
       ) : (
-        <div className="text-center p-8 rounded-2xl bg-success/10 border-2 border-success/30 glass">
-          <p className="text-2xl font-bold gradient-text">
+        <div className="text-center p-8 rounded-lg bg-success/10 border border-success/30">
+          <p className="text-xl font-bold text-foreground">
             {getTranslation(language, 'results.perfectScore')}
           </p>
-          <p className="text-4xl mt-4">🎉</p>
+
         </div>
       )}
     </div>

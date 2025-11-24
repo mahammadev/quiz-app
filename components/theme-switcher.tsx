@@ -42,10 +42,10 @@ export default function ThemeSwitcher({
   if (!mounted) return null
 
   return (
-    <div className={`flex items-center gap-3 glass rounded-xl border border-border/30 p-2 shadow-lg ${className || ''}`}>
+    <div className={`flex items-center gap-3 rounded-lg border border-border bg-card p-2 shadow-sm ${className || ''}`}>
       <button
         onClick={handleDarkToggle}
-        className="cursor-target flex h-10 w-10 items-center justify-center rounded-lg text-foreground hover:bg-primary/10 hover:text-primary transition-all hover:scale-110"
+        className="cursor-target flex h-9 w-9 items-center justify-center rounded-lg text-foreground hover:bg-muted transition-colors"
         title={isDark ? 'Light mode' : 'Dark mode'}
         aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
       >

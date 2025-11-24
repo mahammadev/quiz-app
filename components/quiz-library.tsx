@@ -73,19 +73,19 @@ export default function QuizLibrary({
   }
 
   return (
-    <div className="glass rounded-2xl border border-border/50 p-8 h-full shadow-xl">
-      <h2 className="mb-6 text-3xl font-bold gradient-text">
+    <div className="rounded-lg border border-border bg-card p-8 h-full shadow-sm">
+      <h2 className="mb-6 text-2xl font-bold text-foreground">
         {getTranslation(language, 'library.saved')}
       </h2>
       <div className="grid gap-4">
         {savedQuizzes.map((quiz) => (
           <div
             key={quiz.id}
-            className="flex flex-col justify-between rounded-xl border-2 border-border/30 bg-muted/30 p-4 transition-all hover:border-primary/50 hover:bg-primary/5 hover:scale-[1.01]"
+            className="flex flex-col justify-between rounded-lg border border-border bg-muted p-4 transition-colors hover:border-primary hover:bg-muted/70"
           >
             <div>
               <div className="mb-2 flex items-center gap-2">
-                <FileJson className="h-5 w-5 text-primary" />
+                <FileJson className="h-5 w-5 text-muted-foreground" />
                 <h3 className="font-bold text-foreground truncate">
                   {quiz.name}
                 </h3>
@@ -98,14 +98,14 @@ export default function QuizLibrary({
             <div className="mt-4 flex gap-2">
               <button
                 onClick={() => onSelectQuiz(quiz.questions)}
-                className="cursor-target btn-gradient flex-1 flex items-center justify-center gap-2 text-sm"
+                className="cursor-target btn-primary flex-1 flex items-center justify-center gap-2 text-sm"
               >
                 <Play className="h-4 w-4" />
                 {getTranslation(language, 'library.loadBtn')}
               </button>
               <button
                 onClick={() => handleDelete(quiz.id)}
-                className="cursor-target flex items-center justify-center rounded-xl border-2 border-destructive/30 bg-card px-3 py-2 text-destructive hover:bg-destructive/10 hover:border-destructive/50 hover:scale-110 transition-all"
+                className="cursor-target flex items-center justify-center rounded-lg border border-destructive/30 bg-card px-3 py-2 text-destructive hover:bg-destructive/10 transition-colors"
                 title={getTranslation(language, 'library.deleteBtn')}
               >
                 <Trash2 className="h-4 w-4" />

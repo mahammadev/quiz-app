@@ -106,8 +106,8 @@ export default function QuizSetup({
 
   return (
     <div className="mt-12 space-y-6 max-w-2xl mx-auto">
-      <div className="glass rounded-2xl border border-border/50 p-8 shadow-xl">
-        <h1 className="mb-2 text-4xl font-bold gradient-text">
+      <div className="rounded-lg border border-border bg-card p-8 shadow-sm">
+        <h1 className="mb-2 text-3xl font-bold text-foreground">
           {getTranslation(language, 'setup.title')}
         </h1>
         <p className="mb-8 text-muted-foreground">
@@ -118,9 +118,9 @@ export default function QuizSetup({
           <div className="grid gap-4">
             <button
               onClick={() => setSelectedMode('quick')}
-              className="cursor-target text-left rounded-xl border-2 border-border/50 p-6 hover:border-primary/50 hover:bg-primary/5 hover:scale-[1.02] transition-all group"
+              className="cursor-target text-left rounded-lg border border-border p-6 hover:border-primary hover:bg-muted/50 transition-colors"
             >
-              <h3 className="text-lg font-bold text-foreground mb-1 group-hover:gradient-text transition-all">
+              <h3 className="text-lg font-bold text-foreground mb-1">
                 {getTranslation(language, 'setup.mode.quick')}
               </h3>
               <p className="text-sm text-muted-foreground">
@@ -130,9 +130,9 @@ export default function QuizSetup({
 
             <button
               onClick={() => setSelectedMode('sequential')}
-              className="cursor-target text-left rounded-xl border-2 border-border/50 p-6 hover:border-primary/50 hover:bg-primary/5 hover:scale-[1.02] transition-all group"
+              className="cursor-target text-left rounded-lg border border-border p-6 hover:border-primary hover:bg-muted/50 transition-colors"
             >
-              <h3 className="text-lg font-bold text-foreground mb-1 group-hover:gradient-text transition-all">
+              <h3 className="text-lg font-bold text-foreground mb-1">
                 {getTranslation(language, 'setup.mode.sequential')}
               </h3>
               <p className="text-sm text-muted-foreground">
@@ -142,9 +142,9 @@ export default function QuizSetup({
 
             <button
               onClick={() => setSelectedMode('practice')}
-              className="cursor-target text-left rounded-xl border-2 border-border/50 p-6 hover:border-primary/50 hover:bg-primary/5 hover:scale-[1.02] transition-all group"
+              className="cursor-target text-left rounded-lg border border-border p-6 hover:border-primary hover:bg-muted/50 transition-colors"
             >
-              <h3 className="text-lg font-bold text-foreground mb-1 group-hover:gradient-text transition-all">
+              <h3 className="text-lg font-bold text-foreground mb-1">
                 {getTranslation(language, 'setup.mode.practice')}
               </h3>
               <p className="text-sm text-muted-foreground">
@@ -173,7 +173,7 @@ export default function QuizSetup({
               </div>
               <button
                 onClick={() => setSelectedMode(null)}
-                className="cursor-target text-sm text-muted-foreground hover:text-primary transition-colors font-medium"
+                className="cursor-target text-sm text-muted-foreground hover:text-foreground transition-colors"
               >
                 ← Geri
               </button>
@@ -192,7 +192,7 @@ export default function QuizSetup({
                   onChange={(e) =>
                     setNumQuestions(Math.max(1, parseInt(e.target.value) || 1))
                   }
-                  className="cursor-target w-full rounded-xl border-2 border-input bg-background px-4 py-3 text-foreground focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-all"
+                  className="cursor-target w-full rounded-lg border border-input bg-background px-4 py-2.5 text-foreground focus:border-primary focus:outline-none transition-colors"
                 />
                 <p className="mt-2 text-sm text-muted-foreground">
                   {getTranslation(language, 'setup.available', { count: totalQuestions })}
@@ -213,7 +213,7 @@ export default function QuizSetup({
                   onChange={(e) =>
                     setStartingQuestion(Math.max(1, Math.min(totalQuestions, parseInt(e.target.value) || 1)))
                   }
-                  className="cursor-target w-full rounded-xl border-2 border-input bg-background px-4 py-3 text-foreground focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-all"
+                  className="cursor-target w-full rounded-lg border border-input bg-background px-4 py-2.5 text-foreground focus:border-primary focus:outline-none transition-colors"
                 />
                 <p className="mt-2 text-sm text-muted-foreground">
                   {totalQuestions - startingQuestion + 1} sual cavablandırılacaq (sual {startingQuestion} - {totalQuestions})
@@ -222,7 +222,7 @@ export default function QuizSetup({
             )}
 
             {selectedMode === 'practice' && answeredQuestions.size > 0 && (
-              <div className="rounded-xl bg-muted/50 border border-border/50 p-4">
+              <div className="rounded-lg bg-muted border border-border p-4">
                 <p className="text-sm text-muted-foreground mb-2">
                   {getTranslation(language, 'setup.progress', {
                     answered: answeredQuestions.size.toString(),
@@ -231,20 +231,20 @@ export default function QuizSetup({
                 </p>
                 <button
                   onClick={handleResetProgress}
-                  className="cursor-target text-sm text-destructive hover:text-destructive/80 font-medium transition-colors"
+                  className="cursor-target text-sm text-destructive hover:text-destructive/80 transition-colors"
                 >
                   {getTranslation(language, 'setup.resetProgress')}
                 </button>
               </div>
             )}
 
-            <div className="flex items-center gap-3 p-4 rounded-xl border border-border/30 bg-muted/30">
+            <div className="flex items-center gap-3 p-3 rounded-lg border border-border bg-muted/30">
               <input
                 type="checkbox"
                 id="shuffle-answers"
                 checked={shuffleAnswers}
                 onChange={(e) => setShuffleAnswers(e.target.checked)}
-                className="cursor-target w-5 h-5 rounded cursor-pointer accent-primary"
+                className="cursor-target w-4 h-4 rounded cursor-pointer accent-primary"
               />
               <label
                 htmlFor="shuffle-answers"
@@ -256,7 +256,7 @@ export default function QuizSetup({
 
             <button
               onClick={handleStart}
-              className="btn-gradient w-full cursor-target"
+              className="btn-primary w-full cursor-target"
             >
               {getTranslation(language, 'setup.startBtn')}
             </button>

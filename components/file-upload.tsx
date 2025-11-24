@@ -117,14 +117,14 @@ export default function FileUpload({
   return (
     <div className="mt-8 grid gap-8 lg:grid-cols-2 items-start">
       <div className="space-y-6">
-        <div className="glass rounded-2xl border border-border/50 p-8 shadow-xl">
-          <h1 className="mb-2 text-4xl font-bold gradient-text">{getTranslation(language, "upload.title")}</h1>
+        <div className="rounded-lg border border-border bg-card p-8 shadow-sm">
+          <h1 className="mb-2 text-3xl font-bold text-foreground">{getTranslation(language, "upload.title")}</h1>
           <p className="mb-6 text-muted-foreground">{getTranslation(language, "upload.subtitle")}</p>
 
           {parsedQuestions ? (
-            <div className="space-y-4 rounded-xl border border-border/50 bg-muted/50 p-6 shadow-inner">
+            <div className="space-y-4 rounded-lg border border-border bg-muted p-6">
               <div className="flex items-center justify-between">
-                <h3 className="font-semibold text-lg text-foreground">{parsedQuestions.length} questions loaded ✨</h3>
+                <h3 className="font-semibold text-foreground">{parsedQuestions.length} questions loaded</h3>
                 <button
                   onClick={() => setParsedQuestions(null)}
                   className="cursor-target text-sm text-muted-foreground hover:text-foreground transition-colors"
@@ -141,21 +141,21 @@ export default function FileUpload({
                     value={quizName}
                     onChange={(e) => setQuizName(e.target.value)}
                     placeholder={getTranslation(language, "library.namePlaceholder")}
-                    className="cursor-target w-full rounded-xl border-2 border-input bg-background px-4 py-3 text-foreground focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-all"
+                    className="cursor-target w-full rounded-lg border border-input bg-background px-4 py-2.5 text-foreground focus:border-primary focus:outline-none transition-colors"
                   />
                 </div>
 
                 <div className="flex gap-3">
                   <button
                     onClick={handleStartQuiz}
-                    className="btn-gradient flex-1 cursor-target"
+                    className="btn-primary flex-1 cursor-target"
                   >
                     {getTranslation(language, "library.startBtn")}
                   </button>
                   <button
                     onClick={handleSaveToLibrary}
                     disabled={!quizName.trim()}
-                    className="cursor-target flex items-center justify-center gap-2 rounded-xl border-2 border-border/50 px-4 py-3 font-semibold text-foreground hover:bg-muted/70 hover:border-primary/30 transition-all disabled:opacity-50 disabled:hover:bg-transparent"
+                    className="cursor-target flex items-center justify-center gap-2 rounded-lg border border-border px-4 py-2.5 font-medium text-foreground hover:bg-muted transition-colors disabled:opacity-50"
                   >
                     <Save className="h-4 w-4" />
                     {getTranslation(language, "library.saveBtn")}
@@ -181,7 +181,7 @@ export default function FileUpload({
                   <button
                     onClick={() => fileInputRef.current?.click()}
                     disabled={loading}
-                    className="cursor-target w-full rounded-xl border-2 border-border/50 px-6 py-3 font-semibold text-foreground hover:bg-muted/50 hover:border-primary/50 hover:scale-[1.02] transition-all disabled:opacity-50 disabled:hover:scale-100"
+                    className="cursor-target w-full rounded-lg border border-border px-4 py-2.5 font-medium text-foreground hover:bg-muted transition-colors disabled:opacity-50"
                   >
                     {loading
                       ? getTranslation(language, "upload.loading")
@@ -191,18 +191,16 @@ export default function FileUpload({
                   <div
                     onDrop={handleDrop}
                     onDragOver={(e) => e.preventDefault()}
-                    className="cursor-target rounded-xl border-2 border-dashed border-primary/30 p-12 text-center transition-all hover:border-primary hover:bg-primary/5 hover:scale-[1.02] group"
+                    className="cursor-target rounded-lg border-2 border-dashed border-border p-10 text-center transition-colors hover:border-primary hover:bg-muted/30"
                   >
-                    <div className="transition-transform group-hover:scale-110">
-                      <Upload className="mx-auto mb-3 h-10 w-10 text-primary" />
-                    </div>
-                    <p className="font-semibold text-foreground text-lg">{getTranslation(language, "upload.dragDrop")}</p>
-                    <p className="text-sm text-muted-foreground mt-2">Drop your JSON file here</p>
+                    <Upload className="mx-auto mb-3 h-8 w-8 text-primary" />
+                    <p className="font-medium text-foreground">{getTranslation(language, "upload.dragDrop")}</p>
+                    <p className="text-sm text-muted-foreground mt-1">or browse files</p>
                   </div>
 
                   <button
                     onClick={() => setPasteMode(true)}
-                    className="cursor-target w-full rounded-xl border border-border/50 px-4 py-2.5 text-sm font-semibold text-muted-foreground hover:bg-muted/50 hover:text-foreground transition-all"
+                    className="cursor-target w-full rounded-lg border border-border px-4 py-2 text-sm font-medium text-muted-foreground hover:bg-muted transition-colors"
                   >
                     {getTranslation(language, "upload.pasteBtn")}
                   </button>
@@ -213,7 +211,7 @@ export default function FileUpload({
                     value={pastedText}
                     onChange={(e) => setPastedText(e.target.value)}
                     placeholder="Paste your JSON here..."
-                    className="cursor-target w-full rounded-xl border-2 border-border/50 bg-background p-4 font-mono text-sm text-foreground placeholder-muted-foreground focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
+                    className="cursor-target w-full rounded-lg border border-border bg-background p-4 font-mono text-sm text-foreground placeholder-muted-foreground focus:outline-none focus:border-primary transition-colors"
                     rows={10}
                   />
 
@@ -221,7 +219,7 @@ export default function FileUpload({
                     <button
                       onClick={handlePaste}
                       disabled={loading || !pastedText.trim()}
-                      className="btn-gradient flex-1 cursor-target disabled:opacity-50 disabled:hover:scale-100"
+                      className="btn-primary flex-1 cursor-target disabled:opacity-50"
                     >
                       {loading
                         ? getTranslation(language, "upload.loading")
@@ -234,7 +232,7 @@ export default function FileUpload({
                         setPastedText("")
                         setError("")
                       }}
-                      className="cursor-target flex-1 rounded-xl border-2 border-border/50 px-4 py-3 font-semibold text-foreground hover:bg-muted/50 transition-all"
+                      className="cursor-target flex-1 rounded-lg border border-border px-4 py-2.5 font-medium text-foreground hover:bg-muted transition-colors"
                     >
                       {getTranslation(language, "upload.cancelBtn")}
                     </button>
@@ -244,10 +242,10 @@ export default function FileUpload({
             </div>
           )}
 
-          {error && <div className="rounded-xl bg-error/10 border border-error/30 p-4 text-error font-medium">{error}</div>}
+          {error && <div className="rounded-lg bg-error/10 border border-error/30 p-4 text-error">{error}</div>}
         </div>
 
-        <div className="rounded-xl border border-border/30 bg-muted/30 p-4 backdrop-blur-sm">
+        <div className="rounded-lg border border-border bg-muted p-4">
           <p className="text-sm text-muted-foreground">
             <span className="font-semibold text-foreground">{getTranslation(language, "upload.format")}:</span>{" "}
             {getTranslation(language, "upload.formatDesc")}
