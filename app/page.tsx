@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ArrowLeft } from 'lucide-react'
 import FileUpload from '@/components/file-upload'
@@ -177,6 +177,11 @@ function QuizComplete({
   language: Language
 }) {
   const percentage = Math.round((score / total) * 100)
+
+  // Scroll to top when results screen loads
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }, [])
 
   return (
     <div className="mt-12 space-y-8 max-w-4xl mx-auto">
