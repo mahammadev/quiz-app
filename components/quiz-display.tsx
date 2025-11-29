@@ -163,21 +163,21 @@ function QuizDisplay({
   const answeredCount = questionStates.filter(state => state.selectedAnswer !== null).length
 
   return (
-    <div className="w-full min-h-screen font-serif">
+    <div className="w-full min-h-screen bg-white" style={{ fontFamily: '"Times New Roman", Times, serif' }}>
       {/* Fixed Header with Score */}
-      <div className="fixed top-0 left-0 right-0 bg-card border-b border-border z-10 py-4">
-        <div className="container mx-auto max-w-4xl px-4 flex justify-between items-center">
-          <span className="text-sm font-medium text-muted-foreground">
+      <div className="fixed top-0 left-0 right-0 bg-white border-b border-gray-300 z-10 py-3 shadow-sm">
+        <div className="container mx-auto max-w-5xl px-8 flex justify-between items-center">
+          <span className="text-base" style={{ fontFamily: '"Times New Roman", Times, serif' }}>
             {getText('questionOf')} {answeredCount} {getText('of')} {questions.length}
           </span>
-          <span className="text-sm font-semibold text-foreground">
-            <span className="text-sm font-medium text-primary">{score}/{answeredCount}</span>
+          <span className="text-base font-semibold" style={{ fontFamily: '"Times New Roman", Times, serif' }}>
+            {getText('score')}: {score}/{answeredCount}
           </span>
         </div>
       </div>
 
       {/* Questions List */}
-      <div className="pt-20 pb-20 space-y-8 max-w-4xl mx-auto px-4">
+      <div className="pt-24 pb-20 max-w-5xl mx-auto px-12" style={{ lineHeight: '1.8' }}>
         {questions.map((question, questionIndex) => {
           const state = questionStates[questionIndex]
           const displayAnswers = shuffledAnswersMap.get(questionIndex) || question.answers
@@ -187,61 +187,56 @@ function QuizDisplay({
             <div
               key={questionIndex}
               ref={el => { questionRefs.current[questionIndex] = el }}
-              className="min-h-[60vh] flex items-center"
+              className="mb-12"
             >
-              <div className="w-full space-y-6">
-                {/* Question Header */}
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-primary border border-primary rounded-lg flex items-center justify-center font-bold text-lg shrink-0 text-primary-foreground">
-                    {questionNumber}
-                  </div>
-                  <h2 className="text-2xl font-bold text-foreground">
-                    {question.question}
-                  </h2>
-                </div>
+              {/* Question */}
+              <div className="mb-4">
+                <p className="text-black text-lg" style={{ fontFamily: '"Times New Roman", Times, serif' }}>
+                  <span className="mr-2">{questionNumber}.</span>
+                  <span>{question.question}</span>
+                </p>
+              </div>
 
-                {/* Answer Options */}
-                <div className="space-y-3 pl-16">
-                  {displayAnswers.map((answer: string, ansIndex: number) => {
-                    const isSelected = state.selectedAnswer === answer
-                    const isCorrectAnswer = answer === question.correct_answer
-                    const letter = String.fromCharCode(65 + ansIndex)
-                    const answered = state.selectedAnswer !== null
+              {/* Answer Options */}
+              <div className="space-y-2 ml-8">
+                {displayAnswers.map((answer: string, ansIndex: number) => {
+                  const isSelected = state.selectedAnswer === answer
+                  const isCorrectAnswer = answer === question.correct_answer
+                  const letter = String.fromCharCode(65 + ansIndex)
+                  const answered = state.selectedAnswer !== null
 
-                    let buttonClass = 'hover:bg-muted hover:border-primary/50'
-                    let circleClass = 'border border-border text-foreground/70 bg-muted/50'
+                  let textColor = 'text-black'
+                  let backgroundColor = 'bg-white'
+                  let fontWeight = 'font-normal'
 
-                    if (answered) {
-                      if (isCorrectAnswer) {
-                        buttonClass = 'border-success bg-success/10'
-                        circleClass = 'bg-success text-success-foreground border-success'
-                      } else if (isSelected) {
-                        buttonClass = 'border-error bg-error/10'
-                        circleClass = 'bg-error text-error-foreground border-error'
-                      }
+                  if (answered) {
+                    if (isCorrectAnswer) {
+                      fontWeight = 'font-bold'
+                      textColor = 'text-green-700'
                     } else if (isSelected) {
-                      buttonClass = 'border-primary bg-primary/5'
-                      circleClass = 'bg-primary text-primary-foreground border-primary'
+                      textColor = 'text-red-700'
                     }
+                  } else if (isSelected) {
+                    backgroundColor = 'bg-gray-100'
+                  }
 
-                    return (
-                      <button
-                        key={ansIndex}
-                        onClick={() => handleAnswer(questionIndex, answer)}
-                        disabled={answered}
-                        className={`w-full p-4 rounded-lg border border-border flex items-center gap-3 transition-colors focus:outline-none ${buttonClass} ${answered ? 'cursor-default' : 'cursor-pointer'
-                          }`}
-                      >
-                        <span className={`w-9 h-9 rounded-lg flex items-center justify-center font-bold text-sm ${circleClass}`}>
-                          {letter}
-                        </span>
-                        <span className="text-left flex-1">{answer}</span>
-                        {answered && isCorrectAnswer && <CheckCircle className="w-5 h-5 text-success" />}
-                        {answered && isSelected && !state.isCorrect && <XCircle className="w-5 h-5 text-error" />}
-                      </button>
-                    )
-                  })}
-                </div>
+                  return (
+                    <button
+                      key={ansIndex}
+                      onClick={() => handleAnswer(questionIndex, answer)}
+                      disabled={answered}
+                      className={`w-full text-left py-1 px-2 transition-colors ${backgroundColor} ${answered ? 'cursor-default' : 'cursor-pointer hover:bg-gray-50'}`}
+                      style={{ fontFamily: '"Times New Roman", Times, serif' }}
+                    >
+                      <span className={`text-lg ${textColor} ${fontWeight}`}>
+                        {letter}){' '}
+                        {answer}
+                      </span>
+                      {answered && isCorrectAnswer && <span className="ml-2 text-green-700">✓</span>}
+                      {answered && isSelected && !state.isCorrect && <span className="ml-2 text-red-700">✗</span>}
+                    </button>
+                  )
+                })}
               </div>
             </div>
           )
@@ -250,11 +245,12 @@ function QuizDisplay({
 
       {/* Fixed Finish Button */}
       {allAnswered && (
-        <div className="fixed bottom-0 left-0 right-0 bg-card border-t border-border py-4">
-          <div className="container mx-auto max-w-4xl px-4 flex justify-end">
+        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-300 py-4 shadow-lg">
+          <div className="container mx-auto max-w-5xl px-8 flex justify-end">
             <button
               onClick={handleFinish}
-              className="btn-primary"
+              className="px-8 py-3 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+              style={{ fontFamily: '"Times New Roman", Times, serif', fontSize: '16px' }}
             >
               {getText('finish')}
             </button>
