@@ -29,6 +29,7 @@ export default function Home() {
   const [incorrectAnswers, setIncorrectAnswers] = useState<IncorrectAnswer[]>([])
   const [shuffleAnswers, setShuffleAnswers] = useState(false)
   const [studyMode, setStudyMode] = useState(false)
+  const [showOnlyCorrect, setShowOnlyCorrect] = useState(false)
   const [quizId, setQuizId] = useState<string>('')
   const language: Language = 'az'
 
@@ -40,12 +41,13 @@ export default function Home() {
     setAppState('setup')
   }
 
-  const handleQuizStart = (quizQuestions: Question[], shuffle: boolean, isStudyMode?: boolean) => {
+  const handleQuizStart = (quizQuestions: Question[], shuffle: boolean, isStudyMode?: boolean, onlyCorrect?: boolean) => {
     setCurrentQuiz(quizQuestions)
     setScore(0)
     setIncorrectAnswers([])
     setShuffleAnswers(shuffle)
     setStudyMode(isStudyMode || false)
+    setShowOnlyCorrect(onlyCorrect || false)
     setAppState('quiz')
   }
 
@@ -140,6 +142,7 @@ export default function Home() {
                           onComplete={handleQuizComplete}
                           shuffleAnswers={shuffleAnswers}
                           studyMode={studyMode}
+                          showOnlyCorrect={showOnlyCorrect}
                           language={language}
                           quizId={quizId}
                           allQuestions={questions}

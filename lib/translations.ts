@@ -44,6 +44,7 @@ export const translations = {
     'setup.resetProgress': 'Reset Progress',
     'setup.mode.study': 'Study Mode',
     'setup.mode.studyDesc': 'Review all questions with correct answers highlighted',
+    'setup.showOnlyCorrect': 'Show only correct answers',
 
     // Quiz Display
     'quiz.nextQuestion': 'Next Question',
@@ -108,12 +109,15 @@ export const translations = {
     'setup.mode.practiceDesc': 'Bütün suallar qarışıq, təkrar yoxdur',
     'setup.numQuestions': 'Sualların sayı',
     'setup.available': 'Mövcud: {count} sual',
+    'setup.allQuestions': 'Bütün sualları istifadə et (Ardıcıl)',
     'setup.shuffle': 'Cavab variantlarını qarışdır',
+    'setup.shuffleQuestions': 'Sualları qarışdır',
     'setup.startBtn': 'Kvizi Başlat',
     'setup.progress': 'Tamamlandı: {answered} / {total}',
     'setup.resetProgress': 'Proqresi sıfırla',
     'setup.mode.study': 'Öyrənmə Rejimi',
     'setup.mode.studyDesc': 'Düzgün cavablar vurğulanmış şəkildə bütün sualları nəzərdən keçirin',
+    'setup.showOnlyCorrect': 'Yalnız düzgün cavabları göstər',
 
     // Quiz Display
     'quiz.nextQuestion': 'Sonrakı Sual',

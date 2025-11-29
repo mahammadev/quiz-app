@@ -19,7 +19,7 @@ export default function QuizSetup({
   quizId,
 }: {
   totalQuestions: number
-  onQuizStart: (questions: Question[], shuffleAnswers: boolean, studyMode?: boolean) => void
+  onQuizStart: (questions: Question[], shuffleAnswers: boolean, studyMode?: boolean, showOnlyCorrect?: boolean) => void
   allQuestions: Question[]
   language?: Language
   quizId?: string
@@ -27,6 +27,7 @@ export default function QuizSetup({
   const [selectedMode, setSelectedMode] = useState<QuizMode | null>(null)
   const [numQuestions, setNumQuestions] = useState(Math.min(10, totalQuestions))
   const [shuffleAnswers, setShuffleAnswers] = useState(true)
+  const [showOnlyCorrect, setShowOnlyCorrect] = useState(false)
   const [answeredQuestions, setAnsweredQuestions] = useState<Set<number>>(new Set())
   const [startingQuestion, setStartingQuestion] = useState(1)
 
@@ -98,7 +99,7 @@ export default function QuizSetup({
       }))
     }
 
-    onQuizStart(questionsToUse, shuffleAnswers, selectedMode === 'study')
+    onQuizStart(questionsToUse, shuffleAnswers, selectedMode === 'study', showOnlyCorrect)
   }
 
   const handleResetProgress = () => {
@@ -253,6 +254,24 @@ export default function QuizSetup({
                 >
                   {getTranslation(language, 'setup.resetProgress')}
                 </button>
+              </div>
+            )}
+
+            {selectedMode === 'study' && (
+              <div className="flex items-center gap-3 p-3 rounded-lg border border-border bg-muted/30">
+                <input
+                  type="checkbox"
+                  id="show-only-correct"
+                  checked={showOnlyCorrect}
+                  onChange={(e) => setShowOnlyCorrect(e.target.checked)}
+                  className="cursor-target w-4 h-4 rounded cursor-pointer accent-primary"
+                />
+                <label
+                  htmlFor="show-only-correct"
+                  className="cursor-target text-sm font-medium text-foreground cursor-pointer"
+                >
+                  {getTranslation(language, 'setup.showOnlyCorrect')}
+                </label>
               </div>
             )}
 

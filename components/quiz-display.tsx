@@ -26,6 +26,7 @@ function QuizDisplay({
   onComplete,
   shuffleAnswers,
   studyMode = false,
+  showOnlyCorrect = false,
   language = 'az',
   quizId,
   allQuestions,
@@ -34,6 +35,7 @@ function QuizDisplay({
   onComplete: (score: number, incorrectAnswers: IncorrectAnswer[]) => void
   shuffleAnswers: boolean
   studyMode?: boolean
+  showOnlyCorrect?: boolean
   language?: 'en' | 'az'
   quizId?: string
   allQuestions?: Question[]
@@ -208,6 +210,11 @@ function QuizDisplay({
                   {displayAnswers.map((answer: string, ansIndex: number) => {
                     const isCorrectAnswer = answer === question.correct_answer
                     const letter = String.fromCharCode(65 + ansIndex)
+
+                    // Skip incorrect answers if showOnlyCorrect is enabled
+                    if (showOnlyCorrect && !isCorrectAnswer) {
+                      return null
+                    }
 
                     return (
                       <div
