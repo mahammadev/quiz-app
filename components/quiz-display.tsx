@@ -2,6 +2,7 @@
 
 import { useState, useMemo, useEffect, useRef } from 'react'
 import { CheckCircle, XCircle } from 'lucide-react'
+import { QuestionSlider } from './question-slider'
 
 type Question = {
   question: string
@@ -151,6 +152,33 @@ function QuizDisplay({
       }
     }, 800)
   }
+
+  // Sync current question index with scroll position
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const index = questionRefs.current.findIndex(ref => ref === entry.target)
+            if (index !== -1) {
+              setCurrentQuestionIndex(index)
+            }
+          }
+        })
+      },
+      {
+        root: null,
+        rootMargin: '-45% 0px -45% 0px', // Trigger when element is in the middle 10% of screen
+        threshold: 0
+      }
+    )
+
+    questionRefs.current.forEach(ref => {
+      if (ref) observer.observe(ref)
+    })
+
+    return () => observer.disconnect()
+  }, [questions.length])
 
   const handleFinish = () => {
     const score = questionStates.filter(state => state.isCorrect === true).length
@@ -346,6 +374,20 @@ function QuizDisplay({
           </div>
         </div>
       )}
+
+      {/* Question Slider */}
+      <QuestionSlider
+        totalQuestions={questions.length}
+        currentQuestionIndex={currentQuestionIndex}
+        onQuestionSelect={(index) => {
+          setCurrentQuestionIndex(index)
+          const element = questionRefs.current[index]
+          if (element) {
+            const y = element.getBoundingClientRect().top + window.pageYOffset - (window.innerHeight / 2) + (element.offsetHeight / 2)
+            window.scrollTo({ top: y, behavior: 'auto' })
+          }
+        }}
+      />
     </div>
   )
 }
