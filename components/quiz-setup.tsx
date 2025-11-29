@@ -9,7 +9,7 @@ type Question = {
   correct_answer: string
 }
 
-type QuizMode = 'quick' | 'sequential' | 'practice'
+type QuizMode = 'quick' | 'sequential' | 'practice' | 'study'
 
 export default function QuizSetup({
   totalQuestions,
@@ -19,7 +19,7 @@ export default function QuizSetup({
   quizId,
 }: {
   totalQuestions: number
-  onQuizStart: (questions: Question[], shuffleAnswers: boolean) => void
+  onQuizStart: (questions: Question[], shuffleAnswers: boolean, studyMode?: boolean) => void
   allQuestions: Question[]
   language?: Language
   quizId?: string
@@ -90,9 +90,15 @@ export default function QuizSetup({
         answers: [...item.question.answers], // Deep clone the answers array
         _originalIndex: item.originalIndex
       }))
+    } else if (selectedMode === 'study') {
+      questionsToUse = [...allQuestions].map((q, idx) => ({
+        ...q,
+        answers: [...q.answers],
+        _originalIndex: idx
+      }))
     }
 
-    onQuizStart(questionsToUse, shuffleAnswers)
+    onQuizStart(questionsToUse, shuffleAnswers, selectedMode === 'study')
   }
 
   const handleResetProgress = () => {
@@ -158,6 +164,18 @@ export default function QuizSetup({
                   })}
                 </p>
               )}
+            </button>
+
+            <button
+              onClick={() => setSelectedMode('study')}
+              className="cursor-target text-left rounded-lg border border-border p-6 hover:border-primary hover:bg-muted/50 transition-colors"
+            >
+              <h3 className="text-lg font-bold text-foreground mb-1">
+                {getTranslation(language, 'setup.mode.study')}
+              </h3>
+              <p className="text-sm text-muted-foreground">
+                {getTranslation(language, 'setup.mode.studyDesc')}
+              </p>
             </button>
           </div>
         ) : (
@@ -238,21 +256,23 @@ export default function QuizSetup({
               </div>
             )}
 
-            <div className="flex items-center gap-3 p-3 rounded-lg border border-border bg-muted/30">
-              <input
-                type="checkbox"
-                id="shuffle-answers"
-                checked={shuffleAnswers}
-                onChange={(e) => setShuffleAnswers(e.target.checked)}
-                className="cursor-target w-4 h-4 rounded cursor-pointer accent-primary"
-              />
-              <label
-                htmlFor="shuffle-answers"
-                className="cursor-target text-sm font-medium text-foreground cursor-pointer"
-              >
-                {getTranslation(language, 'setup.shuffle')}
-              </label>
-            </div>
+            {selectedMode !== 'study' && (
+              <div className="flex items-center gap-3 p-3 rounded-lg border border-border bg-muted/30">
+                <input
+                  type="checkbox"
+                  id="shuffle-answers"
+                  checked={shuffleAnswers}
+                  onChange={(e) => setShuffleAnswers(e.target.checked)}
+                  className="cursor-target w-4 h-4 rounded cursor-pointer accent-primary"
+                />
+                <label
+                  htmlFor="shuffle-answers"
+                  className="cursor-target text-sm font-medium text-foreground cursor-pointer"
+                >
+                  {getTranslation(language, 'setup.shuffle')}
+                </label>
+              </div>
+            )}
 
             <button
               onClick={handleStart}

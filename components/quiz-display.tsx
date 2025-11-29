@@ -25,6 +25,7 @@ function QuizDisplay({
   questions,
   onComplete,
   shuffleAnswers,
+  studyMode = false,
   language = 'az',
   quizId,
   allQuestions,
@@ -32,6 +33,7 @@ function QuizDisplay({
   questions: Question[]
   onComplete: (score: number, incorrectAnswers: IncorrectAnswer[]) => void
   shuffleAnswers: boolean
+  studyMode?: boolean
   language?: 'en' | 'az'
   quizId?: string
   allQuestions?: Question[]
@@ -48,12 +50,16 @@ function QuizDisplay({
       questionOf: 'Question',
       of: 'of',
       score: 'Score',
+      studyMode: 'Study Mode - Review Correct Answers',
+      done: 'Done',
     },
     az: {
       finish: 'Bitir',
       questionOf: 'Sual',
       of: 'dən',
       score: 'Bal',
+      studyMode: 'Öyrənmə Rejimi - Düzgün Cavabları Nəzərdən Keçirin',
+      done: 'Tamamlandı',
     }
   }
 
@@ -71,6 +77,9 @@ function QuizDisplay({
   }, [questions, shuffleAnswers])
 
   const handleAnswer = (questionIndex: number, answer: string) => {
+    // Disable answers in study mode
+    if (studyMode) return
+
     const question = questions[questionIndex]
     const currentState = questionStates[questionIndex]
 
@@ -161,6 +170,79 @@ function QuizDisplay({
   const allAnswered = questionStates.every(state => state.selectedAnswer !== null)
   const score = questionStates.filter(state => state.isCorrect === true).length
   const answeredCount = questionStates.filter(state => state.selectedAnswer !== null).length
+
+  // In study mode, show all questions immediately
+  if (studyMode) {
+    return (
+      <div className="w-full min-h-screen bg-background" style={{ fontFamily: '"Times New Roman", Times, serif' }}>
+        {/* Fixed Header for Study Mode */}
+        <div className="fixed top-0 left-0 right-0 bg-background border-b border-border z-10 py-3 shadow-sm">
+          <div className="container mx-auto max-w-5xl px-8 flex justify-center items-center">
+            <span className="text-base font-semibold text-foreground" style={{ fontFamily: '"Times New Roman", Times, serif' }}>
+              {getText('studyMode')}
+            </span>
+          </div>
+        </div>
+
+        {/* Questions List - All shown with correct answers */}
+        <div className="pt-24 pb-20 max-w-5xl mx-auto px-12" style={{ lineHeight: '1.8' }}>
+          {questions.map((question, questionIndex) => {
+            const displayAnswers = shuffledAnswersMap.get(questionIndex) || question.answers
+            const questionNumber = question._originalIndex !== undefined ? question._originalIndex + 1 : questionIndex + 1
+
+            return (
+              <div
+                key={questionIndex}
+                className="mb-12"
+              >
+                {/* Question */}
+                <div className="mb-4">
+                  <p className="text-foreground text-lg" style={{ fontFamily: '"Times New Roman", Times, serif' }}>
+                    <span className="mr-2">{questionNumber}.</span>
+                    <span>{question.question}</span>
+                  </p>
+                </div>
+
+                {/* Answer Options - Only correct answer highlighted */}
+                <div className="space-y-2 ml-8">
+                  {displayAnswers.map((answer: string, ansIndex: number) => {
+                    const isCorrectAnswer = answer === question.correct_answer
+                    const letter = String.fromCharCode(65 + ansIndex)
+
+                    return (
+                      <div
+                        key={ansIndex}
+                        className="w-full text-left py-1 px-2"
+                        style={{ fontFamily: '"Times New Roman", Times, serif' }}
+                      >
+                        <span className={`text-lg ${isCorrectAnswer ? 'text-success font-bold' : 'text-foreground font-normal'}`}>
+                          {letter}) {answer}
+                        </span>
+                        {isCorrectAnswer && <span className="ml-2 text-success">✓</span>}
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+            )
+          })}
+        </div>
+
+        {/* Fixed Done Button */}
+        <div className="fixed bottom-0 left-0 right-0 bg-background border-t border-border py-4 shadow-lg">
+          <div className="container mx-auto max-w-5xl px-8 flex justify-end">
+            <button
+              onClick={() => onComplete(0, [])}
+              className="px-8 py-3 bg-primary text-primary-foreground rounded hover:bg-primary/90 transition-colors"
+              style={{ fontFamily: '"Times New Roman", Times, serif', fontSize: '16px' }}
+            >
+              {getText('done')}
+            </button>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="w-full min-h-screen bg-background" style={{ fontFamily: '"Times New Roman", Times, serif' }}>

@@ -42,6 +42,8 @@ export const translations = {
     'setup.startBtn': 'Start Quiz',
     'setup.progress': 'Completed: {answered} / {total}',
     'setup.resetProgress': 'Reset Progress',
+    'setup.mode.study': 'Study Mode',
+    'setup.mode.studyDesc': 'Review all questions with correct answers highlighted',
 
     // Quiz Display
     'quiz.nextQuestion': 'Next Question',
@@ -110,6 +112,8 @@ export const translations = {
     'setup.startBtn': 'Kvizi Başlat',
     'setup.progress': 'Tamamlandı: {answered} / {total}',
     'setup.resetProgress': 'Proqresi sıfırla',
+    'setup.mode.study': 'Öyrənmə Rejimi',
+    'setup.mode.studyDesc': 'Düzgün cavablar vurğulanmış şəkildə bütün sualları nəzərdən keçirin',
 
     // Quiz Display
     'quiz.nextQuestion': 'Sonrakı Sual',
@@ -137,12 +141,12 @@ export const translations = {
 
 export function getTranslation(lang: Language, key: string, params?: Record<string, string | number>): string {
   let text = translations[lang][key as keyof typeof translations.en] || translations.en[key as keyof typeof translations.en] || key
-  
+
   if (params) {
     Object.entries(params).forEach(([k, v]) => {
       text = text.replace(`{${k}}`, String(v))
     })
   }
-  
+
   return text
 }
