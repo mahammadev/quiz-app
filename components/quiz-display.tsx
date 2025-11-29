@@ -163,14 +163,14 @@ function QuizDisplay({
   const answeredCount = questionStates.filter(state => state.selectedAnswer !== null).length
 
   return (
-    <div className="w-full min-h-screen bg-white" style={{ fontFamily: '"Times New Roman", Times, serif' }}>
+    <div className="w-full min-h-screen bg-background" style={{ fontFamily: '"Times New Roman", Times, serif' }}>
       {/* Fixed Header with Score */}
-      <div className="fixed top-0 left-0 right-0 bg-white border-b border-gray-300 z-10 py-3 shadow-sm">
+      <div className="fixed top-0 left-0 right-0 bg-background border-b border-border z-10 py-3 shadow-sm">
         <div className="container mx-auto max-w-5xl px-8 flex justify-between items-center">
-          <span className="text-base" style={{ fontFamily: '"Times New Roman", Times, serif' }}>
+          <span className="text-base text-foreground" style={{ fontFamily: '"Times New Roman", Times, serif' }}>
             {getText('questionOf')} {answeredCount} {getText('of')} {questions.length}
           </span>
-          <span className="text-base font-semibold" style={{ fontFamily: '"Times New Roman", Times, serif' }}>
+          <span className="text-base font-semibold text-foreground" style={{ fontFamily: '"Times New Roman", Times, serif' }}>
             {getText('score')}: {score}/{answeredCount}
           </span>
         </div>
@@ -191,7 +191,7 @@ function QuizDisplay({
             >
               {/* Question */}
               <div className="mb-4">
-                <p className="text-black text-lg" style={{ fontFamily: '"Times New Roman", Times, serif' }}>
+                <p className="text-foreground text-lg" style={{ fontFamily: '"Times New Roman", Times, serif' }}>
                   <span className="mr-2">{questionNumber}.</span>
                   <span>{question.question}</span>
                 </p>
@@ -205,19 +205,19 @@ function QuizDisplay({
                   const letter = String.fromCharCode(65 + ansIndex)
                   const answered = state.selectedAnswer !== null
 
-                  let textColor = 'text-black'
-                  let backgroundColor = 'bg-white'
+                  let textColor = 'text-foreground'
+                  let backgroundColor = ''
                   let fontWeight = 'font-normal'
 
                   if (answered) {
                     if (isCorrectAnswer) {
                       fontWeight = 'font-bold'
-                      textColor = 'text-green-700'
+                      textColor = 'text-success'
                     } else if (isSelected) {
-                      textColor = 'text-red-700'
+                      textColor = 'text-error'
                     }
                   } else if (isSelected) {
-                    backgroundColor = 'bg-gray-100'
+                    backgroundColor = 'bg-muted'
                   }
 
                   return (
@@ -225,15 +225,15 @@ function QuizDisplay({
                       key={ansIndex}
                       onClick={() => handleAnswer(questionIndex, answer)}
                       disabled={answered}
-                      className={`w-full text-left py-1 px-2 transition-colors ${backgroundColor} ${answered ? 'cursor-default' : 'cursor-pointer hover:bg-gray-50'}`}
+                      className={`w-full text-left py-1 px-2 transition-colors ${backgroundColor} ${answered ? 'cursor-default' : 'cursor-pointer hover:bg-muted/50'}`}
                       style={{ fontFamily: '"Times New Roman", Times, serif' }}
                     >
                       <span className={`text-lg ${textColor} ${fontWeight}`}>
                         {letter}){' '}
                         {answer}
                       </span>
-                      {answered && isCorrectAnswer && <span className="ml-2 text-green-700">✓</span>}
-                      {answered && isSelected && !state.isCorrect && <span className="ml-2 text-red-700">✗</span>}
+                      {answered && isCorrectAnswer && <span className="ml-2 text-success">✓</span>}
+                      {answered && isSelected && !state.isCorrect && <span className="ml-2 text-error">✗</span>}
                     </button>
                   )
                 })}
@@ -245,11 +245,11 @@ function QuizDisplay({
 
       {/* Fixed Finish Button */}
       {allAnswered && (
-        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-300 py-4 shadow-lg">
+        <div className="fixed bottom-0 left-0 right-0 bg-background border-t border-border py-4 shadow-lg">
           <div className="container mx-auto max-w-5xl px-8 flex justify-end">
             <button
               onClick={handleFinish}
-              className="px-8 py-3 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+              className="px-8 py-3 bg-primary text-primary-foreground rounded hover:bg-primary/90 transition-colors"
               style={{ fontFamily: '"Times New Roman", Times, serif', fontSize: '16px' }}
             >
               {getText('finish')}
