@@ -275,23 +275,22 @@ export default function QuizSetup({
               </div>
             )}
 
-            {selectedMode !== 'study' && (
-              <div className="flex items-center gap-3 p-3 rounded-lg border border-border bg-muted/30">
-                <input
-                  type="checkbox"
-                  id="shuffle-answers"
-                  checked={shuffleAnswers}
-                  onChange={(e) => setShuffleAnswers(e.target.checked)}
-                  className="cursor-target w-4 h-4 rounded cursor-pointer accent-primary"
-                />
-                <label
-                  htmlFor="shuffle-answers"
-                  className="cursor-target text-sm font-medium text-foreground cursor-pointer"
-                >
-                  {getTranslation(language, 'setup.shuffle')}
-                </label>
-              </div>
-            )}
+            {/* Shuffle Answers - Available for all modes */}
+            <div className="flex items-center gap-3 p-3 rounded-lg border border-border bg-muted/30">
+              <input
+                type="checkbox"
+                id="shuffle-answers"
+                checked={shuffleAnswers}
+                onChange={(e) => setShuffleAnswers(e.target.checked)}
+                className="cursor-target w-4 h-4 rounded cursor-pointer accent-primary"
+              />
+              <label
+                htmlFor="shuffle-answers"
+                className="cursor-target text-sm font-medium text-foreground cursor-pointer"
+              >
+                {getTranslation(language, 'setup.shuffle')}
+              </label>
+            </div>
 
             <button
               onClick={handleStart}
