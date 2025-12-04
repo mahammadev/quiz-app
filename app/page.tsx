@@ -7,6 +7,10 @@ import FileUpload from '@/components/file-upload'
 import QuizSetup from '@/components/quiz-setup'
 import QuizDisplay, { IncorrectAnswer } from '@/components/quiz-display'
 import ThemeSwitcher from '@/components/theme-switcher'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Button } from '@/components/ui/button'
+import { Leaderboard } from '@/components/leaderboard'
 
 import { Language, getTranslation } from '@/lib/translations'
 
@@ -31,6 +35,8 @@ export default function Home() {
   const [studyMode, setStudyMode] = useState(false)
   const [showOnlyCorrect, setShowOnlyCorrect] = useState(false)
   const [quizId, setQuizId] = useState<string>('')
+  const [quizStartTime, setQuizStartTime] = useState<number | null>(null)
+  const [quizDuration, setQuizDuration] = useState<number>(0)
   const language: Language = 'az'
 
   const currentIndex = STEPS.indexOf(state)
@@ -48,12 +54,15 @@ export default function Home() {
     setShuffleAnswers(shuffle)
     setStudyMode(isStudyMode || false)
     setShowOnlyCorrect(onlyCorrect || false)
+    setQuizStartTime(Date.now())
+    setQuizDuration(0)
     setAppState('quiz')
   }
 
   const handleQuizComplete = (finalScore: number, incorrect: IncorrectAnswer[] = []) => {
     setScore(finalScore)
     setIncorrectAnswers(incorrect)
+    setQuizDuration(quizStartTime ? Date.now() - quizStartTime : 0)
     setAppState('complete')
   }
 
@@ -65,6 +74,8 @@ export default function Home() {
     setIncorrectAnswers([])
     setShuffleAnswers(false)
     setQuizId('')
+    setQuizDuration(0)
+    setQuizStartTime(null)
   }
 
   const handleBack = () => {
@@ -159,6 +170,8 @@ export default function Home() {
                           incorrectAnswers={incorrectAnswers}
                           onReset={handleReset}
                           language={language}
+                          quizId={quizId}
+                          durationMs={quizDuration}
                         />
                       )}
                     </div>
@@ -179,19 +192,81 @@ function QuizComplete({
   incorrectAnswers,
   onReset,
   language,
+  quizId,
+  durationMs,
 }: {
   score: number
   total: number
   incorrectAnswers: IncorrectAnswer[]
   onReset: () => void
   language: Language
+  quizId?: string
+  durationMs: number
 }) {
-  const percentage = Math.round((score / total) * 100)
+  const [name, setName] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [hasSubmitted, setHasSubmitted] = useState(false)
+  const [submitError, setSubmitError] = useState<string | null>(null)
+  const [refreshKey, setRefreshKey] = useState(0)
+
+  const percentage = total ? Math.round((score / total) * 100) : 0
+  const minutes = Math.floor(durationMs / 60000)
+  const seconds = Math.floor((durationMs % 60000) / 1000)
+  const durationText = getTranslation(language, 'results.duration', { minutes, seconds })
 
   // Scroll to top when results screen loads
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }, [])
+
+  useEffect(() => {
+    const storedName = localStorage.getItem('quiz-player-name')
+    if (storedName) {
+      setName(storedName)
+    }
+  }, [])
+
+  useEffect(() => {
+    setHasSubmitted(false)
+    setSubmitError(null)
+    setRefreshKey((key) => key + 1)
+  }, [quizId, score, durationMs])
+
+  const handleSubmitScore = async () => {
+    if (!quizId) {
+      setSubmitError(getTranslation(language, 'results.error'))
+      return
+    }
+    if (hasSubmitted) return
+
+    const playerName = name.trim() || 'Guest'
+    setIsSubmitting(true)
+    setSubmitError(null)
+
+    try {
+      const response = await fetch(`/api/leaderboard/${quizId}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: playerName,
+          score,
+          duration: Math.max(0, durationMs),
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to submit score')
+      }
+
+      localStorage.setItem('quiz-player-name', playerName)
+      setHasSubmitted(true)
+      setRefreshKey((key) => key + 1)
+    } catch (err) {
+      setSubmitError(getTranslation(language, 'results.error'))
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
 
   return (
     <div className="mt-12 space-y-8 max-w-4xl mx-auto">
@@ -213,6 +288,55 @@ function QuizComplete({
         >
           {getTranslation(language, 'results.resetBtn')}
         </button>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-2">
+        <div className="rounded-lg border border-border bg-card p-6 space-y-4 shadow-sm">
+          <div className="flex items-center justify-between">
+            <h2 className="text-xl font-semibold text-foreground">
+              {getTranslation(language, 'results.leaderboardTitle')}
+            </h2>
+            {hasSubmitted && (
+              <span className="text-xs px-2 py-1 rounded-full bg-success/10 text-success border border-success/30">
+                {getTranslation(language, 'results.submitted')}
+              </span>
+            )}
+          </div>
+          <p className="text-sm text-muted-foreground">
+            {getTranslation(language, 'results.scoreSummary', { score, duration: durationText })}
+          </p>
+
+          <div className="space-y-2">
+            <Label htmlFor="leaderboard-name" className="text-sm font-medium">
+              {getTranslation(language, 'results.nameLabel')}
+            </Label>
+            <Input
+              id="leaderboard-name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder={getTranslation(language, 'results.namePlaceholder')}
+            />
+          </div>
+          {submitError && (
+            <div className="rounded border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+              {submitError}
+            </div>
+          )}
+          <div className="flex items-center justify-between gap-3">
+            <div className="text-xs text-muted-foreground">
+              {getTranslation(language, 'results.duration', { minutes, seconds })}
+            </div>
+            <Button onClick={handleSubmitScore} disabled={isSubmitting || hasSubmitted || !quizId}>
+              {isSubmitting
+                ? getTranslation(language, 'results.submitting')
+                : hasSubmitted
+                  ? getTranslation(language, 'results.alreadySubmitted')
+                  : getTranslation(language, 'results.submitScore')}
+            </Button>
+          </div>
+        </div>
+
+        <Leaderboard quizId={quizId} playerName={name} language={language} refreshKey={refreshKey} />
       </div>
 
       {incorrectAnswers.length > 0 ? (
