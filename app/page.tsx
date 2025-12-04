@@ -180,6 +180,12 @@ export default function Home() {
               })}
             </AnimatePresence>
           </div>
+
+          {quizId && state !== 'quiz' && (
+            <div className="mt-8">
+              <Leaderboard quizId={quizId} language={language} />
+            </div>
+          )}
         </div>
       </main>
     </>
