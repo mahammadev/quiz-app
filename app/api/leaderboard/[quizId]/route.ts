@@ -21,13 +21,18 @@ export async function GET(request: Request, { params }: { params: { quizId: stri
     return NextResponse.json({ error: 'Missing quiz id' }, { status: 400 })
   }
 
-  const leaderboard = await getLeaderboard(quizId, limit, page)
-  const personalBest = name ? await getPersonalBest(quizId, name) : null
+  try {
+    const leaderboard = await getLeaderboard(quizId, limit, page)
+    const personalBest = name ? await getPersonalBest(quizId, name) : null
 
-  return NextResponse.json({
-    leaderboard,
-    personalBest,
-  })
+    return NextResponse.json({
+      leaderboard,
+      personalBest,
+    })
+  } catch (error) {
+    console.error('Failed to fetch leaderboard', error)
+    return NextResponse.json({ error: 'Failed to fetch leaderboard' }, { status: 500 })
+  }
 }
 
 export async function POST(request: Request, { params }: { params: { quizId: string } }) {
@@ -49,12 +54,18 @@ export async function POST(request: Request, { params }: { params: { quizId: str
   }
 
   const payload = parsed.data
-  const entry = await recordScore({
-    quizId,
-    name: payload.name,
-    score: payload.score,
-    duration: payload.duration,
-  })
 
-  return NextResponse.json({ entry })
+  try {
+    const entry = await recordScore({
+      quizId,
+      name: payload.name,
+      score: payload.score,
+      duration: payload.duration,
+    })
+
+    return NextResponse.json({ entry })
+  } catch (error) {
+    console.error('Failed to save leaderboard entry', error)
+    return NextResponse.json({ error: 'Failed to save leaderboard entry' }, { status: 500 })
+  }
 }
