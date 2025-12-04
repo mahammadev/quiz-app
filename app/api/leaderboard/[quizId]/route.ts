@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
-import { SupabaseConfigError, getLeaderboard, getPersonalBest, recordScore } from '../../../../lib/db'
+import { getLeaderboard, getPersonalBest, recordScore } from '../../../../lib/db'
 
 const postSchema = z.object({
   name: z.string().trim().min(1).max(64),
@@ -31,9 +31,6 @@ export async function GET(request: Request, { params }: { params: { quizId: stri
     })
   } catch (error) {
     console.error('Failed to fetch leaderboard', error)
-    if (error instanceof SupabaseConfigError) {
-      return NextResponse.json({ error: error.message }, { status: 503 })
-    }
     return NextResponse.json({ error: 'Failed to fetch leaderboard' }, { status: 500 })
   }
 }
@@ -69,9 +66,6 @@ export async function POST(request: Request, { params }: { params: { quizId: str
     return NextResponse.json({ entry })
   } catch (error) {
     console.error('Failed to save leaderboard entry', error)
-    if (error instanceof SupabaseConfigError) {
-      return NextResponse.json({ error: error.message }, { status: 503 })
-    }
     return NextResponse.json({ error: 'Failed to save leaderboard entry' }, { status: 500 })
   }
 }

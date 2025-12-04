@@ -254,21 +254,15 @@ function QuizComplete({
         }),
       })
 
-      const json = (await response.json().catch(() => ({}))) as { error?: string }
-
       if (!response.ok) {
-        throw new Error(json?.error || 'Failed to submit score')
+        throw new Error('Failed to submit score')
       }
 
       localStorage.setItem('quiz-player-name', playerName)
       setHasSubmitted(true)
       setRefreshKey((key) => key + 1)
     } catch (err) {
-      setSubmitError(
-        err instanceof Error && err.message
-          ? err.message
-          : getTranslation(language, 'results.error')
-      )
+      setSubmitError(getTranslation(language, 'results.error'))
     } finally {
       setIsSubmitting(false)
     }

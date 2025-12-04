@@ -31,8 +31,6 @@ type SupabaseRow = {
 
 let supabaseClient: SupabaseClientLike | null = null
 
-export class SupabaseConfigError extends Error {}
-
 const TABLE = 'leaderboard'
 
 export function setSupabaseClient(client: SupabaseClientLike | null) {
@@ -43,10 +41,14 @@ function getSupabaseClient(): SupabaseClientLike {
   if (supabaseClient) return supabaseClient
 
   const url = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL
-  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY
+  const serviceKey =
+    process.env.SUPABASE_SERVICE_ROLE_KEY ||
+    process.env.SUPABASE_SERVICE_KEY ||
+    process.env.SUPABASE_KEY ||
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
   if (!url || !serviceKey) {
-    throw new SupabaseConfigError('Supabase URL and service role key must be provided')
+    throw new Error('Supabase URL and service key must be provided')
   }
 
   supabaseClient = createClient(url, serviceKey)

@@ -33,11 +33,11 @@ export function useLeaderboard(quizId?: string, playerName?: string, refreshOn: 
 
     try {
       const response = await fetch(url.toString(), { cache: 'no-store' })
-      const json = (await response.json().catch(() => ({}))) as Partial<LeaderboardResponse & { error?: string }>
       if (!response.ok) {
-        throw new Error(json?.error || 'Failed to load leaderboard')
+        throw new Error('Failed to load leaderboard')
       }
-      setData(json as LeaderboardResponse)
+      const json = (await response.json()) as LeaderboardResponse
+      setData(json)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unable to load leaderboard')
     } finally {
