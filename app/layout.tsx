@@ -1,17 +1,25 @@
 import type { Metadata } from 'next'
 
 import { Analytics } from '@vercel/analytics/next'
-import './globals.css'
-import { Geist_Mono, Poppins as V0_Font_Poppins, Geist_Mono as V0_Font_Geist_Mono } from 'next/font/google'
+import '@/styles/globals.css'
+import { Poppins, Inter } from 'next/font/google'
 
 // Initialize fonts
-const _poppins = V0_Font_Poppins({ subsets: ['latin'], weight: ["100","200","300","400","500","600","700","800","900"] })
-const _geistMono = V0_Font_Geist_Mono({ subsets: ['latin'], weight: ["100","200","300","400","500","600","700","800","900"] })
+const poppins = Poppins({
+  subsets: ['latin'],
+  weight: ['100', '200', '300', '400', '500', '600', '700', '800', '900'],
+  variable: '--font-poppins',
+})
+
+const inter = Inter({
+  subsets: ['latin'],
+  weight: ['100', '200', '300', '400', '500', '600', '700', '800', '900'],
+  variable: '--font-inter',
+})
 
 export const metadata: Metadata = {
-  title: 'v0 App',
-  description: 'Created with v0',
-  generator: 'v0.app',
+  title: 'Quiz Generator',
+  description: 'Create and take quizzes from JSON files',
 }
 
 export default function RootLayout({
@@ -21,7 +29,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`font-sans antialiased`}>
+      <body className={`${poppins.variable} ${inter.variable} font-poppins antialiased`}>
         {children}
         <Analytics />
       </body>

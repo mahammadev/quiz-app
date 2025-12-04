@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Trash2, Play, FileJson } from 'lucide-react'
 import { getTranslation, Language } from '@/lib/translations'
 import { createClient } from '@/lib/supabase/client'
@@ -28,7 +28,33 @@ export default function QuizLibrary({
   refreshTrigger?: number
 }) {
   const [savedQuizzes, setSavedQuizzes] = useState<SavedQuiz[]>([])
+  const [adminMode, setAdminMode] = useState(false)
+  const typedKeys = useRef('')
   const supabase = createClient()
+
+  // Hidden admin mode - listen for "admin" being typed
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Only track letter keys
+      if (e.key.length === 1 && e.key.match(/[a-z]/i)) {
+        typedKeys.current += e.key.toLowerCase()
+
+        // Keep only the last 5 characters
+        if (typedKeys.current.length > 5) {
+          typedKeys.current = typedKeys.current.slice(-5)
+        }
+
+        // Check if "admin" was typed
+        if (typedKeys.current === 'admin') {
+          setAdminMode(prev => !prev) // Toggle admin mode
+          typedKeys.current = ''
+        }
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [])
 
   useEffect(() => {
     const loadQuizzes = async () => {
@@ -103,13 +129,15 @@ export default function QuizLibrary({
                 <Play className="h-4 w-4" />
                 {getTranslation(language, 'library.loadBtn')}
               </button>
-              <button
-                onClick={() => handleDelete(quiz.id)}
-                className="cursor-target flex items-center justify-center rounded-lg border border-destructive/30 bg-card px-3 py-2 text-destructive hover:bg-destructive/10 transition-colors"
-                title={getTranslation(language, 'library.deleteBtn')}
-              >
-                <Trash2 className="h-4 w-4" />
-              </button>
+              {adminMode && (
+                <button
+                  onClick={() => handleDelete(quiz.id)}
+                  className="cursor-target flex items-center justify-center rounded-lg border border-destructive/30 bg-card px-3 py-2 text-destructive hover:bg-destructive/10 transition-colors"
+                  title={getTranslation(language, 'library.deleteBtn')}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </button>
+              )}
             </div>
           </div>
         ))}

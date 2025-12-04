@@ -206,16 +206,16 @@ function QuizDisplay({
     return (
       <div className="w-full min-h-screen bg-background" style={{ fontFamily: '"Times New Roman", Times, serif' }}>
         {/* Fixed Header for Study Mode */}
-        <div className="fixed top-0 left-0 right-0 bg-background border-b border-border z-10 py-3 shadow-sm">
-          <div className="container mx-auto max-w-5xl px-8 flex justify-center items-center">
-            <span className="text-base font-semibold text-foreground" style={{ fontFamily: '"Times New Roman", Times, serif' }}>
+        <div className="fixed top-0 left-0 right-0 bg-background border-b border-border z-10 py-2 sm:py-3 shadow-sm">
+          <div className="container mx-auto max-w-5xl px-4 sm:px-8 flex justify-center items-center">
+            <span className="text-sm sm:text-base font-semibold text-foreground text-center" style={{ fontFamily: '"Times New Roman", Times, serif' }}>
               {getText('studyMode')}
             </span>
           </div>
         </div>
 
         {/* Questions List - All shown with correct answers */}
-        <div className="pt-24 pb-20 max-w-5xl mx-auto px-12" style={{ lineHeight: '1.8' }}>
+        <div className="pt-16 sm:pt-24 pb-20 max-w-5xl mx-auto px-4 sm:px-8 lg:px-12" style={{ lineHeight: '1.6' }}>
           {questions.map((question, questionIndex) => {
             const displayAnswers = shuffledAnswersMap.get(questionIndex) || question.answers
             const questionNumber = question._originalIndex !== undefined ? question._originalIndex + 1 : questionIndex + 1
@@ -264,12 +264,12 @@ function QuizDisplay({
         </div>
 
         {/* Fixed Done Button */}
-        <div className="fixed bottom-0 left-0 right-0 bg-background border-t border-border py-4 shadow-lg">
-          <div className="container mx-auto max-w-5xl px-8 flex justify-end">
+        <div className="fixed bottom-0 left-0 right-0 bg-background border-t border-border py-3 sm:py-4 shadow-lg">
+          <div className="container mx-auto max-w-5xl px-4 sm:px-8 flex justify-end">
             <button
               onClick={() => onComplete(0, [])}
-              className="px-8 py-3 bg-primary text-primary-foreground rounded hover:bg-primary/90 transition-colors"
-              style={{ fontFamily: '"Times New Roman", Times, serif', fontSize: '16px' }}
+              className="px-6 sm:px-8 py-2.5 sm:py-3 bg-primary text-primary-foreground rounded hover:bg-primary/90 transition-colors text-sm sm:text-base"
+              style={{ fontFamily: '"Times New Roman", Times, serif' }}
             >
               {getText('done')}
             </button>
@@ -282,19 +282,19 @@ function QuizDisplay({
   return (
     <div className="w-full min-h-screen bg-background" style={{ fontFamily: '"Times New Roman", Times, serif' }}>
       {/* Fixed Header with Score */}
-      <div className="fixed top-0 left-0 right-0 bg-background border-b border-border z-10 py-3 shadow-sm">
-        <div className="container mx-auto max-w-5xl px-8 flex justify-between items-center">
-          <span className="text-base text-foreground" style={{ fontFamily: '"Times New Roman", Times, serif' }}>
+      <div className="fixed top-0 left-0 right-0 bg-background border-b border-border z-10 py-2 sm:py-3 shadow-sm">
+        <div className="container mx-auto max-w-5xl px-4 sm:px-8 flex justify-between items-center">
+          <span className="text-sm sm:text-base text-foreground" style={{ fontFamily: '"Times New Roman", Times, serif' }}>
             {getText('questionOf')} {answeredCount} {getText('of')} {questions.length}
           </span>
-          <span className="text-base font-semibold text-foreground" style={{ fontFamily: '"Times New Roman", Times, serif' }}>
+          <span className="text-sm sm:text-base font-semibold text-foreground" style={{ fontFamily: '"Times New Roman", Times, serif' }}>
             {getText('score')}: {score}/{answeredCount}
           </span>
         </div>
       </div>
 
       {/* Questions List */}
-      <div className="pt-24 pb-20 max-w-5xl mx-auto px-12" style={{ lineHeight: '1.8' }}>
+      <div className="pt-16 sm:pt-24 pb-20 max-w-5xl mx-auto px-4 sm:px-8 lg:px-12" style={{ lineHeight: '1.6' }}>
         {questions.map((question, questionIndex) => {
           const state = questionStates[questionIndex]
           const displayAnswers = shuffledAnswersMap.get(questionIndex) || question.answers
@@ -362,12 +362,12 @@ function QuizDisplay({
 
       {/* Fixed Finish Button */}
       {allAnswered && (
-        <div className="fixed bottom-0 left-0 right-0 bg-background border-t border-border py-4 shadow-lg">
-          <div className="container mx-auto max-w-5xl px-8 flex justify-end">
+        <div className="fixed bottom-0 left-0 right-0 bg-background border-t border-border py-3 sm:py-4 shadow-lg">
+          <div className="container mx-auto max-w-5xl px-4 sm:px-8 flex justify-end">
             <button
               onClick={handleFinish}
-              className="px-8 py-3 bg-primary text-primary-foreground rounded hover:bg-primary/90 transition-colors"
-              style={{ fontFamily: '"Times New Roman", Times, serif', fontSize: '16px' }}
+              className="px-6 sm:px-8 py-2.5 sm:py-3 bg-primary text-primary-foreground rounded hover:bg-primary/90 transition-colors text-sm sm:text-base"
+              style={{ fontFamily: '"Times New Roman", Times, serif' }}
             >
               {getText('finish')}
             </button>

@@ -77,8 +77,8 @@ export default function Home() {
     <>
 
       <main className="min-h-screen bg-background text-foreground transition-colors duration-300">
-        <div className="container mx-auto max-w-5xl px-4 py-8 min-h-screen flex flex-col">
-          <header className="flex justify-end mb-8 relative z-50">
+        <div className="container mx-auto max-w-5xl px-3 sm:px-4 py-4 sm:py-8 min-h-screen flex flex-col">
+          <header className="flex justify-end mb-4 sm:mb-8 relative z-50">
             <ThemeSwitcher />
           </header>
 

@@ -112,49 +112,49 @@ export default function QuizSetup({
   const remainingQuestions = totalQuestions - answeredQuestions.size
 
   return (
-    <div className="mt-12 space-y-6 max-w-2xl mx-auto">
-      <div className="rounded-lg border border-border bg-card p-8 shadow-sm">
-        <h1 className="mb-2 text-3xl font-bold text-foreground">
+    <div className="mt-6 sm:mt-12 space-y-4 sm:space-y-6 max-w-2xl mx-auto px-4 sm:px-0">
+      <div className="rounded-lg border border-border bg-card p-4 sm:p-8 shadow-sm">
+        <h1 className="mb-2 text-2xl sm:text-3xl font-bold text-foreground">
           {getTranslation(language, 'setup.title')}
         </h1>
-        <p className="mb-8 text-muted-foreground">
+        <p className="mb-6 sm:mb-8 text-sm sm:text-base text-muted-foreground">
           {getTranslation(language, 'setup.subtitle')}
         </p>
 
         {!selectedMode ? (
-          <div className="grid gap-4">
+          <div className="grid gap-3 sm:gap-4">
             <button
               onClick={() => setSelectedMode('quick')}
-              className="cursor-target text-left rounded-lg border border-border p-6 hover:border-primary hover:bg-muted/50 transition-colors"
+              className="cursor-target text-left rounded-lg border border-border p-4 sm:p-6 hover:border-primary hover:bg-muted/50 transition-colors"
             >
-              <h3 className="text-lg font-bold text-foreground mb-1">
+              <h3 className="text-base sm:text-lg font-bold text-foreground mb-1">
                 {getTranslation(language, 'setup.mode.quick')}
               </h3>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-xs sm:text-sm text-muted-foreground">
                 {getTranslation(language, 'setup.mode.quickDesc')}
               </p>
             </button>
 
             <button
               onClick={() => setSelectedMode('sequential')}
-              className="cursor-target text-left rounded-lg border border-border p-6 hover:border-primary hover:bg-muted/50 transition-colors"
+              className="cursor-target text-left rounded-lg border border-border p-4 sm:p-6 hover:border-primary hover:bg-muted/50 transition-colors"
             >
-              <h3 className="text-lg font-bold text-foreground mb-1">
+              <h3 className="text-base sm:text-lg font-bold text-foreground mb-1">
                 {getTranslation(language, 'setup.mode.sequential')}
               </h3>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-xs sm:text-sm text-muted-foreground">
                 {getTranslation(language, 'setup.mode.sequentialDesc')}
               </p>
             </button>
 
             <button
               onClick={() => setSelectedMode('practice')}
-              className="cursor-target text-left rounded-lg border border-border p-6 hover:border-primary hover:bg-muted/50 transition-colors"
+              className="cursor-target text-left rounded-lg border border-border p-4 sm:p-6 hover:border-primary hover:bg-muted/50 transition-colors"
             >
-              <h3 className="text-lg font-bold text-foreground mb-1">
+              <h3 className="text-base sm:text-lg font-bold text-foreground mb-1">
                 {getTranslation(language, 'setup.mode.practice')}
               </h3>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-xs sm:text-sm text-muted-foreground">
                 {getTranslation(language, 'setup.mode.practiceDesc')}
               </p>
               {answeredQuestions.size > 0 && (
@@ -169,12 +169,12 @@ export default function QuizSetup({
 
             <button
               onClick={() => setSelectedMode('study')}
-              className="cursor-target text-left rounded-lg border border-border p-6 hover:border-primary hover:bg-muted/50 transition-colors"
+              className="cursor-target text-left rounded-lg border border-border p-4 sm:p-6 hover:border-primary hover:bg-muted/50 transition-colors"
             >
-              <h3 className="text-lg font-bold text-foreground mb-1">
+              <h3 className="text-base sm:text-lg font-bold text-foreground mb-1">
                 {getTranslation(language, 'setup.mode.study')}
               </h3>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-xs sm:text-sm text-muted-foreground">
                 {getTranslation(language, 'setup.mode.studyDesc')}
               </p>
             </button>
