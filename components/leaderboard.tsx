@@ -8,7 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '.
 import { Skeleton } from './ui/skeleton'
 import { Badge } from './ui/badge'
 import { Button } from './ui/button'
-import { ArrowClockwise } from 'lucide-react'
+import { RotateCw } from 'lucide-react'
 import { format } from 'date-fns'
 
 function formatDuration(ms: number) {
@@ -40,7 +40,7 @@ export function Leaderboard({ quizId, playerName, language, refreshKey = 0 }: Le
           <p className="text-sm text-muted-foreground">{t('leaderboard.subtitle')}</p>
         </div>
         <Button variant="ghost" size="icon" onClick={refresh} disabled={isLoading || !quizId} aria-label="Refresh leaderboard">
-          <ArrowClockwise className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
+          <RotateCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
         </Button>
       </CardHeader>
       <CardContent>
