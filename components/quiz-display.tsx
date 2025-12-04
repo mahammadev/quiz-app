@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useMemo, useEffect, useRef } from 'react'
-import { CheckCircle, XCircle } from 'lucide-react'
+import { CheckCircle, XCircle, ArrowLeft } from 'lucide-react'
 import { QuestionSlider } from './question-slider'
 import ThemeSwitcher from './theme-switcher'
 
@@ -26,6 +26,7 @@ type QuestionState = {
 function QuizDisplay({
   questions,
   onComplete,
+  onBack,
   shuffleAnswers,
   studyMode = false,
   showOnlyCorrect = false,
@@ -35,6 +36,7 @@ function QuizDisplay({
 }: {
   questions: Question[]
   onComplete: (score: number, incorrectAnswers: IncorrectAnswer[]) => void
+  onBack?: () => void
   shuffleAnswers: boolean
   studyMode?: boolean
   showOnlyCorrect?: boolean
@@ -209,9 +211,21 @@ function QuizDisplay({
         {/* Fixed Header for Study Mode */}
         <div className="fixed top-0 left-0 right-0 bg-background border-b border-border z-10 py-2 sm:py-3 shadow-sm">
           <div className="container mx-auto max-w-5xl px-4 sm:px-8 flex justify-between items-center">
-            <span className="text-sm sm:text-base font-semibold text-foreground">
-              {getText('studyMode')}
-            </span>
+            <div className="flex items-center gap-2 sm:gap-4">
+              {onBack && (
+                <button
+                  onClick={onBack}
+                  className="flex items-center gap-1 sm:gap-2 text-muted-foreground hover:text-foreground transition-colors"
+                  aria-label="Go back"
+                >
+                  <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
+                  <span className="text-sm hidden sm:inline">Geri</span>
+                </button>
+              )}
+              <span className="text-sm sm:text-base font-semibold text-foreground">
+                {getText('studyMode')}
+              </span>
+            </div>
             <ThemeSwitcher />
           </div>
         </div>
@@ -284,9 +298,21 @@ function QuizDisplay({
       {/* Fixed Header with Score */}
       <div className="fixed top-0 left-0 right-0 bg-background border-b border-border z-10 py-2 sm:py-3 shadow-sm">
         <div className="container mx-auto max-w-5xl px-4 sm:px-8 flex justify-between items-center gap-2">
-          <span className="text-sm sm:text-base text-foreground">
-            {getText('questionOf')} {answeredCount} {getText('of')} {questions.length}
-          </span>
+          <div className="flex items-center gap-2 sm:gap-4">
+            {onBack && (
+              <button
+                onClick={onBack}
+                className="flex items-center gap-1 sm:gap-2 text-muted-foreground hover:text-foreground transition-colors"
+                aria-label="Go back"
+              >
+                <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
+                <span className="text-sm hidden sm:inline">Geri</span>
+              </button>
+            )}
+            <span className="text-sm sm:text-base text-foreground">
+              {getText('questionOf')} {answeredCount} {getText('of')} {questions.length}
+            </span>
+          </div>
           <div className="flex items-center gap-2 sm:gap-4">
             <span className="text-sm sm:text-base font-semibold text-foreground">
               {getText('score')}: {score}/{answeredCount}

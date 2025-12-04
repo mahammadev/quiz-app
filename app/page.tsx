@@ -117,7 +117,7 @@ export default function Home() {
                     <div className={`w-full rounded-lg border shadow-lg p-6 md:p-8 ${step === 'quiz' ? 'bg-transparent border-transparent shadow-none p-0' : 'bg-card border-border'
                       }`}>
 
-                      {currentIndex > 0 && step !== 'complete' && (
+                      {currentIndex > 0 && step !== 'complete' && step !== 'quiz' && (
                         <button
                           onClick={handleBack}
                           className="mb-6 flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
@@ -143,6 +143,7 @@ export default function Home() {
                         <QuizDisplay
                           questions={currentQuiz}
                           onComplete={handleQuizComplete}
+                          onBack={handleBack}
                           shuffleAnswers={shuffleAnswers}
                           studyMode={studyMode}
                           showOnlyCorrect={showOnlyCorrect}
