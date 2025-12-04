@@ -128,17 +128,36 @@
   }
 }
 
-/* Font family classes */
-.font-poppins {
-  font-family: var(--font-poppins), 'Poppins', sans-serif;
+/* Font family classes - applied to html, cascades to all children */
+html.font-poppins,
+html.font-poppins body,
+html.font-poppins * {
+  font-family: var(--font-poppins), 'Poppins', sans-serif !important;
 }
 
-.font-inter {
-  font-family: var(--font-inter), 'Inter', sans-serif;
+html.font-inter,
+html.font-inter body,
+html.font-inter * {
+  font-family: var(--font-inter), 'Inter', sans-serif !important;
 }
 
-.font-times {
-  font-family: 'Times New Roman', Times, serif;
+html.font-times,
+html.font-times body,
+html.font-times * {
+  font-family: 'Times New Roman', Times, serif !important;
+}
+
+/* Exclude monospace elements from font override */
+html.font-poppins code,
+html.font-poppins pre,
+html.font-poppins kbd,
+html.font-inter code,
+html.font-inter pre,
+html.font-inter kbd,
+html.font-times code,
+html.font-times pre,
+html.font-times kbd {
+  font-family: var(--font-mono), 'Courier New', monospace !important;
 }
 
 /* Mobile-friendly touch targets */

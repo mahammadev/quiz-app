@@ -204,11 +204,11 @@ function QuizDisplay({
   // In study mode, show all questions immediately
   if (studyMode) {
     return (
-      <div className="w-full min-h-screen bg-background" style={{ fontFamily: '"Times New Roman", Times, serif' }}>
+      <div className="w-full min-h-screen bg-background">
         {/* Fixed Header for Study Mode */}
         <div className="fixed top-0 left-0 right-0 bg-background border-b border-border z-10 py-2 sm:py-3 shadow-sm">
           <div className="container mx-auto max-w-5xl px-4 sm:px-8 flex justify-center items-center">
-            <span className="text-sm sm:text-base font-semibold text-foreground text-center" style={{ fontFamily: '"Times New Roman", Times, serif' }}>
+            <span className="text-sm sm:text-base font-semibold text-foreground text-center">
               {getText('studyMode')}
             </span>
           </div>
@@ -227,7 +227,7 @@ function QuizDisplay({
               >
                 {/* Question */}
                 <div className="mb-4">
-                  <p className="text-foreground text-lg" style={{ fontFamily: '"Times New Roman", Times, serif' }}>
+                  <p className="text-foreground text-lg">
                     <span className="mr-2">{questionNumber}.</span>
                     <span>{question.question}</span>
                   </p>
@@ -248,7 +248,6 @@ function QuizDisplay({
                       <div
                         key={ansIndex}
                         className="w-full text-left py-1 px-2"
-                        style={{ fontFamily: '"Times New Roman", Times, serif' }}
                       >
                         <span className={`text-lg ${isCorrectAnswer ? 'text-success font-bold' : 'text-foreground font-normal'}`}>
                           {letter}) {answer}
@@ -269,7 +268,6 @@ function QuizDisplay({
             <button
               onClick={() => onComplete(0, [])}
               className="px-6 sm:px-8 py-2.5 sm:py-3 bg-primary text-primary-foreground rounded hover:bg-primary/90 transition-colors text-sm sm:text-base"
-              style={{ fontFamily: '"Times New Roman", Times, serif' }}
             >
               {getText('done')}
             </button>
@@ -280,14 +278,14 @@ function QuizDisplay({
   }
 
   return (
-    <div className="w-full min-h-screen bg-background" style={{ fontFamily: '"Times New Roman", Times, serif' }}>
+    <div className="w-full min-h-screen bg-background">
       {/* Fixed Header with Score */}
       <div className="fixed top-0 left-0 right-0 bg-background border-b border-border z-10 py-2 sm:py-3 shadow-sm">
         <div className="container mx-auto max-w-5xl px-4 sm:px-8 flex justify-between items-center">
-          <span className="text-sm sm:text-base text-foreground" style={{ fontFamily: '"Times New Roman", Times, serif' }}>
+          <span className="text-sm sm:text-base text-foreground">
             {getText('questionOf')} {answeredCount} {getText('of')} {questions.length}
           </span>
-          <span className="text-sm sm:text-base font-semibold text-foreground" style={{ fontFamily: '"Times New Roman", Times, serif' }}>
+          <span className="text-sm sm:text-base font-semibold text-foreground">
             {getText('score')}: {score}/{answeredCount}
           </span>
         </div>
@@ -308,7 +306,7 @@ function QuizDisplay({
             >
               {/* Question */}
               <div className="mb-4">
-                <p className="text-foreground text-lg" style={{ fontFamily: '"Times New Roman", Times, serif' }}>
+                <p className="text-foreground text-lg">
                   <span className="mr-2">{questionNumber}.</span>
                   <span>{question.question}</span>
                 </p>
@@ -343,7 +341,6 @@ function QuizDisplay({
                       onClick={() => handleAnswer(questionIndex, answer)}
                       disabled={answered}
                       className={`w-full text-left py-1 px-2 transition-colors ${backgroundColor} ${answered ? 'cursor-default' : 'cursor-pointer hover:bg-muted/50'}`}
-                      style={{ fontFamily: '"Times New Roman", Times, serif' }}
                     >
                       <span className={`text-lg ${textColor} ${fontWeight}`}>
                         {letter}){' '}
@@ -367,7 +364,6 @@ function QuizDisplay({
             <button
               onClick={handleFinish}
               className="px-6 sm:px-8 py-2.5 sm:py-3 bg-primary text-primary-foreground rounded hover:bg-primary/90 transition-colors text-sm sm:text-base"
-              style={{ fontFamily: '"Times New Roman", Times, serif' }}
             >
               {getText('finish')}
             </button>
