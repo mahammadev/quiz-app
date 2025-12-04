@@ -18,7 +18,7 @@ export default function FileUpload({
   onFileLoaded,
   language = "en",
 }: {
-  onFileLoaded: (questions: Question[]) => void
+  onFileLoaded: (questions: Question[], id?: string) => void
   language?: Language
 }) {
   const [error, setError] = useState<string>("")
@@ -110,7 +110,10 @@ export default function FileUpload({
 
   const handleStartQuiz = () => {
     if (parsedQuestions) {
-      onFileLoaded(parsedQuestions)
+      const slug = quizName
+        ? `quiz-${quizName.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "custom"}`
+        : undefined
+      onFileLoaded(parsedQuestions, slug)
     }
   }
 

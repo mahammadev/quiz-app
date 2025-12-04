@@ -23,7 +23,7 @@ export default function QuizLibrary({
   language = 'en',
   refreshTrigger = 0,
 }: {
-  onSelectQuiz: (questions: Question[]) => void
+  onSelectQuiz: (questions: Question[], id?: string) => void
   language?: Language
   refreshTrigger?: number
 }) {
@@ -123,7 +123,7 @@ export default function QuizLibrary({
             </div>
             <div className="mt-4 flex gap-2">
               <button
-                onClick={() => onSelectQuiz(quiz.questions)}
+                onClick={() => onSelectQuiz(quiz.questions, quiz.id)}
                 className="cursor-target btn-primary flex-1 flex items-center justify-center gap-2 text-sm"
               >
                 <Play className="h-4 w-4" />
