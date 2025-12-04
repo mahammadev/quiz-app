@@ -8,14 +8,24 @@ const postSchema = z.object({
   duration: z.number().int().min(0),
 })
 
-export async function GET(request: Request, { params }: { params: { quizId: string } }) {
+function getQuizId(request: Request, params?: { quizId?: string }) {
+  const url = new URL(request.url)
+  return (
+    params?.quizId ||
+    url.searchParams.get('quizId') ||
+    url.searchParams.get('nxtPquizId') || // fallback for Next internal param
+    url.pathname.split('/').filter(Boolean).pop()
+  )
+}
+
+export async function GET(request: Request, { params }: { params: { quizId?: string } }) {
   const url = new URL(request.url)
   const rawLimit = Number(url.searchParams.get('limit'))
   const rawPage = Number(url.searchParams.get('page'))
   const limit = Math.max(1, Math.min(Number.isFinite(rawLimit) ? rawLimit : 10, 50))
   const page = Math.max(Number.isFinite(rawPage) ? rawPage : 1, 1)
   const name = url.searchParams.get('name') || undefined
-  const quizId = params.quizId
+  const quizId = getQuizId(request, params)
 
   if (!quizId) {
     return NextResponse.json({ error: 'Missing quiz id' }, { status: 400 })
@@ -35,8 +45,8 @@ export async function GET(request: Request, { params }: { params: { quizId: stri
   }
 }
 
-export async function POST(request: Request, { params }: { params: { quizId: string } }) {
-  const quizId = params.quizId
+export async function POST(request: Request, { params }: { params: { quizId?: string } }) {
+  const quizId = getQuizId(request, params)
   if (!quizId) {
     return NextResponse.json({ error: 'Missing quiz id' }, { status: 400 })
   }
