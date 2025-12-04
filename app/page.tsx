@@ -78,9 +78,12 @@ export default function Home() {
 
       <main className="min-h-screen bg-background text-foreground transition-colors duration-300">
         <div className="container mx-auto max-w-5xl px-3 sm:px-4 py-4 sm:py-8 min-h-screen flex flex-col">
-          <header className="flex justify-end mb-4 sm:mb-8 relative z-50">
-            <ThemeSwitcher />
-          </header>
+          {/* Hide header during quiz since quiz-display has its own */}
+          {state !== 'quiz' && (
+            <header className="flex justify-end mb-4 sm:mb-8 relative z-50">
+              <ThemeSwitcher />
+            </header>
+          )}
 
           <div className="relative flex-1 w-full grid grid-cols-1 items-start">
             <AnimatePresence mode="popLayout">
