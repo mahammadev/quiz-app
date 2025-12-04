@@ -3,6 +3,7 @@
 import { useState, useMemo, useEffect, useRef } from 'react'
 import { CheckCircle, XCircle } from 'lucide-react'
 import { QuestionSlider } from './question-slider'
+import ThemeSwitcher from './theme-switcher'
 
 type Question = {
   question: string
@@ -207,15 +208,16 @@ function QuizDisplay({
       <div className="w-full min-h-screen bg-background">
         {/* Fixed Header for Study Mode */}
         <div className="fixed top-0 left-0 right-0 bg-background border-b border-border z-10 py-2 sm:py-3 shadow-sm">
-          <div className="container mx-auto max-w-5xl px-4 sm:px-8 flex justify-center items-center">
-            <span className="text-sm sm:text-base font-semibold text-foreground text-center">
+          <div className="container mx-auto max-w-5xl px-4 sm:px-8 flex justify-between items-center">
+            <span className="text-sm sm:text-base font-semibold text-foreground">
               {getText('studyMode')}
             </span>
+            <ThemeSwitcher />
           </div>
         </div>
 
         {/* Questions List - All shown with correct answers */}
-        <div className="pt-16 sm:pt-24 pb-20 max-w-5xl mx-auto px-4 sm:px-8 lg:px-12" style={{ lineHeight: '1.6' }}>
+        <div className="pt-16 sm:pt-24 pb-20 max-w-5xl mx-auto px-4 sm:px-8 lg:px-12 leading-relaxed">
           {questions.map((question, questionIndex) => {
             const displayAnswers = shuffledAnswersMap.get(questionIndex) || question.answers
             const questionNumber = question._originalIndex !== undefined ? question._originalIndex + 1 : questionIndex + 1
@@ -281,18 +283,21 @@ function QuizDisplay({
     <div className="w-full min-h-screen bg-background">
       {/* Fixed Header with Score */}
       <div className="fixed top-0 left-0 right-0 bg-background border-b border-border z-10 py-2 sm:py-3 shadow-sm">
-        <div className="container mx-auto max-w-5xl px-4 sm:px-8 flex justify-between items-center">
+        <div className="container mx-auto max-w-5xl px-4 sm:px-8 flex justify-between items-center gap-2">
           <span className="text-sm sm:text-base text-foreground">
             {getText('questionOf')} {answeredCount} {getText('of')} {questions.length}
           </span>
-          <span className="text-sm sm:text-base font-semibold text-foreground">
-            {getText('score')}: {score}/{answeredCount}
-          </span>
+          <div className="flex items-center gap-2 sm:gap-4">
+            <span className="text-sm sm:text-base font-semibold text-foreground">
+              {getText('score')}: {score}/{answeredCount}
+            </span>
+            <ThemeSwitcher />
+          </div>
         </div>
       </div>
 
       {/* Questions List */}
-      <div className="pt-16 sm:pt-24 pb-20 max-w-5xl mx-auto px-4 sm:px-8 lg:px-12" style={{ lineHeight: '1.6' }}>
+      <div className="pt-16 sm:pt-24 pb-20 max-w-5xl mx-auto px-4 sm:px-8 lg:px-12 leading-relaxed">
         {questions.map((question, questionIndex) => {
           const state = questionStates[questionIndex]
           const displayAnswers = shuffledAnswersMap.get(questionIndex) || question.answers
