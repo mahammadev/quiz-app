@@ -171,7 +171,7 @@ export const translations = {
 
     // Leaderboard
     'leaderboard.title': 'Liderlər cədvəli',
-    'leaderboard.subtitle': 'Bu kviz üçün ən yüksək nəticələr',
+    'leaderboard.subtitle': 'Ən yüksək nəticələr',
     'leaderboard.noQuiz': 'Liderlər cədvəlini görmək üçün kvizi başladın.',
     'leaderboard.empty': 'Hələ nəticə yoxdur. İlk siz göndərin!',
     'leaderboard.columns.rank': '#',

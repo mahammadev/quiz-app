@@ -16,7 +16,7 @@ type LeaderboardResponse = {
   personalBest: LeaderboardEntry | null
 }
 
-export function useLeaderboard(quizId?: string, playerName?: string, refreshOn: number = 0) {
+export function useLeaderboard(quizId?: string, playerName?: string, refreshOn: number = 0, limit: number = 50) {
   const [data, setData] = useState<LeaderboardResponse | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -30,6 +30,7 @@ export function useLeaderboard(quizId?: string, playerName?: string, refreshOn: 
     if (playerName) {
       url.searchParams.set('name', playerName)
     }
+    url.searchParams.set('limit', limit.toString())
 
     try {
       const response = await fetch(url.toString(), { cache: 'no-store' })
@@ -43,7 +44,7 @@ export function useLeaderboard(quizId?: string, playerName?: string, refreshOn: 
     } finally {
       setIsLoading(false)
     }
-  }, [playerName, quizId])
+  }, [playerName, quizId, limit])
 
   useEffect(() => {
     fetchLeaderboard()

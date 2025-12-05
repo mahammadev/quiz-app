@@ -36,7 +36,7 @@ export function Leaderboard({ quizId, playerName, language, refreshKey = 0 }: Le
     <Card className="border-border bg-card">
       <CardHeader className="flex flex-row items-center justify-between">
         <div className="space-y-1">
-          <CardTitle className="text-xl font-semibold">{t('leaderboard.title')}</CardTitle>
+          <CardTitle className="text-xl font-semibold">{quizId === 'global' ? 'Global Leaderboard' : t('leaderboard.title')}</CardTitle>
           <p className="text-sm text-muted-foreground">{t('leaderboard.subtitle')}</p>
         </div>
         <Button variant="ghost" size="icon" onClick={refresh} disabled={isLoading || !quizId} aria-label="Refresh leaderboard">

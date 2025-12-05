@@ -92,13 +92,18 @@ export async function getLeaderboard(quizId: string, limit = 10, page = 1) {
   const start = Math.max(0, (page - 1) * limit)
   const end = start + limit - 1
 
-  const { data, error, count } = await client
+  let query = client
     .from(TABLE)
     .select('*', { count: 'exact' })
-    .eq('quiz_id', quizId)
+
+  if (quizId !== 'global') {
+    query = query.eq('quiz_id', quizId)
+  }
+
+  const { data, error, count } = await query
+    .order('created_at', { ascending: false })
     .order('score', { ascending: false })
     .order('duration', { ascending: true })
-    .order('created_at', { ascending: true })
     .range(start, end)
 
   if (error || !data) {
@@ -113,10 +118,16 @@ export async function getLeaderboard(quizId: string, limit = 10, page = 1) {
 
 export async function getPersonalBest(quizId: string, name: string) {
   const client = getSupabaseClient()
-  const { data, error } = await client
+
+  let query = client
     .from(TABLE)
     .select('*')
-    .eq('quiz_id', quizId)
+
+  if (quizId !== 'global') {
+    query = query.eq('quiz_id', quizId)
+  }
+
+  const { data, error } = await query
     .ilike('name', name)
     .order('score', { ascending: false })
     .order('duration', { ascending: true })
