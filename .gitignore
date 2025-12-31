@@ -10,7 +10,7 @@ node_modules
 # Next.js
 /.next/
 /out/
-
+.next
 # Production
 /build
 
@@ -36,3 +36,26 @@ next-env.d.ts
 
 # Custom data
 data/leaderboard.json
+.next
+.test-dist
+.next/dev/prerender-manifest.json
+.next/dev/prerender-manifest.json
+.next/dev/trace
+.next/dev/logs/next-development.log
+.next/dev/server/app-paths-manifest.json
+.next/dev/server/next-font-manifest.js
+.next/dev/server/next-font-manifest.json
+.next/dev/server/app/page_client-reference-manifest.js
+.next/dev/server/app/page.js
+.next/dev/server/app/page/next-font-manifest.json
+.next/dev/server/chunks/ssr/node_modules_next_dist_2eb74c46._.js
+.next/dev/server/chunks/ssr/node_modules_next_dist_2eb74c46._.js.map
+.next/dev/server/chunks/ssr/node_modules_next_dist_3b4d20e1._.js
+.next/dev/server/chunks/ssr/node_modules_next_dist_3b4d20e1._.js.map
+.next/dev/static/chunks/app_layout_tsx_78cdd4a3._.js
+.next/dev/static/chunks/node_modules_next_dist_client_aaee43fe._.js
+.next/dev/static/chunks/node_modules_next_dist_client_aaee43fe._.js.map
+.next/dev/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_9212ccad._.js
+.next/dev/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_9212ccad._.js.map
+.next/dev/types/routes.d.ts
+.next/dev/types/validator.ts

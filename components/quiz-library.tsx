@@ -175,24 +175,6 @@ export default function QuizLibrary({
                 {new Date(quiz.created_at).toLocaleDateString()}
               </p>
             </div>
-            {adminMode && editingQuizId === quiz.id && (
-              <div className="mt-4 space-y-3">
-                <label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                  {getTranslation(language, 'library.editTitle')}
-                </label>
-                <textarea
-                  value={editValue}
-                  onChange={(e) => setEditValue(e.target.value)}
-                  className="cursor-target w-full rounded-lg border border-border bg-background p-3 font-mono text-xs text-foreground focus:border-primary focus:outline-none transition-colors"
-                  rows={10}
-                />
-                {editError && (
-                  <div className="rounded-lg border border-error/30 bg-error/10 p-3 text-xs text-error">
-                    {editError}
-                  </div>
-                )}
-              </div>
-            )}
             <div className="mt-4 flex gap-2">
               <button
                 onClick={() => onSelectQuiz(quiz.questions, quiz.id)}
@@ -243,6 +225,49 @@ export default function QuizLibrary({
           </div>
         ))}
       </div>
+      {adminMode && editingQuizId && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-6">
+          <div className="flex w-[75vw] h-[75vh] flex-col rounded-xl border border-border bg-card p-6 shadow-2xl">
+            <div className="mb-4 flex items-center justify-between">
+              <h3 className="text-lg font-semibold text-foreground">
+                {getTranslation(language, 'library.editTitle')}
+              </h3>
+              <button
+                onClick={cancelEdit}
+                className="cursor-target flex items-center justify-center rounded-lg border border-border bg-card px-3 py-2 text-muted-foreground hover:bg-muted transition-colors"
+                title={getTranslation(language, 'library.cancelBtn')}
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+            <textarea
+              value={editValue}
+              onChange={(e) => setEditValue(e.target.value)}
+              className="cursor-target flex-1 w-full rounded-lg border border-border bg-background p-4 font-mono text-xs text-foreground focus:border-primary focus:outline-none transition-colors"
+            />
+            {editError && (
+              <div className="mt-3 rounded-lg border border-error/30 bg-error/10 p-3 text-xs text-error">
+                {editError}
+              </div>
+            )}
+            <div className="mt-4 flex items-center justify-end gap-2">
+              <button
+                onClick={() => {
+                  const quiz = savedQuizzes.find((q) => q.id === editingQuizId)
+                  if (quiz) {
+                    handleSaveEdit(quiz)
+                  }
+                }}
+                disabled={editSaving}
+                className="cursor-target flex items-center justify-center gap-2 rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium text-foreground hover:bg-muted transition-colors disabled:opacity-50"
+              >
+                <Save className="h-4 w-4" />
+                {getTranslation(language, 'library.saveEditBtn')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
