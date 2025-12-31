@@ -60,23 +60,24 @@ export default function QuizLibrary({
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [])
 
-  useEffect(() => {
-    const loadQuizzes = async () => {
-      try {
-        const { data, error } = await supabase
-          .from('quizzes')
-          .select('*')
-          .order('created_at', { ascending: false })
+  const loadQuizzes = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('quizzes')
+        .select('*')
+        .order('created_at', { ascending: false })
 
-        if (error) throw error
+      if (error) throw error
 
-        if (data) {
-          setSavedQuizzes(data)
-        }
-      } catch (e) {
-        console.error('Failed to load library', e)
+      if (data) {
+        setSavedQuizzes(data)
       }
+    } catch (e) {
+      console.error('Failed to load library', e)
     }
+  }
+
+  useEffect(() => {
     loadQuizzes()
   }, [refreshTrigger])
 
@@ -129,16 +130,23 @@ export default function QuizLibrary({
 
     try {
       const parsed = parseQuestions(editValue)
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('quizzes')
         .update({ questions: parsed })
         .eq('id', quiz.id)
+        .select('id, name, created_at, questions')
 
       if (error) throw error
 
+      if (!data || data.length === 0) {
+        throw new Error('No data returned from update')
+      }
+
+      const updated = data[0]
       setSavedQuizzes((prev) =>
-        prev.map((q) => (q.id === quiz.id ? { ...q, questions: parsed } : q))
+        prev.map((q) => (q.id === quiz.id ? { ...q, ...updated } : q))
       )
+      await loadQuizzes()
       cancelEdit()
     } catch (e) {
       const message = e instanceof Error ? e.message : getTranslation(language, 'upload.parseErrorPaste')
