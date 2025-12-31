@@ -135,14 +135,15 @@ export default function QuizLibrary({
         .update({ questions: parsed })
         .eq('id', quiz.id)
         .select('id, name, created_at, questions')
+        .maybeSingle()
 
       if (error) throw error
 
-      if (!data || data.length === 0) {
-        throw new Error('No data returned from update')
+      if (!data) {
+        throw new Error('Update blocked or no matching row (check RLS / id)')
       }
 
-      const updated = data[0]
+      const updated = data
       setSavedQuizzes((prev) =>
         prev.map((q) => (q.id === quiz.id ? { ...q, ...updated } : q))
       )
