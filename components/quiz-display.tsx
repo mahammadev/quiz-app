@@ -245,7 +245,7 @@ function QuizDisplay({
                 <div className="mb-4">
                   <p className="text-foreground text-lg">
                     <span className="mr-2">{questionNumber}.</span>
-                    <span>{question.question}</span>
+                    <span className="whitespace-pre-line">{question.question}</span>
                   </p>
                 </div>
 
@@ -265,7 +265,7 @@ function QuizDisplay({
                         key={ansIndex}
                         className="w-full text-left py-1 px-2"
                       >
-                        <span className={`text-lg ${isCorrectAnswer ? 'text-success font-bold' : 'text-foreground font-normal'}`}>
+                        <span className={`text-lg whitespace-pre-line ${isCorrectAnswer ? 'text-success font-bold' : 'text-foreground font-normal'}`}>
                           {letter}) {answer}
                         </span>
                         {isCorrectAnswer && <span className="ml-2 text-success">✓</span>}
@@ -339,7 +339,7 @@ function QuizDisplay({
               <div className="mb-4">
                 <p className="text-foreground text-lg">
                   <span className="mr-2">{questionNumber}.</span>
-                  <span>{question.question}</span>
+                    <span className="whitespace-pre-line">{question.question}</span>
                 </p>
               </div>
 
@@ -373,7 +373,7 @@ function QuizDisplay({
                       disabled={answered}
                       className={`w-full text-left py-1 px-2 transition-colors ${backgroundColor} ${answered ? 'cursor-default' : 'cursor-pointer hover:bg-muted/50'}`}
                     >
-                      <span className={`text-lg ${textColor} ${fontWeight}`}>
+                      <span className={`text-lg whitespace-pre-line ${textColor} ${fontWeight}`}>
                         {letter}){' '}
                         {answer}
                       </span>
