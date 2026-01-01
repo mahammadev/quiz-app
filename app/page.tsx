@@ -66,6 +66,21 @@ export default function Home() {
     setAppState('complete')
   }
 
+  const handleRetryIncorrect = () => {
+    if (incorrectAnswers.length === 0) return
+
+    const retryQuestions = questions.filter(q =>
+      incorrectAnswers.some(ia => ia.question === q.question)
+    )
+
+    setCurrentQuiz(retryQuestions)
+    setScore(0)
+    setIncorrectAnswers([])
+    setQuizStartTime(Date.now())
+    setQuizDuration(0)
+    setAppState('quiz')
+  }
+
   const handleReset = () => {
     setAppState('upload')
     setQuestions([])
@@ -169,6 +184,7 @@ export default function Home() {
                           total={currentQuiz.length}
                           incorrectAnswers={incorrectAnswers}
                           onReset={handleReset}
+                          onRetryIncorrect={handleRetryIncorrect}
                           language={language}
                           quizId={quizId}
                           durationMs={quizDuration}
@@ -205,6 +221,7 @@ function QuizComplete({
   total: number
   incorrectAnswers: IncorrectAnswer[]
   onReset: () => void
+  onRetryIncorrect: () => void
   language: Language
   quizId?: string
   durationMs: number
@@ -288,12 +305,22 @@ function QuizComplete({
             {getTranslation(language, 'results.scored', { score, total })}
           </p>
         </div>
-        <button
-          onClick={onReset}
-          className="btn-primary"
-        >
-          {getTranslation(language, 'results.resetBtn')}
-        </button>
+        <div className="flex flex-col sm:flex-row justify-center gap-3">
+          <button
+            onClick={onReset}
+            className="btn-primary"
+          >
+            {getTranslation(language, 'results.resetBtn')}
+          </button>
+          {incorrectAnswers.length > 0 && (
+            <button
+              onClick={onRetryIncorrect}
+              className="px-6 sm:px-8 py-2.5 sm:py-3 bg-secondary text-secondary-foreground rounded hover:bg-secondary/90 transition-colors text-sm sm:text-base font-medium"
+            >
+              {getTranslation(language, 'results.retryIncorrectBtn')}
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">
