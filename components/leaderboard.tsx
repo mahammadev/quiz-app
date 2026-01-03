@@ -10,6 +10,17 @@ import { Badge } from './ui/badge'
 import { Button } from './ui/button'
 import { RotateCw } from 'lucide-react'
 import { format } from 'date-fns'
+import { enUS } from 'date-fns/locale'
+
+function safelyFormatDate(dateStr: string | number | Date, formatStr: string) {
+  try {
+    const date = new Date(dateStr)
+    if (isNaN(date.getTime())) return 'Invalid Date'
+    return format(date, formatStr)
+  } catch (e) {
+    return 'Invalid Date'
+  }
+}
 
 function formatDuration(ms: number) {
   const totalSeconds = Math.max(0, Math.round(ms / 1000))
@@ -91,7 +102,7 @@ export function Leaderboard({ quizId, playerName, language, refreshKey = 0 }: Le
                       <TableCell className="text-right font-semibold">{entry.score}</TableCell>
                       <TableCell className="text-right text-muted-foreground">{formatDuration(entry.duration)}</TableCell>
                       <TableCell className="text-right text-muted-foreground">
-                        {format(new Date(entry.createdAt), 'MMM d, yyyy')}
+                        {safelyFormatDate(entry.createdAt, 'MMM d, yyyy')}
                       </TableCell>
                     </TableRow>
                   )
@@ -113,7 +124,7 @@ export function Leaderboard({ quizId, playerName, language, refreshKey = 0 }: Le
               <div className="flex flex-wrap gap-2 text-muted-foreground">
                 <span>Score: {personalBest.score}</span>
                 <span>Time: {formatDuration(personalBest.duration)}</span>
-                <span>Date: {format(new Date(personalBest.createdAt), 'PP')}</span>
+                <span>Date: {safelyFormatDate(personalBest.createdAt, 'PP')}</span>
               </div>
             </div>
           </div>

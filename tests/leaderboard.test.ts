@@ -21,7 +21,7 @@ type Row = {
 }
 
 class MockQuery {
-  constructor(private store: Row[]) {}
+  constructor(private store: Row[]) { }
 
   private filters: { type: 'eq' | 'ilike' | 'neq'; column: keyof Row; value: any }[] = []
   private orders: { column: keyof Row; ascending: boolean }[] = []
@@ -173,7 +173,7 @@ test('API POST and GET handlers validate and return leaderboard data', async () 
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ name: 'Eve', score: 5, duration: 800 }),
     }),
-    { params: { quizId } }
+    { params: Promise.resolve({ quizId }) }
   )
 
   assert.equal(postResponse.status, 200)
@@ -181,7 +181,7 @@ test('API POST and GET handlers validate and return leaderboard data', async () 
   assert.equal(postBody.entry.name, 'Eve')
 
   const getResponse = await GET(new Request(`http://localhost/api/leaderboard/${quizId}?limit=5&name=Eve`), {
-    params: { quizId },
+    params: Promise.resolve({ quizId }),
   })
 
   assert.equal(getResponse.status, 200)

@@ -76,6 +76,8 @@ export default function Home() {
     setCurrentQuiz(retryQuestions)
     setScore(0)
     setIncorrectAnswers([])
+    setStudyMode(false)
+    setShowOnlyCorrect(false)
     setQuizStartTime(Date.now())
     setQuizDuration(0)
     setAppState('quiz')
@@ -213,6 +215,7 @@ function QuizComplete({
   total,
   incorrectAnswers,
   onReset,
+  onRetryIncorrect,
   language,
   quizId,
   durationMs,
@@ -231,6 +234,7 @@ function QuizComplete({
   const [hasSubmitted, setHasSubmitted] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
   const [refreshKey, setRefreshKey] = useState(0)
+  const [showMistakes, setShowMistakes] = useState(false)
 
   const percentage = total ? Math.round((score / total) * 100) : 0
   const minutes = Math.floor(durationMs / 60000)
@@ -374,35 +378,52 @@ function QuizComplete({
 
       {incorrectAnswers.length > 0 ? (
         <div className="space-y-4">
-          <h2 className="text-2xl font-bold text-foreground text-center">
-            {getTranslation(language, 'results.incorrectTitle')}
-          </h2>
-          <div className="grid gap-4">
-            {incorrectAnswers.map((item, index) => (
-              <div
-                key={index}
-                className="rounded-lg border border-border bg-card p-6"
-              >
-                <h3 className="text-lg font-semibold text-foreground mb-4">
-                  {item.question}
-                </h3>
-                <div className="grid gap-3 md:grid-cols-2">
-                  <div className="p-4 rounded-lg bg-error/10 border border-error/30">
-                    <span className="font-bold block text-xs uppercase tracking-wider mb-2 text-error">
-                      {getTranslation(language, 'results.yourAnswer')}
-                    </span>
-                    <span className="text-foreground font-medium">{item.userAnswer}</span>
-                  </div>
-                  <div className="p-4 rounded-lg bg-success/10 border border-success/30">
-                    <span className="font-bold block text-xs uppercase tracking-wider mb-2 text-success">
-                      {getTranslation(language, 'results.correctAnswer')}
-                    </span>
-                    <span className="text-foreground font-medium">{item.correctAnswer}</span>
-                  </div>
-                </div>
-              </div>
-            ))}
+          <div className="flex items-center justify-center gap-4">
+            <button
+              onClick={() => setShowMistakes(!showMistakes)}
+              className="px-4 py-2 border border-border text-foreground rounded hover:bg-muted transition-colors text-sm font-medium"
+            >
+              {showMistakes ? 'Hide Mistakes' : getTranslation(language, 'results.reviewBtn')}
+            </button>
           </div>
+
+          {showMistakes && (
+            <>
+              <h2 className="text-2xl font-bold text-foreground text-center">
+                {getTranslation(language, 'results.incorrectTitle')}
+              </h2>
+              <div className="grid gap-4">
+                {incorrectAnswers.map((item, index) => (
+                  <div
+                    key={index}
+                    className="rounded-lg border border-border bg-card p-6"
+                  >
+                    <h3 className="text-lg font-semibold text-foreground mb-4">
+                      {typeof item.question === 'string' ? item.question : JSON.stringify(item.question)}
+                    </h3>
+                    <div className="grid gap-3 md:grid-cols-2">
+                      <div className="p-4 rounded-lg bg-error/10 border border-error/30">
+                        <span className="font-bold block text-xs uppercase tracking-wider mb-2 text-error">
+                          {getTranslation(language, 'results.yourAnswer')}
+                        </span>
+                        <span className="text-foreground font-medium">
+                          {typeof item.userAnswer === 'string' ? item.userAnswer : JSON.stringify(item.userAnswer)}
+                        </span>
+                      </div>
+                      <div className="p-4 rounded-lg bg-success/10 border border-success/30">
+                        <span className="font-bold block text-xs uppercase tracking-wider mb-2 text-success">
+                          {getTranslation(language, 'results.correctAnswer')}
+                        </span>
+                        <span className="text-foreground font-medium">
+                          {typeof item.correctAnswer === 'string' ? item.correctAnswer : JSON.stringify(item.correctAnswer)}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
         </div>
       ) : (
         <div className="text-center p-8 rounded-lg bg-success/10 border border-success/30">

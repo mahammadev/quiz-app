@@ -17,25 +17,33 @@ export function QuestionSlider({
     const [isDragging, setIsDragging] = useState(false)
     const containerRef = useRef<HTMLDivElement>(null)
 
+    // Define the safe area margin (in pixels) to avoid rounded corners
+    const VERTICAL_MARGIN = 24
+
     const handleInteraction = (clientY: number) => {
         if (!containerRef.current) return
         const rect = containerRef.current.getBoundingClientRect()
 
-        // Calculate relative position within the slider height
-        // We add some padding to the top and bottom calculation to make it easier to hit the ends
-        const padding = 10
-        const relativeY = clientY - rect.top
-        const effectiveHeight = rect.height
+        // Adjust for the margin
+        const relativeY = clientY - rect.top - VERTICAL_MARGIN
+        const effectiveHeight = rect.height - (VERTICAL_MARGIN * 2)
+
+        if (effectiveHeight <= 0) return
 
         const percentage = Math.max(0, Math.min(1, relativeY / effectiveHeight))
-        const index = Math.floor(percentage * totalQuestions)
+
+        // Map percentage to question index
+        // We want the "click zones" to be distributed evenly
+        const index = Math.round(percentage * (totalQuestions - 1))
+
+        // Ensure within bounds
         const clampedIndex = Math.max(0, Math.min(totalQuestions - 1, index))
 
         onQuestionSelect(clampedIndex)
     }
 
     const handleMouseDown = (e: React.MouseEvent) => {
-        e.preventDefault() // Prevent text selection
+        e.preventDefault()
         setIsDragging(true)
         handleInteraction(e.clientY)
     }
@@ -61,13 +69,15 @@ export function QuestionSlider({
             window.removeEventListener('mousemove', handleMouseMove)
             window.removeEventListener('mouseup', handleMouseUp)
         }
-    }, [isDragging, totalQuestions, onQuestionSelect]) // Dependencies for effect
+    }, [isDragging, totalQuestions, onQuestionSelect])
 
-    // Calculate top position for the indicator
-    // Ensure it stays within bounds
-    const indicatorTop = totalQuestions > 1
-        ? (currentQuestionIndex / (totalQuestions - 1)) * 100
-        : 0
+    // Calculate position percentage
+    const getPositionPercent = (index: number) => {
+        if (totalQuestions <= 1) return 0
+        return (index / (totalQuestions - 1)) * 100
+    }
+
+    const indicatorTop = getPositionPercent(currentQuestionIndex)
 
     return (
         <div
@@ -82,29 +92,39 @@ export function QuestionSlider({
             {/* Background bar */}
             <div className={`absolute right-0 top-0 bottom-0 bg-muted/80 backdrop-blur-sm border-l border-border rounded-l-xl transition-all duration-300 overflow-hidden ${isHovered || isDragging ? 'w-full shadow-xl' : 'w-1.5'
                 }`}>
-                {/* Visual lines for questions - only visible when expanded */}
-                <div className={`absolute inset-0 flex flex-col justify-between py-4 px-2 transition-opacity duration-200 ${isHovered || isDragging ? 'opacity-100' : 'opacity-0'
-                    }`}>
-                    {Array.from({ length: totalQuestions }).map((_, idx) => (
-                        <div
-                            key={idx}
-                            className={`h-0.5 w-full rounded-full transition-colors ${idx === currentQuestionIndex ? 'bg-primary' : 'bg-muted-foreground/20'
-                                }`}
-                        />
-                    ))}
-                </div>
-            </div>
+                {/* Track Container */}
+                <div
+                    className="absolute inset-x-0"
+                    style={{ top: `${VERTICAL_MARGIN}px`, bottom: `${VERTICAL_MARGIN}px` }}
+                >
+                    {/* Visual lines for questions - only visible when expanded */}
+                    <div className={`absolute inset-0 transition-opacity duration-200 ${isHovered || isDragging ? 'opacity-100' : 'opacity-0'
+                        }`}>
+                        {Array.from({ length: totalQuestions }).map((_, idx) => (
+                            <div
+                                key={idx}
+                                className={`absolute left-2 right-2 h-0.5 rounded-full transition-colors ${idx === currentQuestionIndex ? 'bg-primary' : 'bg-muted-foreground/20'
+                                    }`}
+                                style={{
+                                    top: `${getPositionPercent(idx)}%`,
+                                    transform: 'translateY(-50%)'
+                                }}
+                            />
+                        ))}
+                    </div>
 
-            {/* Current position indicator */}
-            <div
-                className="absolute right-0 w-full pointer-events-none transition-all duration-100"
-                style={{
-                    top: `${indicatorTop}%`,
-                    transform: 'translateY(-50%)'
-                }}
-            >
-                <div className={`bg-foreground rounded-l-full transition-all duration-300 shadow-sm ${isHovered || isDragging ? 'h-1 w-full' : 'h-8 w-1.5'
-                    }`} />
+                    {/* Current position indicator */}
+                    <div
+                        className="absolute right-0 w-full pointer-events-none transition-all duration-100"
+                        style={{
+                            top: `${indicatorTop}%`,
+                            transform: 'translateY(-50%)'
+                        }}
+                    >
+                        <div className={`bg-foreground rounded-l-full transition-all duration-300 shadow-sm ${isHovered || isDragging ? 'h-1 w-full' : 'h-8 w-1.5'
+                            }`} />
+                    </div>
+                </div>
             </div>
         </div>
     )

@@ -18,7 +18,8 @@ function getQuizId(request: Request, params?: { quizId?: string }) {
   )
 }
 
-export async function GET(request: Request, { params }: { params: { quizId?: string } }) {
+export async function GET(request: Request, props: { params: Promise<{ quizId?: string }> }) {
+  const params = await props.params
   const url = new URL(request.url)
   const rawLimit = Number(url.searchParams.get('limit'))
   const rawPage = Number(url.searchParams.get('page'))
@@ -45,7 +46,8 @@ export async function GET(request: Request, { params }: { params: { quizId?: str
   }
 }
 
-export async function POST(request: Request, { params }: { params: { quizId?: string } }) {
+export async function POST(request: Request, props: { params: Promise<{ quizId?: string }> }) {
+  const params = await props.params
   const quizId = getQuizId(request, params)
   if (!quizId) {
     return NextResponse.json({ error: 'Missing quiz id' }, { status: 400 })

@@ -50,6 +50,11 @@ function QuizDisplay({
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
   const questionRefs = useRef<(HTMLDivElement | null)[]>([])
 
+  useEffect(() => {
+    setQuestionStates(questions.map(() => ({ selectedAnswer: null, isCorrect: null })))
+    setCurrentQuestionIndex(0)
+  }, [questions])
+
   const t = {
     en: {
       finish: 'Finish',
@@ -339,7 +344,7 @@ function QuizDisplay({
               <div className="mb-4">
                 <p className="text-foreground text-lg">
                   <span className="mr-2">{questionNumber}.</span>
-                    <span className="whitespace-pre-line">{question.question}</span>
+                  <span className="whitespace-pre-line">{question.question}</span>
                 </p>
               </div>
 
