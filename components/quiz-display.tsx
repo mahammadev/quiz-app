@@ -104,19 +104,7 @@ function QuizDisplay({
     newStates[questionIndex] = { selectedAnswer: answer, isCorrect: correct }
     setQuestionStates(newStates)
 
-    // Save progress to localStorage
-    if (quizId && allQuestions) {
-      let originalIndex = question._originalIndex
-      if (originalIndex === undefined) {
-        originalIndex = allQuestions.findIndex(q => q.question === question.question)
-      }
-      if (originalIndex !== -1 && originalIndex !== undefined) {
-        const stored = localStorage.getItem(`quiz-progress-${quizId}`)
-        const answeredSet = stored ? new Set(JSON.parse(stored)) : new Set()
-        answeredSet.add(originalIndex)
-        localStorage.setItem(`quiz-progress-${quizId}`, JSON.stringify([...answeredSet]))
-      }
-    }
+
 
     // Custom scroll function with ease-out curve (starts fast, ends slow)
     const smoothScrollTo = (element: HTMLElement) => {
@@ -189,20 +177,27 @@ function QuizDisplay({
   }, [questions.length])
 
   const handleFinish = () => {
-    const score = questionStates.filter(state => state.isCorrect === true).length
-    const incorrectAnswers: IncorrectAnswer[] = []
+    try {
+      const score = questionStates.filter(state => state.isCorrect === true).length
+      const incorrectAnswers: IncorrectAnswer[] = []
 
-    questionStates.forEach((state, idx) => {
-      if (state.isCorrect === false && state.selectedAnswer) {
-        incorrectAnswers.push({
-          question: questions[idx].question,
-          userAnswer: state.selectedAnswer,
-          correctAnswer: questions[idx].correct_answer
-        })
-      }
-    })
+      questionStates.forEach((state, idx) => {
+        if (state.isCorrect === false && state.selectedAnswer) {
+          incorrectAnswers.push({
+            question: questions[idx].question,
+            userAnswer: state.selectedAnswer,
+            correctAnswer: questions[idx].correct_answer
+          })
+        }
+      })
 
-    onComplete(score, incorrectAnswers)
+      onComplete(score, incorrectAnswers)
+    } catch (error) {
+      // If there's an error processing results, still complete with basic score
+      console.error('Error processing quiz results:', error)
+      const score = questionStates.filter(state => state.isCorrect === true).length
+      onComplete(score, [])
+    }
   }
 
   const allAnswered = questionStates.every(state => state.selectedAnswer !== null)

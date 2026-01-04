@@ -247,9 +247,13 @@ function QuizComplete({
   }, [])
 
   useEffect(() => {
-    const storedName = localStorage.getItem('quiz-player-name')
-    if (storedName) {
-      setName(storedName)
+    try {
+      const storedName = localStorage.getItem('quiz-player-name')
+      if (storedName) {
+        setName(storedName)
+      }
+    } catch (error) {
+      console.warn('Failed to load player name:', error)
     }
   }, [])
 
@@ -285,7 +289,12 @@ function QuizComplete({
         throw new Error('Failed to submit score')
       }
 
-      localStorage.setItem('quiz-player-name', playerName)
+      try {
+        localStorage.setItem('quiz-player-name', playerName)
+      } catch (storageError) {
+        // Continue even if localStorage fails
+        console.warn('Failed to save player name:', storageError)
+      }
       setHasSubmitted(true)
       setRefreshKey((key) => key + 1)
     } catch (err) {

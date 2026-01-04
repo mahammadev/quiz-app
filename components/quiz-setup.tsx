@@ -28,22 +28,7 @@ export default function QuizSetup({
   const [numQuestions, setNumQuestions] = useState(Math.min(10, totalQuestions))
   const [shuffleAnswers, setShuffleAnswers] = useState(true)
   const [showOnlyCorrect, setShowOnlyCorrect] = useState(false)
-  const [answeredQuestions, setAnsweredQuestions] = useState<Set<number>>(new Set())
   const [startingQuestion, setStartingQuestion] = useState(1)
-
-  useEffect(() => {
-    if (quizId) {
-      const stored = localStorage.getItem(`quiz-progress-${quizId}`)
-      if (stored) {
-        try {
-          const parsed = JSON.parse(stored)
-          setAnsweredQuestions(new Set(parsed))
-        } catch (e) {
-          console.error('Failed to parse stored progress')
-        }
-      }
-    }
-  }, [quizId])
 
   const handleStart = () => {
     if (!selectedMode) return
@@ -69,27 +54,16 @@ export default function QuizSetup({
           _originalIndex: startingQuestion - 1 + idx
         }))
     } else if (selectedMode === 'practice') {
-      const unansweredWithIndices = allQuestions
-        .map((q, idx) => ({ question: q, originalIndex: idx }))
-        .filter(item => !answeredQuestions.has(item.originalIndex))
-
-      if (unansweredWithIndices.length === 0) {
-        alert('Bütün suallar cavablandırılıb! Proqresi sıfırlayın.')
-        return
-      }
-
-      // Shuffle the unanswered questions
-      const shuffled = [...unansweredWithIndices]
+      // Shuffle all questions for practice mode
+      const shuffled = [...allQuestions]
       for (let i = shuffled.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
       }
-
-      // Attach original index to each question for tracking
-      questionsToUse = shuffled.map(item => ({
-        ...item.question,
-        answers: [...item.question.answers], // Deep clone the answers array
-        _originalIndex: item.originalIndex
+      questionsToUse = shuffled.map((q, idx) => ({
+        ...q,
+        answers: [...q.answers], // Deep clone the answers array
+        _originalIndex: idx
       }))
     } else if (selectedMode === 'study') {
       questionsToUse = [...allQuestions].map((q, idx) => ({
@@ -102,14 +76,7 @@ export default function QuizSetup({
     onQuizStart(questionsToUse, shuffleAnswers, selectedMode === 'study', showOnlyCorrect)
   }
 
-  const handleResetProgress = () => {
-    if (quizId && confirm('Məşq proqresini sıfırlamaq istədiyinizə əminsiniz?')) {
-      localStorage.removeItem(`quiz-progress-${quizId}`)
-      setAnsweredQuestions(new Set())
-    }
-  }
 
-  const remainingQuestions = totalQuestions - answeredQuestions.size
 
   return (
     <div className="mt-6 sm:mt-12 space-y-4 sm:space-y-6 max-w-2xl mx-auto px-4 sm:px-0">
@@ -157,14 +124,6 @@ export default function QuizSetup({
               <p className="text-xs sm:text-sm text-muted-foreground">
                 {getTranslation(language, 'setup.mode.practiceDesc')}
               </p>
-              {answeredQuestions.size > 0 && (
-                <p className="text-xs text-muted-foreground mt-2">
-                  {getTranslation(language, 'setup.progress', {
-                    answered: answeredQuestions.size.toString(),
-                    total: totalQuestions.toString(),
-                  })}
-                </p>
-              )}
             </button>
 
             <button
@@ -240,22 +199,7 @@ export default function QuizSetup({
               </div>
             )}
 
-            {selectedMode === 'practice' && answeredQuestions.size > 0 && (
-              <div className="rounded-lg bg-muted border border-border p-4">
-                <p className="text-sm text-muted-foreground mb-2">
-                  {getTranslation(language, 'setup.progress', {
-                    answered: answeredQuestions.size.toString(),
-                    total: totalQuestions.toString(),
-                  })}
-                </p>
-                <button
-                  onClick={handleResetProgress}
-                  className="cursor-target text-sm text-destructive hover:text-destructive/80 transition-colors"
-                >
-                  {getTranslation(language, 'setup.resetProgress')}
-                </button>
-              </div>
-            )}
+
 
             {selectedMode === 'study' && (
               <div className="flex items-center gap-3 p-3 rounded-lg border border-border bg-muted/30">

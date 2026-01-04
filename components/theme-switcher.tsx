@@ -24,22 +24,30 @@ export default function ThemeSwitcher({
   useEffect(() => {
     setMounted(true)
     // Theme
-    const prefersDark =
-      localStorage.getItem('quiz-dark') === 'true' ||
-      (typeof window !== 'undefined' &&
-        window.matchMedia('(prefers-color-scheme: dark)').matches &&
-        !localStorage.getItem('quiz-dark'))
+    try {
+      const prefersDark =
+        localStorage.getItem('quiz-dark') === 'true' ||
+        (typeof window !== 'undefined' &&
+          window.matchMedia('(prefers-color-scheme: dark)').matches &&
+          !localStorage.getItem('quiz-dark'))
 
-    setIsDark(prefersDark)
-    applyTheme(prefersDark)
+      setIsDark(prefersDark)
+      applyTheme(prefersDark)
 
-    // Font
-    const savedFont = localStorage.getItem('quiz-font') as FontFamily
-    if (savedFont && FONTS.find(f => f.id === savedFont)) {
-      setCurrentFont(savedFont)
-      applyFont(savedFont)
-    } else {
-      applyFont('poppins')
+      // Font
+      const savedFont = localStorage.getItem('quiz-font') as FontFamily
+      if (savedFont && FONTS.find(f => f.id === savedFont)) {
+        setCurrentFont(savedFont)
+        applyFont(savedFont)
+      } else {
+        applyFont('poppins')
+      }
+    } catch (error) {
+      // Use defaults if localStorage fails
+      console.warn('Failed to load theme settings:', error)
+      const prefersDark = typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches
+      setIsDark(prefersDark)
+      setCurrentFont('poppins')
     }
   }, [])
 
@@ -50,7 +58,11 @@ export default function ThemeSwitcher({
     } else {
       root.classList.remove('dark')
     }
-    localStorage.setItem('quiz-dark', String(dark))
+    try {
+      localStorage.setItem('quiz-dark', String(dark))
+    } catch (error) {
+      console.warn('Failed to save theme preference:', error)
+    }
   }
 
   const applyFont = (fontId: FontFamily) => {
@@ -60,7 +72,11 @@ export default function ThemeSwitcher({
     if (font) {
       root.classList.add(font.className)
     }
-    localStorage.setItem('quiz-font', fontId)
+    try {
+      localStorage.setItem('quiz-font', fontId)
+    } catch (error) {
+      console.warn('Failed to save font preference:', error)
+    }
   }
 
   const handleDarkToggle = () => {
@@ -105,8 +121,8 @@ export default function ThemeSwitcher({
                   key={font.id}
                   onClick={() => handleFontChange(font.id)}
                   className={`cursor-target w-full rounded-md px-3 py-2 text-left text-sm transition-colors hover:bg-muted ${currentFont === font.id
-                      ? 'bg-primary/10 text-primary font-medium'
-                      : 'text-foreground'
+                    ? 'bg-primary/10 text-primary font-medium'
+                    : 'text-foreground'
                     }`}
                   style={{ fontFamily: font.id === 'poppins' ? 'Poppins' : font.id === 'inter' ? 'Inter' : 'Times New Roman' }}
                 >
