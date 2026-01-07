@@ -53,13 +53,13 @@ export default function QuizSetup({
   const filteredQuestions = keywordTokens.length
     ? allQuestions.filter((q) => {
       const questionText = normalizeText([q.question, ...q.answers].join(' '))
-      return keywordTokens.every((token) => questionText.includes(token))
+      return keywordTokens.some((token) => questionText.includes(token))
     })
     : []
 
   const handleAddKeywords = () => {
     const tokens = filterText
-      .split(/[,\n]/)
+      .split(/[,\n\s]+/)
       .map((token) => token.trim())
       .filter(Boolean)
     if (!tokens.length) return
