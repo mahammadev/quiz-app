@@ -35,19 +35,51 @@ export default function QuizSetup({
   const [showOnlyCorrect, setShowOnlyCorrect] = useState(false)
   const [startingQuestion, setStartingQuestion] = useState(1)
   const [filterText, setFilterText] = useState('')
+  const [filterKeywords, setFilterKeywords] = useState<string[]>([])
 
-  const keywordTokens = filterText
-    .split(/[,\n]/)
-    .flatMap((token) => token.split(/\s+/))
-    .map((token) => token.trim().toLowerCase())
+  const normalizeText = (text: string) =>
+    text
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .replace(/[^\p{L}\p{N}\s]/gu, ' ')
+      .replace(/\s+/g, ' ')
+      .trim()
+
+  const keywordTokens = filterKeywords
+    .map((token) => normalizeText(token))
     .filter(Boolean)
 
   const filteredQuestions = keywordTokens.length
     ? allQuestions.filter((q) => {
-      const questionText = q.question.toLowerCase()
+      const questionText = normalizeText([q.question, ...q.answers].join(' '))
       return keywordTokens.every((token) => questionText.includes(token))
     })
     : []
+
+  const handleAddKeywords = () => {
+    const tokens = filterText
+      .split(/[,\n]/)
+      .map((token) => token.trim())
+      .filter(Boolean)
+    if (!tokens.length) return
+    setFilterKeywords((prev) => {
+      const existing = new Set(prev.map((token) => token.toLowerCase()))
+      const next = [...prev]
+      tokens.forEach((token) => {
+        if (!existing.has(token.toLowerCase())) {
+          next.push(token)
+          existing.add(token.toLowerCase())
+        }
+      })
+      return next
+    })
+    setFilterText('')
+  }
+
+  const handleRemoveKeyword = (keyword: string) => {
+    setFilterKeywords((prev) => prev.filter((token) => token !== keyword))
+  }
 
   const handleStart = () => {
     if (!selectedMode) return
@@ -279,16 +311,54 @@ export default function QuizSetup({
                 <Label className="block text-sm font-semibold text-foreground">
                   {getTranslation(language, 'setup.filter.label')}
                 </Label>
-                <Input
-                  value={filterText}
-                  onChange={(e) => setFilterText(e.target.value)}
-                  placeholder={getTranslation(language, 'setup.filter.placeholder')}
-                  className="cursor-target"
-                />
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                  <Input
+                    value={filterText}
+                    onChange={(e) => setFilterText(e.target.value)}
+                    onKeyDown={(event) => {
+                      if (event.key === 'Enter') {
+                        event.preventDefault()
+                        handleAddKeywords()
+                      }
+                    }}
+                    placeholder={getTranslation(language, 'setup.filter.placeholder')}
+                    className="cursor-target"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleAddKeywords}
+                    className="cursor-target"
+                  >
+                    {getTranslation(language, 'setup.filter.add')}
+                  </Button>
+                </div>
+                {filterKeywords.length > 0 && (
+                  <div className="flex flex-wrap gap-2">
+                    {filterKeywords.map((keyword) => (
+                      <span
+                        key={keyword}
+                        className="inline-flex items-center gap-2 rounded-full border border-border bg-muted/40 px-3 py-1 text-xs font-medium text-foreground"
+                      >
+                        {keyword}
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveKeyword(keyword)}
+                          className="text-muted-foreground hover:text-foreground"
+                          aria-label={`Remove ${keyword}`}
+                        >
+                          ×
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                )}
                 <p className="text-sm text-muted-foreground">
-                  {filteredQuestions.length
-                    ? getTranslation(language, 'setup.filter.count', { count: filteredQuestions.length })
-                    : getTranslation(language, 'setup.filter.empty')}
+                  {filterKeywords.length === 0
+                    ? getTranslation(language, 'setup.filter.noWords')
+                    : filteredQuestions.length
+                      ? getTranslation(language, 'setup.filter.count', { count: filteredQuestions.length })
+                      : getTranslation(language, 'setup.filter.empty')}
                 </p>
               </div>
             )}
