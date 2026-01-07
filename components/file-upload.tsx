@@ -31,6 +31,7 @@ export default function FileUpload({
   const [loading, setLoading] = useState(false)
   const [pasteMode, setPasteMode] = useState(false)
   const [pastedText, setPastedText] = useState("")
+  const [showUpload, setShowUpload] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const [parsedQuestions, setParsedQuestions] = useState<Question[] | null>(null)
@@ -124,158 +125,187 @@ export default function FileUpload({
   }
 
   return (
-    <div className="mt-8 grid gap-8 lg:grid-cols-2 items-start">
-      <div className="space-y-6">
-        <Card>
-          <CardHeader className="space-y-1">
-            <CardTitle className="text-3xl font-bold text-foreground">{getTranslation(language, "upload.title")}</CardTitle>
-            <CardDescription>{getTranslation(language, "upload.subtitle")}</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-
-          {parsedQuestions ? (
-            <div className="space-y-4 rounded-lg border border-border bg-muted p-6">
-              <div className="flex items-center justify-between">
-                <h3 className="font-semibold text-foreground">{parsedQuestions.length} questions loaded</h3>
-                <Button
-                  onClick={() => setParsedQuestions(null)}
-                  variant="ghost"
-                  className="cursor-target text-sm text-muted-foreground hover:text-foreground"
-                >
-                  {getTranslation(language, "library.cancelBtn")}
-                </Button>
-              </div>
-
-              <div className="space-y-3">
-                <div>
-                  <Label className="mb-2 block text-sm font-semibold text-card-foreground">Quiz Name</Label>
-                  <Input
-                    type="text"
-                    value={quizName}
-                    onChange={(e) => setQuizName(e.target.value)}
-                    placeholder={getTranslation(language, "library.namePlaceholder")}
-                    className="cursor-target"
-                  />
-                </div>
-
-                <div className="flex gap-3">
-                  <Button
-                    onClick={handleStartQuiz}
-                    className="flex-1 cursor-target"
-                  >
-                    {getTranslation(language, "library.startBtn")}
-                  </Button>
-                  <Button
-                    onClick={handleSaveToLibrary}
-                    disabled={!quizName.trim()}
-                    variant="outline"
-                    className="cursor-target flex items-center justify-center gap-2"
-                  >
-                    <Save className="h-4 w-4" />
-                    {getTranslation(language, "library.saveBtn")}
-                  </Button>
-                </div>
-              </div>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {!pasteMode ? (
-                <>
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept=".json"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0]
-                      if (file) handleFileUpload(file)
-                    }}
-                    className="hidden"
-                  />
-
-                  <Button
-                    onClick={() => fileInputRef.current?.click()}
-                    disabled={loading}
-                    variant="outline"
-                    className="cursor-target w-full"
-                  >
-                    {loading
-                      ? getTranslation(language, "upload.loading")
-                      : getTranslation(language, "upload.uploadBtn")}
-                  </Button>
-
-                  <div
-                    onDrop={handleDrop}
-                    onDragOver={(e) => e.preventDefault()}
-                    className="cursor-target rounded-lg border-2 border-dashed border-border p-10 text-center transition-colors hover:border-primary hover:bg-muted/30"
-                  >
-                    <Upload className="mx-auto mb-3 h-8 w-8 text-primary" />
-                    <p className="font-medium text-foreground">{getTranslation(language, "upload.dragDrop")}</p>
-                    <p className="text-sm text-muted-foreground mt-1">or browse files</p>
-                  </div>
-
-                  <Button
-                    onClick={() => setPasteMode(true)}
-                    variant="ghost"
-                    className="cursor-target w-full text-sm text-muted-foreground hover:text-foreground"
-                  >
-                    {getTranslation(language, "upload.pasteBtn")}
-                  </Button>
-                </>
-              ) : (
-                <>
-                  <Textarea
-                    value={pastedText}
-                    onChange={(e) => setPastedText(e.target.value)}
-                    placeholder="Paste your JSON here..."
-                    className="cursor-target w-full font-mono text-sm"
-                    rows={10}
-                  />
-
-                  <div className="flex gap-3">
-                    <Button
-                      onClick={handlePaste}
-                      disabled={loading || !pastedText.trim()}
-                      className="flex-1 cursor-target"
-                    >
-                      {loading
-                        ? getTranslation(language, "upload.loading")
-                        : getTranslation(language, "upload.loadBtn")}
-                    </Button>
-
-                    <Button
-                      onClick={() => {
-                        setPasteMode(false)
-                        setPastedText("")
-                        setError("")
-                      }}
-                      variant="outline"
-                      className="cursor-target flex-1"
-                    >
-                      {getTranslation(language, "upload.cancelBtn")}
-                    </Button>
-                  </div>
-                </>
-              )}
-            </div>
-          )}
-
-          {error && (
-            <Alert variant="destructive">
-              <AlertDescription>{error}</AlertDescription>
-            </Alert>
-          )}
-        </CardContent>
-      </Card>
-
-        <Card className="bg-muted">
-          <CardContent className="p-4">
-          <p className="text-sm text-muted-foreground">
-            <span className="font-semibold text-foreground">{getTranslation(language, "upload.format")}:</span>{" "}
-            {getTranslation(language, "upload.formatDesc")}
-          </p>
-          </CardContent>
-        </Card>
+    <div className="mt-8 space-y-6">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="space-y-1">
+          <h2 className="text-2xl font-bold text-foreground">
+            {getTranslation(language, "library.saved")}
+          </h2>
+        </div>
+        <Button
+          onClick={() => {
+            setShowUpload(true)
+            setPasteMode(false)
+            setError("")
+          }}
+          className="cursor-target"
+        >
+          {getTranslation(language, "upload.title")}
+        </Button>
       </div>
+
+      {showUpload && (
+        <div className="space-y-4">
+          <Card>
+            <CardHeader className="space-y-1">
+              <CardTitle className="text-3xl font-bold text-foreground">{getTranslation(language, "upload.title")}</CardTitle>
+              <CardDescription>{getTranslation(language, "upload.subtitle")}</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {parsedQuestions ? (
+                <div className="space-y-4 rounded-lg border border-border bg-muted p-6">
+                  <div className="flex items-center justify-between">
+                    <h3 className="font-semibold text-foreground">{parsedQuestions.length} questions loaded</h3>
+                    <Button
+                      onClick={() => setParsedQuestions(null)}
+                      variant="ghost"
+                      className="cursor-target text-sm text-muted-foreground hover:text-foreground"
+                    >
+                      {getTranslation(language, "library.cancelBtn")}
+                    </Button>
+                  </div>
+
+                  <div className="space-y-3">
+                    <div>
+                      <Label className="mb-2 block text-sm font-semibold text-card-foreground">Quiz Name</Label>
+                      <Input
+                        type="text"
+                        value={quizName}
+                        onChange={(e) => setQuizName(e.target.value)}
+                        placeholder={getTranslation(language, "library.namePlaceholder")}
+                        className="cursor-target"
+                      />
+                    </div>
+
+                    <div className="flex gap-3">
+                      <Button
+                        onClick={handleStartQuiz}
+                        className="flex-1 cursor-target"
+                      >
+                        {getTranslation(language, "library.startBtn")}
+                      </Button>
+                      <Button
+                        onClick={handleSaveToLibrary}
+                        disabled={!quizName.trim()}
+                        variant="outline"
+                        className="cursor-target flex items-center justify-center gap-2"
+                      >
+                        <Save className="h-4 w-4" />
+                        {getTranslation(language, "library.saveBtn")}
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {!pasteMode ? (
+                    <>
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept=".json"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0]
+                          if (file) handleFileUpload(file)
+                        }}
+                        className="hidden"
+                      />
+
+                      <Button
+                        onClick={() => fileInputRef.current?.click()}
+                        disabled={loading}
+                        variant="outline"
+                        className="cursor-target w-full"
+                      >
+                        {loading
+                          ? getTranslation(language, "upload.loading")
+                          : getTranslation(language, "upload.uploadBtn")}
+                      </Button>
+
+                      <div
+                        onDrop={handleDrop}
+                        onDragOver={(e) => e.preventDefault()}
+                        className="cursor-target rounded-lg border-2 border-dashed border-border p-10 text-center transition-colors hover:border-primary hover:bg-muted/30"
+                      >
+                        <Upload className="mx-auto mb-3 h-8 w-8 text-primary" />
+                        <p className="font-medium text-foreground">{getTranslation(language, "upload.dragDrop")}</p>
+                        <p className="text-sm text-muted-foreground mt-1">or browse files</p>
+                      </div>
+
+                      <Button
+                        onClick={() => setPasteMode(true)}
+                        variant="ghost"
+                        className="cursor-target w-full text-sm text-muted-foreground hover:text-foreground"
+                      >
+                        {getTranslation(language, "upload.pasteBtn")}
+                      </Button>
+                    </>
+                  ) : (
+                    <>
+                      <Textarea
+                        value={pastedText}
+                        onChange={(e) => setPastedText(e.target.value)}
+                        placeholder="Paste your JSON here..."
+                        className="cursor-target w-full font-mono text-sm"
+                        rows={10}
+                      />
+
+                      <div className="flex gap-3">
+                        <Button
+                          onClick={handlePaste}
+                          disabled={loading || !pastedText.trim()}
+                          className="flex-1 cursor-target"
+                        >
+                          {loading
+                            ? getTranslation(language, "upload.loading")
+                            : getTranslation(language, "upload.loadBtn")}
+                        </Button>
+
+                        <Button
+                          onClick={() => {
+                            setPasteMode(false)
+                            setPastedText("")
+                            setError("")
+                          }}
+                          variant="outline"
+                          className="cursor-target flex-1"
+                        >
+                          {getTranslation(language, "upload.cancelBtn")}
+                        </Button>
+                      </div>
+                    </>
+                  )}
+                </div>
+              )}
+
+              {error && (
+                <Alert variant="destructive">
+                  <AlertDescription>{error}</AlertDescription>
+                </Alert>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card className="bg-muted">
+            <CardContent className="p-4">
+              <p className="text-sm text-muted-foreground">
+                <span className="font-semibold text-foreground">{getTranslation(language, "upload.format")}:</span>{" "}
+                {getTranslation(language, "upload.formatDesc")}
+              </p>
+            </CardContent>
+          </Card>
+
+          <div className="flex justify-end">
+            <Button
+              onClick={() => setShowUpload(false)}
+              variant="outline"
+              className="cursor-target"
+            >
+              {getTranslation(language, "upload.cancelBtn")}
+            </Button>
+          </div>
+        </div>
+      )}
 
       <QuizLibrary onSelectQuiz={onFileLoaded} language={language} refreshTrigger={libraryRefresh} />
     </div>
