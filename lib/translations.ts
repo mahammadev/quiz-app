@@ -48,6 +48,12 @@ export const translations = {
     'setup.mode.study': 'Study Mode',
     'setup.mode.studyDesc': 'Review all questions with correct answers highlighted',
     'setup.showOnlyCorrect': 'Show only correct answers',
+    'setup.mode.filtered': 'Keyword Filter',
+    'setup.mode.filteredDesc': 'Only show questions that include your words',
+    'setup.filter.label': 'Filter words',
+    'setup.filter.placeholder': 'e.g. network, database, API',
+    'setup.filter.count': 'Matched: {count} questions',
+    'setup.filter.empty': 'No matches yet. Try different words.',
 
     // Quiz Display
     'quiz.nextQuestion': 'Next Question',
@@ -149,6 +155,12 @@ export const translations = {
     'setup.mode.study': 'Öyrənmə Rejimi',
     'setup.mode.studyDesc': 'Düzgün cavablar vurğulanmış şəkildə bütün sualları nəzərdən keçirin',
     'setup.showOnlyCorrect': 'Yalnız düzgün cavabları göstər',
+    'setup.mode.filtered': 'Açar söz filtri',
+    'setup.mode.filteredDesc': 'Seçdiyiniz sözlər olan sualları göstərin',
+    'setup.filter.label': 'Sözlər',
+    'setup.filter.placeholder': 'məsələn: şəbəkə, bazası, API',
+    'setup.filter.count': 'Uyğun: {count} sual',
+    'setup.filter.empty': 'Uyğun sual yoxdur. Başqa sözləri yoxlayın.',
 
     // Quiz Display
     'quiz.nextQuestion': 'Sonrakı Sual',

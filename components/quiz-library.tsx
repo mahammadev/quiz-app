@@ -168,70 +168,66 @@ export default function QuizLibrary({
 
   return (
     <>
-      <Card className="border border-border/60 bg-card/50 shadow-sm">
-        <CardContent className="p-4 sm:p-6">
-          <div className="grid gap-4 md:grid-cols-2">
-            {savedQuizzes.map((quiz) => (
-              <Card
-                key={quiz.id}
-                className="group rounded-xl border border-border/70 bg-background/80 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
-              >
-                <CardContent className="flex h-full flex-col justify-between gap-5 p-5 sm:p-6">
-                  <div className="flex items-start gap-3">
-                    <div className="rounded-lg border border-border bg-muted p-2 text-primary shadow-sm">
-                      <FileJson className="h-5 w-5" />
-                    </div>
-                    <div className="min-w-0 space-y-2">
-                      <h3 className="truncate text-lg font-semibold text-foreground">
-                        {quiz.name}
-                      </h3>
-                      <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
-                        <span className="rounded-full border border-border/70 bg-muted px-2 py-0.5 text-xs font-medium text-foreground">
-                          {quiz.questions.length} questions
-                        </span>
-                        <span className="text-xs">
-                          {new Date(quiz.created_at).toLocaleDateString()}
-                        </span>
-                      </div>
-                    </div>
+      <div className="grid gap-4 md:grid-cols-2">
+        {savedQuizzes.map((quiz) => (
+          <Card
+            key={quiz.id}
+            className="group rounded-xl border border-border/70 bg-background/80 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+          >
+            <CardContent className="flex h-full flex-col justify-between gap-5 p-5 sm:p-6">
+              <div className="flex items-start gap-3">
+                <div className="rounded-lg border border-border bg-muted p-2 text-primary shadow-sm">
+                  <FileJson className="h-5 w-5" />
+                </div>
+                <div className="min-w-0 space-y-2">
+                  <h3 className="truncate text-lg font-semibold text-foreground">
+                    {quiz.name}
+                  </h3>
+                  <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+                    <span className="rounded-full border border-border/70 bg-muted px-2 py-0.5 text-xs font-medium text-foreground">
+                      {quiz.questions.length} questions
+                    </span>
+                    <span className="text-xs">
+                      {new Date(quiz.created_at).toLocaleDateString()}
+                    </span>
                   </div>
-                  <div className="flex flex-wrap gap-2">
+                </div>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  onClick={() => onSelectQuiz(quiz.questions, quiz.id)}
+                  className="cursor-target flex-1 min-w-[160px] flex items-center justify-center gap-2 text-sm"
+                >
+                  <Play className="h-4 w-4" />
+                  {getTranslation(language, 'library.loadBtn')}
+                </Button>
+                {adminMode && (
+                  <>
                     <Button
-                      onClick={() => onSelectQuiz(quiz.questions, quiz.id)}
-                      className="cursor-target flex-1 min-w-[160px] flex items-center justify-center gap-2 text-sm"
+                      onClick={() => startEdit(quiz)}
+                      variant="outline"
+                      size="icon"
+                      className="cursor-target"
+                      title={getTranslation(language, 'library.editBtn')}
                     >
-                      <Play className="h-4 w-4" />
-                      {getTranslation(language, 'library.loadBtn')}
+                      <Pencil className="h-4 w-4" />
                     </Button>
-                    {adminMode && (
-                      <>
-                        <Button
-                          onClick={() => startEdit(quiz)}
-                          variant="outline"
-                          size="icon"
-                          className="cursor-target"
-                          title={getTranslation(language, 'library.editBtn')}
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          onClick={() => handleDelete(quiz.id)}
-                          variant="outline"
-                          size="icon"
-                          className="cursor-target text-destructive hover:text-destructive"
-                          title={getTranslation(language, 'library.deleteBtn')}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+                    <Button
+                      onClick={() => handleDelete(quiz.id)}
+                      variant="outline"
+                      size="icon"
+                      className="cursor-target text-destructive hover:text-destructive"
+                      title={getTranslation(language, 'library.deleteBtn')}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
 
       <Dialog open={adminMode && Boolean(editingQuizId)} onOpenChange={(open) => !open && cancelEdit()}>
         <DialogContent className="max-w-4xl">

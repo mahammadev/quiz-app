@@ -14,7 +14,7 @@ type Question = {
   correct_answer: string
 }
 
-type QuizMode = 'quick' | 'sequential' | 'practice' | 'study'
+type QuizMode = 'quick' | 'sequential' | 'practice' | 'study' | 'filtered'
 
 export default function QuizSetup({
   totalQuestions,
@@ -34,6 +34,20 @@ export default function QuizSetup({
   const [shuffleAnswers, setShuffleAnswers] = useState(true)
   const [showOnlyCorrect, setShowOnlyCorrect] = useState(false)
   const [startingQuestion, setStartingQuestion] = useState(1)
+  const [filterText, setFilterText] = useState('')
+
+  const keywordTokens = filterText
+    .split(/[,\n]/)
+    .flatMap((token) => token.split(/\s+/))
+    .map((token) => token.trim().toLowerCase())
+    .filter(Boolean)
+
+  const filteredQuestions = keywordTokens.length
+    ? allQuestions.filter((q) => {
+      const questionText = q.question.toLowerCase()
+      return keywordTokens.every((token) => questionText.includes(token))
+    })
+    : []
 
   const handleStart = () => {
     if (!selectedMode) return
@@ -72,6 +86,13 @@ export default function QuizSetup({
       }))
     } else if (selectedMode === 'study') {
       questionsToUse = [...allQuestions].map((q, idx) => ({
+        ...q,
+        answers: [...q.answers],
+        _originalIndex: idx
+      }))
+    } else if (selectedMode === 'filtered') {
+      if (!filteredQuestions.length) return
+      questionsToUse = filteredQuestions.map((q, idx) => ({
         ...q,
         answers: [...q.answers],
         _originalIndex: idx
@@ -157,6 +178,21 @@ export default function QuizSetup({
                 </p>
               </div>
             </Button>
+
+            <Button
+              onClick={() => setSelectedMode('filtered')}
+              variant="outline"
+              className="cursor-target h-auto justify-start text-left"
+            >
+              <div className="p-2 sm:p-3">
+                <h3 className="text-base sm:text-lg font-bold text-foreground mb-1">
+                  {getTranslation(language, 'setup.mode.filtered')}
+                </h3>
+                <p className="text-xs sm:text-sm text-muted-foreground">
+                  {getTranslation(language, 'setup.mode.filteredDesc')}
+                </p>
+              </div>
+            </Button>
           </div>
         ) : (
           <div className="space-y-6">
@@ -238,6 +274,25 @@ export default function QuizSetup({
               </div>
             )}
 
+            {selectedMode === 'filtered' && (
+              <div className="space-y-3">
+                <Label className="block text-sm font-semibold text-foreground">
+                  {getTranslation(language, 'setup.filter.label')}
+                </Label>
+                <Input
+                  value={filterText}
+                  onChange={(e) => setFilterText(e.target.value)}
+                  placeholder={getTranslation(language, 'setup.filter.placeholder')}
+                  className="cursor-target"
+                />
+                <p className="text-sm text-muted-foreground">
+                  {filteredQuestions.length
+                    ? getTranslation(language, 'setup.filter.count', { count: filteredQuestions.length })
+                    : getTranslation(language, 'setup.filter.empty')}
+                </p>
+              </div>
+            )}
+
             {/* Shuffle Answers - Available for all modes */}
             <div className="flex items-center gap-3 rounded-lg border border-border bg-muted/30 p-3">
               <Checkbox
@@ -256,6 +311,7 @@ export default function QuizSetup({
             <Button
               onClick={handleStart}
               className="w-full cursor-target"
+              disabled={selectedMode === 'filtered' && filteredQuestions.length === 0}
             >
               {getTranslation(language, 'setup.startBtn')}
             </Button>
