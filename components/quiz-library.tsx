@@ -5,7 +5,7 @@ import { Trash2, Play, FileJson, Pencil, Save, X } from 'lucide-react'
 import { getTranslation, Language } from '@/lib/translations'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
 import { Textarea } from '@/components/ui/textarea'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
@@ -168,33 +168,37 @@ export default function QuizLibrary({
 
   return (
     <>
-      <Card className="h-full">
-        <CardHeader>
-          <CardTitle className="text-2xl font-bold text-foreground">
-            {getTranslation(language, 'library.saved')}
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid gap-4">
+      <Card className="border border-border/60 bg-card/50 shadow-sm">
+        <CardContent className="p-4 sm:p-6">
+          <div className="grid gap-4 md:grid-cols-2">
             {savedQuizzes.map((quiz) => (
-              <Card key={quiz.id} className="bg-muted">
-                <CardContent className="flex flex-col justify-between gap-4 p-4">
-                  <div>
-                    <div className="mb-2 flex items-center gap-2">
-                      <FileJson className="h-5 w-5 text-muted-foreground" />
-                      <h3 className="font-bold text-foreground truncate">
+              <Card
+                key={quiz.id}
+                className="group rounded-xl border border-border/70 bg-background/80 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+              >
+                <CardContent className="flex h-full flex-col justify-between gap-5 p-5 sm:p-6">
+                  <div className="flex items-start gap-3">
+                    <div className="rounded-lg border border-border bg-muted p-2 text-primary shadow-sm">
+                      <FileJson className="h-5 w-5" />
+                    </div>
+                    <div className="min-w-0 space-y-2">
+                      <h3 className="truncate text-lg font-semibold text-foreground">
                         {quiz.name}
                       </h3>
+                      <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+                        <span className="rounded-full border border-border/70 bg-muted px-2 py-0.5 text-xs font-medium text-foreground">
+                          {quiz.questions.length} questions
+                        </span>
+                        <span className="text-xs">
+                          {new Date(quiz.created_at).toLocaleDateString()}
+                        </span>
+                      </div>
                     </div>
-                    <p className="text-sm font-medium text-muted-foreground">
-                      {quiz.questions.length} questions •{' '}
-                      {new Date(quiz.created_at).toLocaleDateString()}
-                    </p>
                   </div>
                   <div className="flex flex-wrap gap-2">
                     <Button
                       onClick={() => onSelectQuiz(quiz.questions, quiz.id)}
-                      className="cursor-target flex-1 min-w-[140px] flex items-center justify-center gap-2 text-sm"
+                      className="cursor-target flex-1 min-w-[160px] flex items-center justify-center gap-2 text-sm"
                     >
                       <Play className="h-4 w-4" />
                       {getTranslation(language, 'library.loadBtn')}
