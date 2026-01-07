@@ -52,8 +52,10 @@ export const translations = {
     'setup.mode.filteredDesc': 'Only show questions that include your words',
     'setup.filter.label': 'Filter words',
     'setup.filter.placeholder': 'e.g. network, database, API',
+    'setup.filter.add': 'Add',
     'setup.filter.count': 'Matched: {count} questions',
     'setup.filter.empty': 'No matches yet. Try different words.',
+    'setup.filter.noWords': 'Add words to filter.',
 
     // Quiz Display
     'quiz.nextQuestion': 'Next Question',
@@ -159,8 +161,10 @@ export const translations = {
     'setup.mode.filteredDesc': 'Seçdiyiniz sözlər olan sualları göstərin',
     'setup.filter.label': 'Sözlər',
     'setup.filter.placeholder': 'məsələn: şəbəkə, bazası, API',
+    'setup.filter.add': 'Əlavə et',
     'setup.filter.count': 'Uyğun: {count} sual',
     'setup.filter.empty': 'Uyğun sual yoxdur. Başqa sözləri yoxlayın.',
+    'setup.filter.noWords': 'Filtr üçün sözlər əlavə edin.',
 
     // Quiz Display
     'quiz.nextQuestion': 'Sonrakı Sual',
