@@ -1,7 +1,9 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Moon, Sun, Type } from 'lucide-react'
+import { Moon, Sun, Type, Check } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 
 export type FontFamily = 'poppins' | 'inter' | 'times'
 
@@ -19,7 +21,6 @@ export default function ThemeSwitcher({
   const [mounted, setMounted] = useState(false)
   const [isDark, setIsDark] = useState(false)
   const [currentFont, setCurrentFont] = useState<FontFamily>('poppins')
-  const [isFontMenuOpen, setIsFontMenuOpen] = useState(false)
 
   useEffect(() => {
     setMounted(true)
@@ -88,7 +89,6 @@ export default function ThemeSwitcher({
   const handleFontChange = (fontId: FontFamily) => {
     setCurrentFont(fontId)
     applyFont(fontId)
-    setIsFontMenuOpen(false)
   }
 
   if (!mounted) return null
@@ -97,55 +97,45 @@ export default function ThemeSwitcher({
 
   return (
     <div className={`flex items-center gap-1 sm:gap-2 rounded-lg border border-border bg-card p-1.5 sm:p-2 shadow-sm ${className || ''}`}>
-      {/* Font Selector */}
-      <div className="relative">
-        <button
-          onClick={() => setIsFontMenuOpen(!isFontMenuOpen)}
-          className="cursor-target flex h-8 sm:h-9 items-center gap-1.5 sm:gap-2 rounded-lg px-2 sm:px-3 text-foreground hover:bg-muted transition-colors text-sm font-medium"
-          title="Change font"
-          aria-label="Change font"
-        >
-          <Type className="h-4 w-4" />
-          <span className="hidden xs:inline text-xs sm:text-sm">{currentFontObj?.name}</span>
-        </button>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button
+            variant="ghost"
+            className="cursor-target flex h-8 sm:h-9 items-center gap-1.5 sm:gap-2 px-2 sm:px-3 text-sm font-medium"
+            title="Change font"
+            aria-label="Change font"
+          >
+            <Type className="h-4 w-4" />
+            <span className="hidden xs:inline text-xs sm:text-sm">{currentFontObj?.name}</span>
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="min-w-[140px]">
+          {FONTS.map((font) => (
+            <DropdownMenuItem
+              key={font.id}
+              onSelect={() => handleFontChange(font.id)}
+              className="cursor-target flex items-center justify-between gap-2"
+              style={{ fontFamily: font.id === 'poppins' ? 'Poppins' : font.id === 'inter' ? 'Inter' : 'Times New Roman' }}
+            >
+              <span>{font.name}</span>
+              {currentFont === font.id && <Check className="h-4 w-4 text-primary" />}
+            </DropdownMenuItem>
+          ))}
+        </DropdownMenuContent>
+      </DropdownMenu>
 
-        {isFontMenuOpen && (
-          <>
-            <div
-              className="fixed inset-0 z-40"
-              onClick={() => setIsFontMenuOpen(false)}
-            />
-            <div className="absolute right-0 top-full mt-2 z-50 min-w-[120px] sm:min-w-[140px] rounded-lg border border-border bg-card p-1 shadow-lg">
-              {FONTS.map((font) => (
-                <button
-                  key={font.id}
-                  onClick={() => handleFontChange(font.id)}
-                  className={`cursor-target w-full rounded-md px-3 py-2 text-left text-sm transition-colors hover:bg-muted ${currentFont === font.id
-                    ? 'bg-primary/10 text-primary font-medium'
-                    : 'text-foreground'
-                    }`}
-                  style={{ fontFamily: font.id === 'poppins' ? 'Poppins' : font.id === 'inter' ? 'Inter' : 'Times New Roman' }}
-                >
-                  {font.name}
-                </button>
-              ))}
-            </div>
-          </>
-        )}
-      </div>
-
-      {/* Divider */}
       <div className="h-5 w-px bg-border" />
 
-      {/* Theme Toggle */}
-      <button
+      <Button
         onClick={handleDarkToggle}
-        className="cursor-target flex h-8 sm:h-9 w-8 sm:w-9 items-center justify-center rounded-lg text-foreground hover:bg-muted transition-colors"
+        variant="ghost"
+        size="icon"
+        className="cursor-target h-8 w-8 sm:h-9 sm:w-9"
         title={isDark ? 'Light mode' : 'Dark mode'}
         aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
       >
         {isDark ? <Sun className="h-4 w-4 sm:h-5 sm:w-5" /> : <Moon className="h-4 w-4 sm:h-5 sm:w-5" />}
-      </button>
+      </Button>
     </div>
   )
 }

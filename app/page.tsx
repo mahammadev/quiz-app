@@ -10,6 +10,9 @@ import ThemeSwitcher from '@/components/theme-switcher'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Leaderboard } from '@/components/leaderboard'
 
 import { Language, getTranslation } from '@/lib/translations'
@@ -142,32 +145,8 @@ export default function Home() {
                     className={`col-start-1 row-start-1 w-full ${isCurrent ? 'pointer-events-auto' : 'pointer-events-none'
                       }`}
                   >
-                    <div className={`w-full rounded-lg border shadow-lg p-6 md:p-8 ${step === 'quiz' ? 'bg-transparent border-transparent shadow-none p-0' : 'bg-card border-border'
-                      }`}>
-
-                      {currentIndex > 0 && step !== 'complete' && step !== 'quiz' && (
-                        <button
-                          onClick={handleBack}
-                          className="mb-6 flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
-                        >
-                          <ArrowLeft className="w-4 h-4" />
-                          <span className="text-sm">Geri</span>
-                        </button>
-                      )}
-
-                      {step === 'upload' && (
-                        <FileUpload onFileLoaded={handleFileLoaded} language={language} />
-                      )}
-                      {step === 'setup' && (
-                        <QuizSetup
-                          totalQuestions={questions.length}
-                          onQuizStart={handleQuizStart}
-                          allQuestions={questions}
-                          language={language}
-                          quizId={quizId}
-                        />
-                      )}
-                      {step === 'quiz' && (
+                    {step === 'quiz' ? (
+                      <div className="w-full">
                         <QuizDisplay
                           questions={currentQuiz}
                           onComplete={handleQuizComplete}
@@ -179,20 +158,48 @@ export default function Home() {
                           quizId={quizId}
                           allQuestions={questions}
                         />
-                      )}
-                      {step === 'complete' && (
-                        <QuizComplete
-                          score={score}
-                          total={currentQuiz.length}
-                          incorrectAnswers={incorrectAnswers}
-                          onReset={handleReset}
-                          onRetryIncorrect={handleRetryIncorrect}
-                          language={language}
-                          quizId={quizId}
-                          durationMs={quizDuration}
-                        />
-                      )}
-                    </div>
+                      </div>
+                    ) : (
+                      <Card className="w-full shadow-lg">
+                        <CardContent className="p-6 md:p-8">
+                          {currentIndex > 0 && step !== 'complete' && (
+                            <Button
+                              onClick={handleBack}
+                              variant="ghost"
+                              className="mb-6 flex items-center gap-2 text-muted-foreground hover:text-foreground"
+                            >
+                              <ArrowLeft className="w-4 h-4" />
+                              <span className="text-sm">Geri</span>
+                            </Button>
+                          )}
+
+                          {step === 'upload' && (
+                            <FileUpload onFileLoaded={handleFileLoaded} language={language} />
+                          )}
+                          {step === 'setup' && (
+                            <QuizSetup
+                              totalQuestions={questions.length}
+                              onQuizStart={handleQuizStart}
+                              allQuestions={questions}
+                              language={language}
+                              quizId={quizId}
+                            />
+                          )}
+                          {step === 'complete' && (
+                            <QuizComplete
+                              score={score}
+                              total={currentQuiz.length}
+                              incorrectAnswers={incorrectAnswers}
+                              onReset={handleReset}
+                              onRetryIncorrect={handleRetryIncorrect}
+                              language={language}
+                              quizId={quizId}
+                              durationMs={quizDuration}
+                            />
+                          )}
+                        </CardContent>
+                      </Card>
+                    )}
                   </motion.div>
                 )
               })}
@@ -306,81 +313,80 @@ function QuizComplete({
 
   return (
     <div className="mt-12 space-y-8 max-w-4xl mx-auto">
-      <div className="rounded-lg border border-border bg-card p-8 text-center shadow-sm">
-        <h1 className="text-4xl font-bold text-card-foreground mb-4">
-          {getTranslation(language, 'results.title')}
-        </h1>
-        <div className="mb-6">
-          <p className="text-6xl font-bold text-primary mb-2">
-            {percentage}%
-          </p>
-          <p className="text-xl text-muted-foreground">
-            {getTranslation(language, 'results.scored', { score, total })}
-          </p>
-        </div>
-        <div className="flex flex-col sm:flex-row justify-center gap-3">
-          <button
-            onClick={onReset}
-            className="btn-primary"
-          >
-            {getTranslation(language, 'results.resetBtn')}
-          </button>
-          {incorrectAnswers.length > 0 && (
-            <button
-              onClick={onRetryIncorrect}
-              className="px-6 sm:px-8 py-2.5 sm:py-3 bg-secondary text-secondary-foreground rounded hover:bg-secondary/90 transition-colors text-sm sm:text-base font-medium"
-            >
-              {getTranslation(language, 'results.retryIncorrectBtn')}
-            </button>
-          )}
-        </div>
-      </div>
-
-      <div className="grid gap-4 md:grid-cols-2">
-        <div className="rounded-lg border border-border bg-card p-6 space-y-4 shadow-sm">
-          <div className="flex items-center justify-between">
-            <h2 className="text-xl font-semibold text-foreground">
-              {getTranslation(language, 'results.leaderboardTitle')}
-            </h2>
-            {hasSubmitted && (
-              <span className="text-xs px-2 py-1 rounded-full bg-success/10 text-success border border-success/30">
-                {getTranslation(language, 'results.submitted')}
-              </span>
+      <Card>
+        <CardContent className="p-8 text-center">
+          <h1 className="text-4xl font-bold text-card-foreground mb-4">
+            {getTranslation(language, 'results.title')}
+          </h1>
+          <div className="mb-6">
+            <p className="text-6xl font-bold text-primary mb-2">
+              {percentage}%
+            </p>
+            <p className="text-xl text-muted-foreground">
+              {getTranslation(language, 'results.scored', { score, total })}
+            </p>
+          </div>
+          <div className="flex flex-col sm:flex-row justify-center gap-3">
+            <Button onClick={onReset}>
+              {getTranslation(language, 'results.resetBtn')}
+            </Button>
+            {incorrectAnswers.length > 0 && (
+              <Button variant="secondary" onClick={onRetryIncorrect}>
+                {getTranslation(language, 'results.retryIncorrectBtn')}
+              </Button>
             )}
           </div>
-          <p className="text-sm text-muted-foreground">
-            {getTranslation(language, 'results.scoreSummary', { score, duration: durationText })}
-          </p>
+        </CardContent>
+      </Card>
 
-          <div className="space-y-2">
-            <Label htmlFor="leaderboard-name" className="text-sm font-medium">
-              {getTranslation(language, 'results.nameLabel')}
-            </Label>
-            <Input
-              id="leaderboard-name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder={getTranslation(language, 'results.namePlaceholder')}
-            />
-          </div>
-          {submitError && (
-            <div className="rounded border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
-              {submitError}
+      <div className="grid gap-4 md:grid-cols-2">
+        <Card>
+          <CardHeader className="space-y-1">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-xl font-semibold text-foreground">
+                {getTranslation(language, 'results.leaderboardTitle')}
+              </CardTitle>
+              {hasSubmitted && (
+                <Badge variant="secondary">
+                  {getTranslation(language, 'results.submitted')}
+                </Badge>
+              )}
             </div>
-          )}
-          <div className="flex items-center justify-between gap-3">
-            <div className="text-xs text-muted-foreground">
-              {getTranslation(language, 'results.duration', { minutes, seconds })}
+            <p className="text-sm text-muted-foreground">
+              {getTranslation(language, 'results.scoreSummary', { score, duration: durationText })}
+            </p>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="leaderboard-name" className="text-sm font-medium">
+                {getTranslation(language, 'results.nameLabel')}
+              </Label>
+              <Input
+                id="leaderboard-name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder={getTranslation(language, 'results.namePlaceholder')}
+              />
             </div>
-            <Button onClick={handleSubmitScore} disabled={isSubmitting || hasSubmitted || !quizId}>
-              {isSubmitting
-                ? getTranslation(language, 'results.submitting')
-                : hasSubmitted
-                  ? getTranslation(language, 'results.alreadySubmitted')
-                  : getTranslation(language, 'results.submitScore')}
-            </Button>
-          </div>
-        </div>
+            {submitError && (
+              <Alert variant="destructive">
+                <AlertDescription>{submitError}</AlertDescription>
+              </Alert>
+            )}
+            <div className="flex items-center justify-between gap-3">
+              <div className="text-xs text-muted-foreground">
+                {getTranslation(language, 'results.duration', { minutes, seconds })}
+              </div>
+              <Button onClick={handleSubmitScore} disabled={isSubmitting || hasSubmitted || !quizId}>
+                {isSubmitting
+                  ? getTranslation(language, 'results.submitting')
+                  : hasSubmitted
+                    ? getTranslation(language, 'results.alreadySubmitted')
+                    : getTranslation(language, 'results.submitScore')}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
 
         <Leaderboard quizId={quizId} playerName={name} language={language} refreshKey={refreshKey} />
       </div>
@@ -388,12 +394,9 @@ function QuizComplete({
       {incorrectAnswers.length > 0 ? (
         <div className="space-y-4">
           <div className="flex items-center justify-center gap-4">
-            <button
-              onClick={() => setShowMistakes(!showMistakes)}
-              className="px-4 py-2 border border-border text-foreground rounded hover:bg-muted transition-colors text-sm font-medium"
-            >
+            <Button variant="outline" onClick={() => setShowMistakes(!showMistakes)}>
               {showMistakes ? 'Hide Mistakes' : getTranslation(language, 'results.reviewBtn')}
-            </button>
+            </Button>
           </div>
 
           {showMistakes && (
@@ -403,43 +406,44 @@ function QuizComplete({
               </h2>
               <div className="grid gap-4">
                 {incorrectAnswers.map((item, index) => (
-                  <div
-                    key={index}
-                    className="rounded-lg border border-border bg-card p-6"
-                  >
-                    <h3 className="text-lg font-semibold text-foreground mb-4">
-                      {typeof item.question === 'string' ? item.question : JSON.stringify(item.question)}
-                    </h3>
-                    <div className="grid gap-3 md:grid-cols-2">
-                      <div className="p-4 rounded-lg bg-error/10 border border-error/30">
-                        <span className="font-bold block text-xs uppercase tracking-wider mb-2 text-error">
-                          {getTranslation(language, 'results.yourAnswer')}
-                        </span>
-                        <span className="text-foreground font-medium">
-                          {typeof item.userAnswer === 'string' ? item.userAnswer : JSON.stringify(item.userAnswer)}
-                        </span>
+                  <Card key={index}>
+                    <CardContent className="p-6">
+                      <h3 className="text-lg font-semibold text-foreground mb-4">
+                        {typeof item.question === 'string' ? item.question : JSON.stringify(item.question)}
+                      </h3>
+                      <div className="grid gap-3 md:grid-cols-2">
+                        <div className="p-4 rounded-lg bg-error/10 border border-error/30">
+                          <span className="font-bold block text-xs uppercase tracking-wider mb-2 text-error">
+                            {getTranslation(language, 'results.yourAnswer')}
+                          </span>
+                          <span className="text-foreground font-medium">
+                            {typeof item.userAnswer === 'string' ? item.userAnswer : JSON.stringify(item.userAnswer)}
+                          </span>
+                        </div>
+                        <div className="p-4 rounded-lg bg-success/10 border border-success/30">
+                          <span className="font-bold block text-xs uppercase tracking-wider mb-2 text-success">
+                            {getTranslation(language, 'results.correctAnswer')}
+                          </span>
+                          <span className="text-foreground font-medium">
+                            {typeof item.correctAnswer === 'string' ? item.correctAnswer : JSON.stringify(item.correctAnswer)}
+                          </span>
+                        </div>
                       </div>
-                      <div className="p-4 rounded-lg bg-success/10 border border-success/30">
-                        <span className="font-bold block text-xs uppercase tracking-wider mb-2 text-success">
-                          {getTranslation(language, 'results.correctAnswer')}
-                        </span>
-                        <span className="text-foreground font-medium">
-                          {typeof item.correctAnswer === 'string' ? item.correctAnswer : JSON.stringify(item.correctAnswer)}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
+                    </CardContent>
+                  </Card>
                 ))}
               </div>
             </>
           )}
         </div>
       ) : (
-        <div className="text-center p-8 rounded-lg bg-success/10 border border-success/30">
-          <p className="text-xl font-bold text-foreground">
-            {getTranslation(language, 'results.perfectScore')}
-          </p>
-        </div>
+        <Card className="border-success/30 bg-success/10">
+          <CardContent className="p-8 text-center">
+            <p className="text-xl font-bold text-foreground">
+              {getTranslation(language, 'results.perfectScore')}
+            </p>
+          </CardContent>
+        </Card>
       )}
     </div>
   )

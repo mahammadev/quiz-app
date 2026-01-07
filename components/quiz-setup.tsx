@@ -1,7 +1,12 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { getTranslation, Language } from '@/lib/translations'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Checkbox } from '@/components/ui/checkbox'
 
 type Question = {
   question: string
@@ -80,63 +85,78 @@ export default function QuizSetup({
 
   return (
     <div className="mt-6 sm:mt-12 space-y-4 sm:space-y-6 max-w-2xl mx-auto px-4 sm:px-0">
-      <div className="rounded-lg border border-border bg-card p-4 sm:p-8 shadow-sm">
-        <h1 className="mb-2 text-2xl sm:text-3xl font-bold text-foreground">
-          {getTranslation(language, 'setup.title')}
-        </h1>
-        <p className="mb-6 sm:mb-8 text-sm sm:text-base text-muted-foreground">
-          {getTranslation(language, 'setup.subtitle')}
-        </p>
+      <Card>
+        <CardHeader className="space-y-1">
+          <CardTitle className="text-2xl sm:text-3xl font-bold text-foreground">
+            {getTranslation(language, 'setup.title')}
+          </CardTitle>
+          <CardDescription className="text-sm sm:text-base">
+            {getTranslation(language, 'setup.subtitle')}
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
 
         {!selectedMode ? (
           <div className="grid gap-3 sm:gap-4">
-            <button
+            <Button
               onClick={() => setSelectedMode('quick')}
-              className="cursor-target text-left rounded-lg border border-border p-4 sm:p-6 hover:border-primary hover:bg-muted/50 transition-colors"
+              variant="outline"
+              className="cursor-target h-auto justify-start text-left"
             >
-              <h3 className="text-base sm:text-lg font-bold text-foreground mb-1">
-                {getTranslation(language, 'setup.mode.quick')}
-              </h3>
-              <p className="text-xs sm:text-sm text-muted-foreground">
-                {getTranslation(language, 'setup.mode.quickDesc')}
-              </p>
-            </button>
+              <div className="p-2 sm:p-3">
+                <h3 className="text-base sm:text-lg font-bold text-foreground mb-1">
+                  {getTranslation(language, 'setup.mode.quick')}
+                </h3>
+                <p className="text-xs sm:text-sm text-muted-foreground">
+                  {getTranslation(language, 'setup.mode.quickDesc')}
+                </p>
+              </div>
+            </Button>
 
-            <button
+            <Button
               onClick={() => setSelectedMode('sequential')}
-              className="cursor-target text-left rounded-lg border border-border p-4 sm:p-6 hover:border-primary hover:bg-muted/50 transition-colors"
+              variant="outline"
+              className="cursor-target h-auto justify-start text-left"
             >
-              <h3 className="text-base sm:text-lg font-bold text-foreground mb-1">
-                {getTranslation(language, 'setup.mode.sequential')}
-              </h3>
-              <p className="text-xs sm:text-sm text-muted-foreground">
-                {getTranslation(language, 'setup.mode.sequentialDesc')}
-              </p>
-            </button>
+              <div className="p-2 sm:p-3">
+                <h3 className="text-base sm:text-lg font-bold text-foreground mb-1">
+                  {getTranslation(language, 'setup.mode.sequential')}
+                </h3>
+                <p className="text-xs sm:text-sm text-muted-foreground">
+                  {getTranslation(language, 'setup.mode.sequentialDesc')}
+                </p>
+              </div>
+            </Button>
 
-            <button
+            <Button
               onClick={() => setSelectedMode('practice')}
-              className="cursor-target text-left rounded-lg border border-border p-4 sm:p-6 hover:border-primary hover:bg-muted/50 transition-colors"
+              variant="outline"
+              className="cursor-target h-auto justify-start text-left"
             >
-              <h3 className="text-base sm:text-lg font-bold text-foreground mb-1">
-                {getTranslation(language, 'setup.mode.practice')}
-              </h3>
-              <p className="text-xs sm:text-sm text-muted-foreground">
-                {getTranslation(language, 'setup.mode.practiceDesc')}
-              </p>
-            </button>
+              <div className="p-2 sm:p-3">
+                <h3 className="text-base sm:text-lg font-bold text-foreground mb-1">
+                  {getTranslation(language, 'setup.mode.practice')}
+                </h3>
+                <p className="text-xs sm:text-sm text-muted-foreground">
+                  {getTranslation(language, 'setup.mode.practiceDesc')}
+                </p>
+              </div>
+            </Button>
 
-            <button
+            <Button
               onClick={() => setSelectedMode('study')}
-              className="cursor-target text-left rounded-lg border border-border p-4 sm:p-6 hover:border-primary hover:bg-muted/50 transition-colors"
+              variant="outline"
+              className="cursor-target h-auto justify-start text-left"
             >
-              <h3 className="text-base sm:text-lg font-bold text-foreground mb-1">
-                {getTranslation(language, 'setup.mode.study')}
-              </h3>
-              <p className="text-xs sm:text-sm text-muted-foreground">
-                {getTranslation(language, 'setup.mode.studyDesc')}
-              </p>
-            </button>
+              <div className="p-2 sm:p-3">
+                <h3 className="text-base sm:text-lg font-bold text-foreground mb-1">
+                  {getTranslation(language, 'setup.mode.study')}
+                </h3>
+                <p className="text-xs sm:text-sm text-muted-foreground">
+                  {getTranslation(language, 'setup.mode.studyDesc')}
+                </p>
+              </div>
+            </Button>
           </div>
         ) : (
           <div className="space-y-6">
@@ -149,20 +169,21 @@ export default function QuizSetup({
                   {getTranslation(language, `setup.mode.${selectedMode}Desc`)}
                 </p>
               </div>
-              <button
+              <Button
                 onClick={() => setSelectedMode(null)}
-                className="cursor-target text-sm text-muted-foreground hover:text-foreground transition-colors"
+                variant="ghost"
+                className="cursor-target text-sm text-muted-foreground hover:text-foreground"
               >
                 ← Geri
-              </button>
+              </Button>
             </div>
 
             {selectedMode === 'quick' && (
               <div>
-                <label className="block text-sm font-semibold text-foreground mb-3">
+                <Label className="block text-sm font-semibold text-foreground mb-3">
                   {getTranslation(language, 'setup.numQuestions')}
-                </label>
-                <input
+                </Label>
+                <Input
                   type="number"
                   min="1"
                   max={totalQuestions}
@@ -170,7 +191,7 @@ export default function QuizSetup({
                   onChange={(e) =>
                     setNumQuestions(Math.max(1, parseInt(e.target.value) || 1))
                   }
-                  className="cursor-target w-full rounded-lg border border-input bg-background px-4 py-2.5 text-foreground focus:border-primary focus:outline-none transition-colors"
+                  className="cursor-target"
                 />
                 <p className="mt-2 text-sm text-muted-foreground">
                   {getTranslation(language, 'setup.available', { count: totalQuestions })}
@@ -180,10 +201,10 @@ export default function QuizSetup({
 
             {selectedMode === 'sequential' && (
               <div>
-                <label className="block text-sm font-semibold text-foreground mb-3">
+                <Label className="block text-sm font-semibold text-foreground mb-3">
                   Başlanğıc sualı
-                </label>
-                <input
+                </Label>
+                <Input
                   type="number"
                   min="1"
                   max={totalQuestions}
@@ -191,7 +212,7 @@ export default function QuizSetup({
                   onChange={(e) =>
                     setStartingQuestion(Math.max(1, Math.min(totalQuestions, parseInt(e.target.value) || 1)))
                   }
-                  className="cursor-target w-full rounded-lg border border-input bg-background px-4 py-2.5 text-foreground focus:border-primary focus:outline-none transition-colors"
+                  className="cursor-target"
                 />
                 <p className="mt-2 text-sm text-muted-foreground">
                   {totalQuestions - startingQuestion + 1} sual cavablandırılacaq (sual {startingQuestion} - {totalQuestions})
@@ -202,49 +223,46 @@ export default function QuizSetup({
 
 
             {selectedMode === 'study' && (
-              <div className="flex items-center gap-3 p-3 rounded-lg border border-border bg-muted/30">
-                <input
-                  type="checkbox"
+              <div className="flex items-center gap-3 rounded-lg border border-border bg-muted/30 p-3">
+                <Checkbox
                   id="show-only-correct"
                   checked={showOnlyCorrect}
-                  onChange={(e) => setShowOnlyCorrect(e.target.checked)}
-                  className="cursor-target w-4 h-4 rounded cursor-pointer accent-primary"
+                  onCheckedChange={(value) => setShowOnlyCorrect(Boolean(value))}
                 />
-                <label
+                <Label
                   htmlFor="show-only-correct"
                   className="cursor-target text-sm font-medium text-foreground cursor-pointer"
                 >
                   {getTranslation(language, 'setup.showOnlyCorrect')}
-                </label>
+                </Label>
               </div>
             )}
 
             {/* Shuffle Answers - Available for all modes */}
-            <div className="flex items-center gap-3 p-3 rounded-lg border border-border bg-muted/30">
-              <input
-                type="checkbox"
+            <div className="flex items-center gap-3 rounded-lg border border-border bg-muted/30 p-3">
+              <Checkbox
                 id="shuffle-answers"
                 checked={shuffleAnswers}
-                onChange={(e) => setShuffleAnswers(e.target.checked)}
-                className="cursor-target w-4 h-4 rounded cursor-pointer accent-primary"
+                onCheckedChange={(value) => setShuffleAnswers(Boolean(value))}
               />
-              <label
+              <Label
                 htmlFor="shuffle-answers"
                 className="cursor-target text-sm font-medium text-foreground cursor-pointer"
               >
                 {getTranslation(language, 'setup.shuffle')}
-              </label>
+              </Label>
             </div>
 
-            <button
+            <Button
               onClick={handleStart}
-              className="btn-primary w-full cursor-target"
+              className="w-full cursor-target"
             >
               {getTranslation(language, 'setup.startBtn')}
-            </button>
+            </Button>
           </div>
         )}
-      </div>
+        </CardContent>
+      </Card>
     </div>
   )
 }
