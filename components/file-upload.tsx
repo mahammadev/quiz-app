@@ -125,13 +125,11 @@ export default function FileUpload({
   }
 
   return (
-    <div className="mt-8 space-y-6">
+    <div className="mt-8 space-y-8">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="space-y-1">
-          <h2 className="text-2xl font-bold text-foreground">
-            {getTranslation(language, "library.saved")}
-          </h2>
-        </div>
+        <h2 className="text-2xl font-bold text-foreground">
+          {getTranslation(language, "library.saved")}
+        </h2>
         <Button
           onClick={() => {
             setShowUpload(true)
@@ -146,14 +144,14 @@ export default function FileUpload({
 
       {showUpload && (
         <div className="space-y-4">
-          <Card>
+          <Card className="border-border/60 shadow-lg">
             <CardHeader className="space-y-1">
               <CardTitle className="text-3xl font-bold text-foreground">{getTranslation(language, "upload.title")}</CardTitle>
               <CardDescription>{getTranslation(language, "upload.subtitle")}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               {parsedQuestions ? (
-                <div className="space-y-4 rounded-lg border border-border bg-muted p-6">
+                <div className="space-y-4 rounded-xl border border-border/60 bg-muted/40 p-6 shadow-sm">
                   <div className="flex items-center justify-between">
                     <h3 className="font-semibold text-foreground">{parsedQuestions.length} questions loaded</h3>
                     <Button
@@ -215,7 +213,7 @@ export default function FileUpload({
                         onClick={() => fileInputRef.current?.click()}
                         disabled={loading}
                         variant="outline"
-                        className="cursor-target w-full"
+                        className="cursor-target w-full border-primary/40 bg-background/80 hover:bg-primary/5"
                       >
                         {loading
                           ? getTranslation(language, "upload.loading")
@@ -225,7 +223,7 @@ export default function FileUpload({
                       <div
                         onDrop={handleDrop}
                         onDragOver={(e) => e.preventDefault()}
-                        className="cursor-target rounded-lg border-2 border-dashed border-border p-10 text-center transition-colors hover:border-primary hover:bg-muted/30"
+                        className="cursor-target rounded-xl border-2 border-dashed border-border/60 bg-muted/30 p-10 text-center transition-colors hover:border-primary hover:bg-primary/5"
                       >
                         <Upload className="mx-auto mb-3 h-8 w-8 text-primary" />
                         <p className="font-medium text-foreground">{getTranslation(language, "upload.dragDrop")}</p>
@@ -286,7 +284,7 @@ export default function FileUpload({
             </CardContent>
           </Card>
 
-          <Card className="bg-muted">
+          <Card className="bg-muted/60 border-border/60">
             <CardContent className="p-4">
               <p className="text-sm text-muted-foreground">
                 <span className="font-semibold text-foreground">{getTranslation(language, "upload.format")}:</span>{" "}
