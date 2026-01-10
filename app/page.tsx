@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, Settings } from 'lucide-react'
+import Link from 'next/link'
 import FileUpload from '@/components/file-upload'
 import QuizSetup from '@/components/quiz-setup'
 import QuizDisplay, { IncorrectAnswer } from '@/components/quiz-display'
@@ -132,7 +133,13 @@ export default function Home() {
       <main className="min-h-screen bg-background text-foreground transition-colors duration-300">
         <div className="container mx-auto max-w-5xl px-3 sm:px-4 py-4 sm:py-8 min-h-screen flex flex-col">
           {state !== 'quiz' && (
-            <header className="flex justify-end mb-4 sm:mb-8 relative z-50">
+            <header className="flex justify-between items-center mb-4 sm:mb-8 relative z-50">
+              <Link href="/admin">
+                <Button variant="ghost" size="sm" className="gap-2 text-muted-foreground hover:text-foreground">
+                  <Settings className="w-4 h-4" />
+                  <span className="hidden sm:inline">Admin</span>
+                </Button>
+              </Link>
               <ThemeSwitcher />
             </header>
           )}

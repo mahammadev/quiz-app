@@ -212,3 +212,57 @@ export async function getFlaggedQuestions(quizId: string) {
     createdAt: row.created_at,
   }))
 }
+
+export async function getAllFlags() {
+  const client = getSupabaseClient()
+  const { data, error } = await client
+    .from(FLAGS_TABLE)
+    .select('*')
+    .order('created_at', { ascending: false })
+
+  if (error || !data) {
+    throw new Error(error?.message || 'Failed to fetch all flags')
+  }
+
+  return data.map((row: FlaggedQuestionRow) => ({
+    id: row.id,
+    quizId: row.quiz_id,
+    question: row.question,
+    reason: row.reason,
+    createdAt: row.created_at,
+  }))
+}
+
+export async function updateFlag(id: string, reason: string) {
+  const client = getSupabaseClient()
+  const { data, error } = await client
+    .from(FLAGS_TABLE)
+    .update({ reason })
+    .eq('id', id)
+    .select()
+    .single()
+
+  if (error || !data) {
+    throw new Error(error?.message || 'Failed to update flag')
+  }
+
+  return {
+    id: data.id,
+    quizId: data.quiz_id,
+    question: data.question,
+    reason: data.reason,
+    createdAt: data.created_at,
+  }
+}
+
+export async function deleteFlag(id: string) {
+  const client = getSupabaseClient()
+  const { error } = await client
+    .from(FLAGS_TABLE)
+    .delete()
+    .eq('id', id)
+
+  if (error) {
+    throw new Error(error.message)
+  }
+}
