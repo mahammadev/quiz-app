@@ -33,6 +33,7 @@ export default function QuizSetup({
   const [numQuestions, setNumQuestions] = useState(Math.min(10, totalQuestions))
   const [shuffleAnswers, setShuffleAnswers] = useState(true)
   const [showOnlyCorrect, setShowOnlyCorrect] = useState(false)
+  const [reverseOrder, setReverseOrder] = useState(false)
   const [startingQuestion, setStartingQuestion] = useState(1)
   const [filterText, setFilterText] = useState('')
   const [filterKeywords, setFilterKeywords] = useState<string[]>([])
@@ -104,6 +105,10 @@ export default function QuizSetup({
           answers: [...q.answers], // Deep clone the answers array
           _originalIndex: startingQuestion - 1 + idx
         }))
+
+      if (reverseOrder) {
+        questionsToUse.reverse()
+      }
     } else if (selectedMode === 'practice') {
       // Shuffle all questions for practice mode
       const shuffled = [...allQuestions]
@@ -285,6 +290,24 @@ export default function QuizSetup({
                 <p className="mt-2 text-sm text-muted-foreground">
                   {totalQuestions - startingQuestion + 1} sual cavablandırılacaq (sual {startingQuestion} - {totalQuestions})
                 </p>
+              </div>
+            )}
+
+            {selectedMode === 'sequential' && (
+              <div className="flex items-center gap-3 p-3 rounded-lg border border-border bg-muted/30">
+                <input
+                  type="checkbox"
+                  id="reverse-order"
+                  checked={reverseOrder}
+                  onChange={(e) => setReverseOrder(e.target.checked)}
+                  className="cursor-target w-4 h-4 rounded cursor-pointer accent-primary"
+                />
+                <label
+                  htmlFor="reverse-order"
+                  className="cursor-target text-sm font-medium text-foreground cursor-pointer"
+                >
+                  {getTranslation(language, 'setup.reverse')}
+                </label>
               </div>
             )}
 

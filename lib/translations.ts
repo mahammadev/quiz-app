@@ -42,6 +42,7 @@ export const translations = {
     'setup.allQuestions': 'Use all questions (Sequential)',
     'setup.shuffle': 'Shuffle answer options',
     'setup.shuffleQuestions': 'Shuffle questions',
+    'setup.reverse': 'Reverse question order',
     'setup.startBtn': 'Start Quiz',
     'setup.progress': 'Completed: {answered} / {total}',
     'setup.resetProgress': 'Reset Progress',
@@ -103,6 +104,13 @@ export const translations = {
     'theme.lightMode': 'Light mode',
     'lang.azerbaijani': 'AZ',
     'lang.english': 'EN',
+    'activeUsers.title': 'Active Users',
+    'activeUsers.online': 'online',
+    'welcome.title': 'Welcome',
+    'welcome.prompt': 'Enter your name to start',
+    'welcome.greeting': '{name}, welcome!',
+    'welcome.saveBtn': 'Save',
+    'welcome.editBtn': 'Edit',
   },
   az: {
     // File Upload
@@ -151,6 +159,7 @@ export const translations = {
     'setup.allQuestions': 'Bütün sualları istifadə et (Ardıcıl)',
     'setup.shuffle': 'Cavab variantlarını qarışdır',
     'setup.shuffleQuestions': 'Sualları qarışdır',
+    'setup.reverse': 'Sıralamanı tərsinə çevir',
     'setup.startBtn': 'Kvizi Başlat',
     'setup.progress': 'Tamamlandı: {answered} / {total}',
     'setup.resetProgress': 'Proqresi sıfırla',
@@ -213,6 +222,13 @@ export const translations = {
     'theme.lightMode': 'Aydın rejim',
     'lang.azerbaijani': 'AZ',
     'lang.english': 'EN',
+    'activeUsers.title': 'Aktiv İstifadəçilər',
+    'activeUsers.online': 'onlayn',
+    'welcome.title': 'Xoş gəldiniz',
+    'welcome.prompt': 'Başlamaq üçün adınızı daxil edin',
+    'welcome.greeting': '{name}, xoş gəldiniz!',
+    'welcome.saveBtn': 'Yadda saxla',
+    'welcome.editBtn': 'Redaktə et',
   },
 }
 

@@ -14,6 +14,8 @@ import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Leaderboard } from '@/components/leaderboard'
+import { ActiveUsers } from '@/components/active-users'
+import { UserWelcome } from '@/components/user-welcome'
 
 import { Language, getTranslation } from '@/lib/translations'
 
@@ -40,7 +42,28 @@ export default function Home() {
   const [quizId, setQuizId] = useState<string>('')
   const [quizStartTime, setQuizStartTime] = useState<number | null>(null)
   const [quizDuration, setQuizDuration] = useState<number>(0)
+  const [userName, setUserName] = useState('')
   const language: Language = 'az'
+
+  useEffect(() => {
+    try {
+      const storedName = localStorage.getItem('quiz-player-name')
+      if (storedName) {
+        setUserName(storedName)
+      }
+    } catch (e) {
+      console.warn('Failed to load name', e)
+    }
+  }, [])
+
+  const handleNameChange = (newName: string) => {
+    setUserName(newName)
+    try {
+      localStorage.setItem('quiz-player-name', newName)
+    } catch (e) {
+      console.warn('Failed to save name', e)
+    }
+  }
 
   const currentIndex = STEPS.indexOf(state)
 
@@ -106,10 +129,8 @@ export default function Home() {
 
   return (
     <>
-
       <main className="min-h-screen bg-background text-foreground transition-colors duration-300">
         <div className="container mx-auto max-w-5xl px-3 sm:px-4 py-4 sm:py-8 min-h-screen flex flex-col">
-          {/* Hide header during quiz since quiz-display has its own */}
           {state !== 'quiz' && (
             <header className="flex justify-end mb-4 sm:mb-8 relative z-50">
               <ThemeSwitcher />
@@ -142,8 +163,7 @@ export default function Home() {
                       stiffness: 300,
                       damping: 30
                     }}
-                    className={`col-start-1 row-start-1 w-full ${isCurrent ? 'pointer-events-auto' : 'pointer-events-none'
-                      }`}
+                    className={`col-start-1 row-start-1 w-full ${isCurrent ? 'pointer-events-auto' : 'pointer-events-none'}`}
                   >
                     {step === 'quiz' ? (
                       <div className="w-full">
@@ -195,6 +215,8 @@ export default function Home() {
                               language={language}
                               quizId={quizId}
                               durationMs={quizDuration}
+                              userName={userName}
+                              onNameChange={handleNameChange}
                             />
                           )}
                         </CardContent>
@@ -207,7 +229,9 @@ export default function Home() {
           </div>
 
           {state !== 'quiz' && (
-            <div className="mt-8">
+            <div className="mt-8 space-y-8">
+              <UserWelcome language={language} userName={userName} onNameChange={handleNameChange} />
+              <ActiveUsers language={language} playerName={userName} />
               <Leaderboard quizId={quizId || 'global'} language={language} />
             </div>
           )}
@@ -226,6 +250,8 @@ function QuizComplete({
   language,
   quizId,
   durationMs,
+  userName,
+  onNameChange,
 }: {
   score: number
   total: number
@@ -235,8 +261,9 @@ function QuizComplete({
   language: Language
   quizId?: string
   durationMs: number
+  userName: string
+  onNameChange: (name: string) => void
 }) {
-  const [name, setName] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [hasSubmitted, setHasSubmitted] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
@@ -248,20 +275,8 @@ function QuizComplete({
   const seconds = Math.floor((durationMs % 60000) / 1000)
   const durationText = getTranslation(language, 'results.duration', { minutes, seconds })
 
-  // Scroll to top when results screen loads
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' })
-  }, [])
-
-  useEffect(() => {
-    try {
-      const storedName = localStorage.getItem('quiz-player-name')
-      if (storedName) {
-        setName(storedName)
-      }
-    } catch (error) {
-      console.warn('Failed to load player name:', error)
-    }
   }, [])
 
   useEffect(() => {
@@ -277,7 +292,7 @@ function QuizComplete({
     }
     if (hasSubmitted) return
 
-    const playerName = name.trim() || 'Guest'
+    const playerName = userName.trim() || 'Guest'
     setIsSubmitting(true)
     setSubmitError(null)
 
@@ -296,12 +311,6 @@ function QuizComplete({
         throw new Error('Failed to submit score')
       }
 
-      try {
-        localStorage.setItem('quiz-player-name', playerName)
-      } catch (storageError) {
-        // Continue even if localStorage fails
-        console.warn('Failed to save player name:', storageError)
-      }
       setHasSubmitted(true)
       setRefreshKey((key) => key + 1)
     } catch (err) {
@@ -312,32 +321,30 @@ function QuizComplete({
   }
 
   return (
-    <div className="mt-12 space-y-8 max-w-4xl mx-auto">
-      <Card>
-        <CardContent className="p-8 text-center">
-          <h1 className="text-4xl font-bold text-card-foreground mb-4">
-            {getTranslation(language, 'results.title')}
-          </h1>
-          <div className="mb-6">
-            <p className="text-6xl font-bold text-primary mb-2">
-              {percentage}%
-            </p>
-            <p className="text-xl text-muted-foreground">
-              {getTranslation(language, 'results.scored', { score, total })}
-            </p>
-          </div>
-          <div className="flex flex-col sm:flex-row justify-center gap-3">
-            <Button onClick={onReset}>
-              {getTranslation(language, 'results.resetBtn')}
+    <div className="space-y-8">
+      <div className="text-center">
+        <h1 className="text-4xl font-bold text-card-foreground mb-4">
+          {getTranslation(language, 'results.title')}
+        </h1>
+        <div className="mb-6">
+          <p className="text-6xl font-bold text-primary mb-2">
+            {percentage}%
+          </p>
+          <p className="text-xl text-muted-foreground">
+            {getTranslation(language, 'results.scored', { score, total })}
+          </p>
+        </div>
+        <div className="flex flex-col sm:flex-row justify-center gap-3">
+          <Button onClick={onReset}>
+            {getTranslation(language, 'results.resetBtn')}
+          </Button>
+          {incorrectAnswers.length > 0 && (
+            <Button variant="secondary" onClick={onRetryIncorrect}>
+              {getTranslation(language, 'results.retryIncorrectBtn')}
             </Button>
-            {incorrectAnswers.length > 0 && (
-              <Button variant="secondary" onClick={onRetryIncorrect}>
-                {getTranslation(language, 'results.retryIncorrectBtn')}
-              </Button>
-            )}
-          </div>
-        </CardContent>
-      </Card>
+          )}
+        </div>
+      </div>
 
       <div className="grid gap-4 md:grid-cols-2">
         <Card>
@@ -363,8 +370,8 @@ function QuizComplete({
               </Label>
               <Input
                 id="leaderboard-name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
+                value={userName}
+                onChange={(e) => onNameChange(e.target.value)}
                 placeholder={getTranslation(language, 'results.namePlaceholder')}
               />
             </div>
@@ -388,7 +395,7 @@ function QuizComplete({
           </CardContent>
         </Card>
 
-        <Leaderboard quizId={quizId} playerName={name} language={language} refreshKey={refreshKey} />
+        <Leaderboard quizId={quizId} playerName={userName} language={language} refreshKey={refreshKey} />
       </div>
 
       {incorrectAnswers.length > 0 ? (
