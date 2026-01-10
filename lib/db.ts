@@ -10,6 +10,14 @@ export type LeaderboardEntry = {
   createdAt: string
 }
 
+export type FlaggedQuestion = {
+  id: string
+  quizId: string
+  question: string
+  reason: string
+  createdAt: string
+}
+
 type SupabaseClientLike = any
 
 type QueryBuilder = {
@@ -29,9 +37,18 @@ type SupabaseRow = {
   created_at: string
 }
 
+type FlaggedQuestionRow = {
+  id: string
+  quiz_id: string
+  question: string
+  reason: string
+  created_at: string
+}
+
 let supabaseClient: SupabaseClientLike | null = null
 
 const TABLE = 'leaderboard'
+const FLAGS_TABLE = 'flagged_questions'
 
 export function setSupabaseClient(client: SupabaseClientLike | null) {
   supabaseClient = client
@@ -148,4 +165,50 @@ export async function clearLeaderboard() {
   if (error) {
     throw new Error(error.message)
   }
+}
+
+export async function flagQuestion(quizId: string, question: string, reason: string) {
+  const client = getSupabaseClient()
+  const { data, error } = await client
+    .from(FLAGS_TABLE)
+    .insert({
+      quiz_id: quizId,
+      question,
+      reason,
+      created_at: new Date().toISOString(),
+    })
+    .select()
+    .single()
+
+  if (error || !data) {
+    throw new Error(error?.message || 'Failed to flag question')
+  }
+
+  return {
+    id: data.id,
+    quizId: data.quiz_id,
+    question: data.question,
+    reason: data.reason,
+    createdAt: data.created_at,
+  }
+}
+
+export async function getFlaggedQuestions(quizId: string) {
+  const client = getSupabaseClient()
+  const { data, error } = await client
+    .from(FLAGS_TABLE)
+    .select('*')
+    .eq('quiz_id', quizId)
+
+  if (error || !data) {
+    throw new Error(error?.message || 'Failed to fetch flags')
+  }
+
+  return data.map((row: FlaggedQuestionRow) => ({
+    id: row.id,
+    quizId: row.quiz_id,
+    question: row.question,
+    reason: row.reason,
+    createdAt: row.created_at,
+  }))
 }

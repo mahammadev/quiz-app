@@ -1,9 +1,13 @@
 'use client'
 
 import { useState, useMemo, useEffect, useRef } from 'react'
-import { CheckCircle, XCircle, ArrowLeft } from 'lucide-react'
+import { CheckCircle, XCircle, ArrowLeft, Flag, AlertTriangle } from 'lucide-react'
 import { QuestionSlider } from './question-slider'
 import ThemeSwitcher from './theme-switcher'
+import { Button } from './ui/button'
+import { Input } from './ui/input'
+import { Card, CardContent } from './ui/card'
+import { Alert, AlertDescription } from './ui/alert'
 
 type Question = {
   question: string
@@ -21,6 +25,8 @@ export type IncorrectAnswer = {
 type QuestionState = {
   selectedAnswer: string | null
   isCorrect: boolean | null
+  isFlagged: boolean
+  flagReason?: string
 }
 
 function QuizDisplay({
@@ -45,13 +51,57 @@ function QuizDisplay({
   allQuestions?: Question[]
 }) {
   const [questionStates, setQuestionStates] = useState<QuestionState[]>(
-    questions.map(() => ({ selectedAnswer: null, isCorrect: null }))
+    questions.map(() => ({ selectedAnswer: null, isCorrect: null, isFlagged: false }))
   )
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
+  const [flaggingIndex, setFlaggingIndex] = useState<number | null>(null)
+  const [tempFlagReason, setTempFlagReason] = useState('')
+  const [globalFlags, setGlobalFlags] = useState<Record<string, string>>({})
   const questionRefs = useRef<(HTMLDivElement | null)[]>([])
 
   useEffect(() => {
-    setQuestionStates(questions.map(() => ({ selectedAnswer: null, isCorrect: null })))
+    const fetchFlags = async () => {
+      if (!quizId) return
+      try {
+        const response = await fetch(`/api/flags/${quizId}`)
+        if (response.ok) {
+          const { flags } = await response.json()
+          const flagMap: Record<string, string> = {}
+          flags.forEach((f: any) => {
+            flagMap[f.question] = f.reason
+          })
+          setGlobalFlags(flagMap)
+        }
+      } catch (error) {
+        console.error('Failed to fetch flags', error)
+      }
+    }
+    fetchFlags()
+  }, [quizId])
+
+  useEffect(() => {
+    setQuestionStates(prev => {
+      // If we already have states and the number of questions hasn't changed, 
+      // just update the flags
+      if (prev.length === questions.length && prev.length > 0) {
+        return questions.map((q, i) => ({
+          ...prev[i],
+          isFlagged: prev[i].isFlagged || !!globalFlags[q.question],
+          flagReason: prev[i].flagReason || globalFlags[q.question]
+        }))
+      }
+      // Otherwise initialize
+      return questions.map((q) => ({
+        selectedAnswer: null,
+        isCorrect: null,
+        isFlagged: !!globalFlags[q.question],
+        flagReason: globalFlags[q.question]
+      }))
+    })
+    // Only reset index if questions changed, not flags
+  }, [questions, globalFlags])
+
+  useEffect(() => {
     setCurrentQuestionIndex(0)
   }, [questions])
 
@@ -63,6 +113,11 @@ function QuizDisplay({
       score: 'Score',
       studyMode: 'Study Mode - Review Correct Answers',
       done: 'Done',
+      flagTitle: 'Flag this question as wrong',
+      flagReasonPlaceholder: 'Type the reason...',
+      flagSubmit: 'Flag',
+      flagged: 'Flagged as wrong',
+      flagReason: 'Reason',
     },
     az: {
       finish: 'Bitir',
@@ -71,6 +126,11 @@ function QuizDisplay({
       score: 'Bal',
       studyMode: 'Öyrənmə Rejimi - Düzgün Cavabları Nəzərdən Keçirin',
       done: 'Tamamlandı',
+      flagTitle: 'Bu sualı səhv kimi işarələ',
+      flagReasonPlaceholder: 'Səbəbi yazın...',
+      flagSubmit: 'İşarələ',
+      flagged: 'Səhv kimi işarələnib',
+      flagReason: 'Səbəb',
     }
   }
 
@@ -101,7 +161,7 @@ function QuizDisplay({
 
     // Update question state
     const newStates = [...questionStates]
-    newStates[questionIndex] = { selectedAnswer: answer, isCorrect: correct }
+    newStates[questionIndex] = { ...newStates[questionIndex], selectedAnswer: answer, isCorrect: correct }
     setQuestionStates(newStates)
 
 
@@ -149,6 +209,35 @@ function QuizDisplay({
     }, 800)
   }
 
+  const handleFlagSubmit = async (index: number) => {
+    if (!tempFlagReason.trim() || !quizId) return
+
+    const questionText = questions[index].question
+    try {
+      const response = await fetch(`/api/flags/${quizId}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          question: questionText,
+          reason: tempFlagReason,
+        }),
+      })
+
+      if (response.ok) {
+        setQuestionStates(prev => {
+          const next = [...prev]
+          next[index] = { ...next[index], isFlagged: true, flagReason: tempFlagReason }
+          return next
+        })
+        setGlobalFlags(prev => ({ ...prev, [questionText]: tempFlagReason }))
+        setFlaggingIndex(null)
+        setTempFlagReason('')
+      }
+    } catch (error) {
+      console.error('Failed to flag question', error)
+    }
+  }
+
   // Sync current question index with scroll position
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -178,7 +267,7 @@ function QuizDisplay({
 
   const handleFinish = () => {
     try {
-      const score = questionStates.filter(state => state.isCorrect === true).length
+      const score = questionStates.filter(state => state.isCorrect === true || state.isFlagged).length
       const incorrectAnswers: IncorrectAnswer[] = []
 
       questionStates.forEach((state, idx) => {
@@ -200,9 +289,9 @@ function QuizDisplay({
     }
   }
 
-  const allAnswered = questionStates.every(state => state.selectedAnswer !== null)
-  const score = questionStates.filter(state => state.isCorrect === true).length
-  const answeredCount = questionStates.filter(state => state.selectedAnswer !== null).length
+  const allAnswered = questionStates.every(state => state.selectedAnswer !== null || state.isFlagged)
+  const score = questionStates.filter(state => state.isCorrect === true || state.isFlagged).length
+  const answeredCount = questionStates.filter(state => state.selectedAnswer !== null || state.isFlagged).length
 
   // In study mode, show all questions immediately
   if (studyMode) {
@@ -341,6 +430,71 @@ function QuizDisplay({
                   <span className="mr-2">{questionNumber}.</span>
                   <span className="whitespace-pre-line">{question.question}</span>
                 </p>
+              </div>
+
+              {/* Flag Badge and Reason */}
+              {state.isFlagged && (
+                <div className="mb-4">
+                  <Alert variant="default" className="bg-amber-500/10 border-amber-500/20 text-amber-600 dark:text-amber-400">
+                    <AlertTriangle className="h-4 w-4" />
+                    <AlertDescription>
+                      <span className="font-semibold">{t[language].flagged}:</span> {state.flagReason}
+                    </AlertDescription>
+                  </Alert>
+                </div>
+              )}
+
+              {/* Flag Interface */}
+              <div className="flex items-center gap-4 mb-4">
+                {!state.isFlagged && flaggingIndex !== questionIndex && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setFlaggingIndex(questionIndex)}
+                    className="text-muted-foreground hover:text-amber-500 hover:bg-amber-50/50"
+                  >
+                    <Flag className="w-4 h-4 mr-2" />
+                    {t[language].flagTitle}
+                  </Button>
+                )}
+                {flaggingIndex === questionIndex && (
+                  <div className="flex-1 space-y-2">
+                    <Card className="border-amber-500/30">
+                      <CardContent className="p-3">
+                        <div className="flex gap-2">
+                          <Input
+                            autoFocus
+                            placeholder={t[language].flagReasonPlaceholder}
+                            value={tempFlagReason}
+                            onChange={(e) => setTempFlagReason(e.target.value)}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') handleFlagSubmit(questionIndex)
+                              if (e.key === 'Escape') setFlaggingIndex(null)
+                            }}
+                            className="flex-1"
+                          />
+                          <Button
+                            size="sm"
+                            onClick={() => handleFlagSubmit(questionIndex)}
+                            className="bg-amber-600 hover:bg-amber-700 text-white"
+                          >
+                            {t[language].flagSubmit}
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => {
+                              setFlaggingIndex(null)
+                              setTempFlagReason('')
+                            }}
+                          >
+                            Cancel
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+                )}
               </div>
 
               {/* Answer Options */}
