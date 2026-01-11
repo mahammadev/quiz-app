@@ -3,6 +3,7 @@ import type { Metadata } from 'next'
 import { Analytics } from '@vercel/analytics/next'
 import '@/styles/globals.css'
 import { Poppins, Inter } from 'next/font/google'
+import RouteSync from '@/components/route-sync'
 
 // Initialize fonts
 const poppins = Poppins({
@@ -30,6 +31,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${poppins.variable} ${inter.variable} font-poppins antialiased`}>
+        <RouteSync />
         {children}
         <Analytics />
       </body>
