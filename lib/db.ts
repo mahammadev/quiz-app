@@ -213,8 +213,8 @@ export async function getFlaggedQuestions(quizId: string) {
   }))
 }
 
-export async function getAllFlags() {
-  const client = getSupabaseClient()
+export async function getAllFlags(customClient?: any) {
+  const client = customClient || getSupabaseClient()
   const { data, error } = await client
     .from(FLAGS_TABLE)
     .select('*')
@@ -233,8 +233,8 @@ export async function getAllFlags() {
   }))
 }
 
-export async function updateFlag(id: string, reason: string) {
-  const client = getSupabaseClient()
+export async function updateFlag(id: string, reason: string, customClient?: any) {
+  const client = customClient || getSupabaseClient()
   const { data, error } = await client
     .from(FLAGS_TABLE)
     .update({ reason })
@@ -255,8 +255,8 @@ export async function updateFlag(id: string, reason: string) {
   }
 }
 
-export async function deleteFlag(id: string) {
-  const client = getSupabaseClient()
+export async function deleteFlag(id: string, customClient?: any) {
+  const client = customClient || getSupabaseClient()
   const { error } = await client
     .from(FLAGS_TABLE)
     .delete()

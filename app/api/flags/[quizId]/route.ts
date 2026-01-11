@@ -31,7 +31,8 @@ export async function GET(request: Request, props: { params: Promise<{ quizId?: 
     }
 
     try {
-        const flags = quizId === 'all' ? await getAllFlags() : await getFlaggedQuestions(quizId)
+        const supabase = await createClient()
+        const flags = quizId === 'all' ? await getAllFlags(supabase) : await getFlaggedQuestions(quizId)
         return NextResponse.json({ flags })
     } catch (error) {
         console.error('Failed to fetch flags', error)
@@ -82,12 +83,15 @@ export async function PATCH(request: Request) {
         }
 
         const { id, reason } = parsed.data
-        const flag = await updateFlag(id, reason)
+        const flag = await updateFlag(id, reason, supabase)
 
         return NextResponse.json({ flag })
-    } catch (error) {
-        console.error('Failed to update flag', error)
-        return NextResponse.json({ error: 'Failed to update flag' }, { status: 500 })
+    } catch (error: any) {
+        console.error('Failed to update flag:', error)
+        return NextResponse.json({
+            error: error.message || 'Failed to update flag',
+            details: error
+        }, { status: 500 })
     }
 }
 
@@ -107,10 +111,13 @@ export async function DELETE(request: Request) {
     }
 
     try {
-        await deleteFlag(id)
+        await deleteFlag(id, supabase)
         return NextResponse.json({ success: true })
-    } catch (error) {
-        console.error('Failed to delete flag', error)
-        return NextResponse.json({ error: 'Failed to delete flag' }, { status: 500 })
+    } catch (error: any) {
+        console.error('Failed to delete flag:', error)
+        return NextResponse.json({
+            error: error.message || 'Failed to delete flag',
+            details: error
+        }, { status: 500 })
     }
 }
