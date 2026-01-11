@@ -5,6 +5,7 @@ import type React from "react"
 import { useState, useRef } from "react"
 import { Upload, Save } from "lucide-react"
 import { getTranslation, type Language } from "@/lib/translations"
+import { type Question, parseQuestions } from "@/lib/quiz"
 import QuizLibrary from "./quiz-library"
 import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
@@ -13,12 +14,6 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-
-type Question = {
-  question: string
-  answers: string[]
-  correct_answer: string
-}
 
 export default function FileUpload({
   onFileLoaded,
@@ -39,26 +34,13 @@ export default function FileUpload({
   const [libraryRefresh, setLibraryRefresh] = useState(0)
   const supabase = createClient()
 
-  const parseQuestions = (content: string) => {
-    const data = JSON.parse(content)
-    const questions = Array.isArray(data) ? data : [data]
-
-    questions.forEach((q, idx) => {
-      if (!q.question || !Array.isArray(q.answers) || !q.correct_answer) {
-        throw new Error(getTranslation(language, "upload.errorMsg", { index: idx + 1 }))
-      }
-    })
-
-    return questions
-  }
-
   const handleFileUpload = async (file: File) => {
     setError("")
     setLoading(true)
 
     try {
       const content = await file.text()
-      const questions = parseQuestions(content)
+      const questions = parseQuestions(content, language)
       setParsedQuestions(questions)
       setQuizName(file.name.replace(".json", ""))
     } catch (err) {
@@ -73,7 +55,7 @@ export default function FileUpload({
     setLoading(true)
 
     try {
-      const questions = parseQuestions(pastedText)
+      const questions = parseQuestions(pastedText, language)
       setParsedQuestions(questions)
       setQuizName("My Quiz")
     } catch (err) {
