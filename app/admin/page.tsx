@@ -11,6 +11,7 @@ import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Textarea } from '@/components/ui/textarea'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 
 type FlaggedQuestion = {
     id: string
@@ -35,14 +36,18 @@ export default function AdminPage() {
     const [editQuizValue, setEditQuizValue] = useState('')
     const [editQuizError, setEditQuizError] = useState('')
     const [editQuizSaving, setEditQuizSaving] = useState(false)
+    const [selectedQuizId, setSelectedQuizId] = useState('all')
 
     const router = useRouter()
     const supabase = createClient()
 
     useEffect(() => {
-        fetchFlags()
         fetchQuizzes()
     }, [])
+
+    useEffect(() => {
+        fetchFlags(selectedQuizId)
+    }, [selectedQuizId])
 
     const fetchQuizzes = async () => {
         setLoadingQuizzes(true)
@@ -61,10 +66,12 @@ export default function AdminPage() {
         }
     }
 
-    const fetchFlags = async () => {
+    const fetchFlags = async (quizId: string) => {
         setLoading(true)
+        setError(null)
         try {
-            const response = await fetch('/api/flags/all')
+            const endpoint = quizId === 'all' ? '/api/flags/all' : `/api/flags/${encodeURIComponent(quizId)}`
+            const response = await fetch(endpoint)
             if (response.ok) {
                 const data = await response.json()
                 setFlags(data.flags)
@@ -180,6 +187,11 @@ export default function AdminPage() {
                         <Badge variant="secondary" className="px-3 py-1">
                             {flags.length} Flags
                         </Badge>
+                        <Badge variant="outline" className="px-3 py-1">
+                            {selectedQuizId === 'all'
+                                ? 'All quizzes'
+                                : (quizzes.find((quiz) => quiz.id === selectedQuizId)?.name || selectedQuizId)}
+                        </Badge>
                     </div>
                     <Button variant="outline" onClick={handleLogout} className="gap-2">
                         <LogOut className="w-4 h-4" />
@@ -206,6 +218,22 @@ export default function AdminPage() {
                     </TabsList>
 
                     <TabsContent value="flags" className="space-y-6 outline-none">
+                        <div className="flex flex-wrap items-center justify-between gap-3">
+                            <div className="text-sm font-medium text-muted-foreground">Filter by quiz</div>
+                            <Select value={selectedQuizId} onValueChange={setSelectedQuizId}>
+                                <SelectTrigger className="min-w-[220px]">
+                                    <SelectValue placeholder="All quizzes" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">All quizzes</SelectItem>
+                                    {quizzes.map((quiz) => (
+                                        <SelectItem key={quiz.id} value={quiz.id}>
+                                            {quiz.name}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
                         <div className="grid gap-6">
                             {loading ? (
                                 <div className="text-center py-12 text-muted-foreground animate-pulse">Loading flags...</div>
@@ -222,7 +250,7 @@ export default function AdminPage() {
                                             <div className="flex items-center gap-3">
                                                 <Flag className="w-4 h-4 text-amber-500" />
                                                 <span className="text-xs font-medium text-muted-foreground truncate max-w-[200px]">
-                                                    Quiz: {flag.quizId}
+                                                    Quiz: {quizzes.find((quiz) => quiz.id === flag.quizId)?.name || flag.quizId}
                                                 </span>
                                             </div>
                                             <div className="text-xs text-muted-foreground">
