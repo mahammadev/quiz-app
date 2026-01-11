@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { User, Edit2, Check } from 'lucide-react'
 import { Language, getTranslation } from '@/lib/translations'
 import { Card, CardContent } from './ui/card'
@@ -21,11 +21,17 @@ export function UserWelcome({ language, userName, onNameChange, isLoading }: Use
 
     const t = (key: string, params?: Record<string, string | number>) => getTranslation(language, key, params)
 
+    const hasInitialLoaded = useRef(false)
+
     useEffect(() => {
-        if (!isEditing) {
+        if (!isLoading && !hasInitialLoaded.current) {
+            hasInitialLoaded.current = true
             setTempName(userName)
+            if (userName) {
+                setIsEditing(false)
+            }
         }
-    }, [userName, isEditing])
+    }, [userName, isLoading])
 
     const handleSave = () => {
         setIsEditing(false)
