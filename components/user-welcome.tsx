@@ -6,32 +6,51 @@ import { Language, getTranslation } from '@/lib/translations'
 import { Card, CardContent } from './ui/card'
 import { Button } from './ui/button'
 import { Input } from './ui/input'
+import { Skeleton } from './ui/skeleton'
 
 type UserWelcomeProps = {
     language: Language
     userName: string
     onNameChange: (name: string) => void
+    isLoading?: boolean
 }
 
-export function UserWelcome({ language, userName, onNameChange }: UserWelcomeProps) {
+export function UserWelcome({ language, userName, onNameChange, isLoading }: UserWelcomeProps) {
     const [isEditing, setIsEditing] = useState(!userName)
     const [tempName, setTempName] = useState(userName)
 
     const t = (key: string, params?: Record<string, string | number>) => getTranslation(language, key, params)
 
     useEffect(() => {
-        setTempName(userName)
-        if (!userName) {
-            setIsEditing(true)
+        if (!isEditing) {
+            setTempName(userName)
         }
-    }, [userName])
+    }, [userName, isEditing])
 
     const handleSave = () => {
-        const trimmed = tempName.trim()
-        if (trimmed) {
-            onNameChange(trimmed)
-            setIsEditing(false)
-        }
+        setIsEditing(false)
+    }
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const val = e.target.value
+        setTempName(val)
+        onNameChange(val)
+    }
+
+    if (isLoading) {
+        return (
+            <Card className="border-border bg-card shadow-sm overflow-hidden">
+                <CardContent className="p-4 sm:p-6">
+                    <div className="flex items-center gap-4">
+                        <Skeleton className="w-12 h-12 rounded-full" />
+                        <div className="space-y-2 flex-1">
+                            <Skeleton className="h-4 w-24" />
+                            <Skeleton className="h-8 w-48" />
+                        </div>
+                    </div>
+                </CardContent>
+            </Card>
+        )
     }
 
     return (
@@ -49,7 +68,7 @@ export function UserWelcome({ language, userName, onNameChange }: UserWelcomePro
                             <div className="flex items-center gap-2">
                                 <Input
                                     value={tempName}
-                                    onChange={(e) => setTempName(e.target.value)}
+                                    onChange={handleChange}
                                     placeholder="..."
                                     className="h-10 text-lg font-semibold"
                                     onKeyDown={(e) => e.key === 'Enter' && handleSave()}

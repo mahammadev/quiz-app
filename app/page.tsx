@@ -44,6 +44,7 @@ export default function Home() {
   const [quizStartTime, setQuizStartTime] = useState<number | null>(null)
   const [quizDuration, setQuizDuration] = useState<number>(0)
   const [userName, setUserName] = useState('')
+  const [hasLoadedName, setHasLoadedName] = useState(false)
   const language: Language = 'az'
 
   useEffect(() => {
@@ -54,6 +55,8 @@ export default function Home() {
       }
     } catch (e) {
       console.warn('Failed to load name', e)
+    } finally {
+      setHasLoadedName(true)
     }
   }, [])
 
@@ -237,7 +240,12 @@ export default function Home() {
 
           {state !== 'quiz' && (
             <div className="mt-8 space-y-8">
-              <UserWelcome language={language} userName={userName} onNameChange={handleNameChange} />
+              <UserWelcome
+                language={language}
+                userName={userName}
+                onNameChange={handleNameChange}
+                isLoading={!hasLoadedName}
+              />
               <ActiveUsers language={language} playerName={userName} />
               <Leaderboard quizId={quizId || 'global'} language={language} />
             </div>

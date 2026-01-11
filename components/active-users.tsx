@@ -6,6 +6,7 @@ import { Users } from 'lucide-react'
 import { Language, getTranslation } from '@/lib/translations'
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
 import { Badge } from './ui/badge'
+import { Skeleton } from './ui/skeleton'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
@@ -18,6 +19,7 @@ type PresenceState = {
 
 export function ActiveUsers({ language, playerName }: { language: Language, playerName: string }) {
     const [onlineUsers, setOnlineUsers] = useState<{ id: string; name: string }[]>([])
+    const [isLoading, setIsLoading] = useState(true)
     const t = (key: string) => getTranslation(language, key)
 
     useEffect(() => {
@@ -38,6 +40,7 @@ export function ActiveUsers({ language, playerName }: { language: Language, play
                     name: presences[0]?.name || 'Guest',
                 }))
                 setOnlineUsers(users)
+                setIsLoading(false)
             })
             .subscribe(async (status) => {
                 if (status === 'SUBSCRIBED') {
@@ -74,13 +77,18 @@ export function ActiveUsers({ language, playerName }: { language: Language, play
             </CardHeader>
             <CardContent className="pb-4">
                 <div className="flex flex-wrap gap-2">
-                    {onlineUsers.map((user) => (
-                        <Badge key={user.id} variant="secondary" className="font-normal px-2 py-1">
-                            <span className="w-2 h-2 rounded-full bg-success mr-2 inline-block animate-pulse" />
-                            {user.name}
-                        </Badge>
-                    ))}
-                    {onlineUsers.length === 0 && (
+                    {isLoading ? (
+                        [1, 2, 3].map((i) => (
+                            <Skeleton key={i} className="h-6 w-24 rounded-full" />
+                        ))
+                    ) : onlineUsers.length > 0 ? (
+                        onlineUsers.map((user) => (
+                            <Badge key={user.id} variant="secondary" className="font-normal px-2 py-1">
+                                <span className="w-2 h-2 rounded-full bg-success mr-2 inline-block animate-pulse" />
+                                {user.name}
+                            </Badge>
+                        ))
+                    ) : (
                         <p className="text-sm text-muted-foreground italic">No users online</p>
                     )}
                 </div>
