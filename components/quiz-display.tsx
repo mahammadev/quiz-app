@@ -271,7 +271,7 @@ function QuizDisplay({
       const incorrectAnswers: IncorrectAnswer[] = []
 
       questionStates.forEach((state, idx) => {
-        if (state.isCorrect === false && state.selectedAnswer) {
+        if (state.isCorrect === false && state.selectedAnswer && !state.isFlagged) {
           incorrectAnswers.push({
             question: questions[idx].question,
             userAnswer: state.selectedAnswer,
@@ -515,6 +515,11 @@ function QuizDisplay({
                       textColor = 'text-success'
                     } else if (isSelected) {
                       textColor = 'text-error'
+                    }
+                  } else if (state.isFlagged) {
+                    if (isCorrectAnswer) {
+                      fontWeight = 'font-bold'
+                      textColor = 'text-orange-500'
                     }
                   } else if (isSelected) {
                     backgroundColor = 'bg-muted'
