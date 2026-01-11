@@ -307,7 +307,7 @@ function QuizComplete({
     }
     if (hasSubmitted) return
 
-    const playerName = userName.trim() || 'Guest'
+    const playerName = userName.trim() || getTranslation(language, 'activeUsers.guest')
     setIsSubmitting(true)
     setSubmitError(null)
 

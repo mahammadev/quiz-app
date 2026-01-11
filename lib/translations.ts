@@ -111,6 +111,7 @@ export const translations = {
     'welcome.greeting': '{name}, welcome!',
     'welcome.saveBtn': 'Save',
     'welcome.editBtn': 'Edit',
+    'activeUsers.guest': 'Guest',
   },
   az: {
     // File Upload
@@ -229,6 +230,7 @@ export const translations = {
     'welcome.greeting': '{name}, xoş gəldiniz!',
     'welcome.saveBtn': 'Yadda saxla',
     'welcome.editBtn': 'Redaktə et',
+    'activeUsers.guest': 'qonaq',
   },
 }
 

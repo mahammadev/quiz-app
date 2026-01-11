@@ -13,14 +13,19 @@ const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 
 const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
+type PresenceInfo = {
+    name: string
+    online_at: string
+}
+
 type PresenceState = {
-    [key: string]: { name: string; online_at: string }[]
+    [key: string]: PresenceInfo[]
 }
 
 export function ActiveUsers({ language, playerName }: { language: Language, playerName: string }) {
     const [onlineUsers, setOnlineUsers] = useState<{ id: string; name: string }[]>([])
     const [isLoading, setIsLoading] = useState(true)
-    const t = (key: string) => getTranslation(language, key)
+    const t = (key: string, params?: Record<string, string | number>) => getTranslation(language, key, params)
 
     useEffect(() => {
         const userId = Math.random().toString(36).substring(2, 11)
@@ -35,17 +40,46 @@ export function ActiveUsers({ language, playerName }: { language: Language, play
         channel
             .on('presence', { event: 'sync' }, () => {
                 const state = channel.presenceState() as PresenceState
-                const users = Object.entries(state).map(([id, presences]) => ({
-                    id,
-                    name: presences[0]?.name || 'Guest',
-                }))
+
+                // Get all users and sort them by online_at to have consistent guest numbering
+                const allPresences = Object.entries(state)
+                    .map(([id, presences]) => ({
+                        id,
+                        presence: presences[0]
+                    }))
+                    .filter(p => p.presence)
+                    .sort((a, b) => {
+                        const timeA = new Date(a.presence.online_at).getTime()
+                        const timeB = new Date(b.presence.online_at).getTime()
+                        return timeA - timeB
+                    })
+
+                let guestCount = 0
+                const users = allPresences.map((p) => {
+                    const name = p.presence.name
+                    const isGuest = !name || name === 'Guest' || name === 'qonaq'
+
+                    if (isGuest) {
+                        guestCount++
+                        return {
+                            id: p.id,
+                            name: `${t('activeUsers.guest')} ${guestCount}`
+                        }
+                    }
+
+                    return {
+                        id: p.id,
+                        name: name
+                    }
+                })
+
                 setOnlineUsers(users)
                 setIsLoading(false)
             })
             .subscribe(async (status) => {
                 if (status === 'SUBSCRIBED') {
                     await channel.track({
-                        name: playerName || 'Guest',
+                        name: playerName || '',
                         online_at: new Date().toISOString(),
                     })
                 }
@@ -62,7 +96,7 @@ export function ActiveUsers({ language, playerName }: { language: Language, play
         return () => {
             channel.unsubscribe()
         }
-    }, [playerName])
+    }, [playerName, language])
 
     return (
         <Card className="border-border bg-card">
