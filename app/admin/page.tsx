@@ -23,6 +23,7 @@ export default function AdminPage() {
     const [error, setError] = useState<string | null>(null)
     const [editingId, setEditingId] = useState<string | null>(null)
     const [editReason, setEditReason] = useState('')
+    const [isUpdating, setIsUpdating] = useState(false)
     const router = useRouter()
     const supabase = createClient()
 
@@ -60,6 +61,9 @@ export default function AdminPage() {
             })
             if (response.ok) {
                 setFlags(flags.filter((f) => f.id !== id))
+            } else {
+                const data = await response.json()
+                setError(data.error || 'Delete failed')
             }
         } catch (err) {
             setError('Delete failed')
@@ -72,6 +76,8 @@ export default function AdminPage() {
     }
 
     const handleUpdate = async (id: string) => {
+        setIsUpdating(true)
+        setError(null)
         try {
             const response = await fetch(`/api/flags/all`, {
                 method: 'PATCH',
@@ -81,9 +87,14 @@ export default function AdminPage() {
             if (response.ok) {
                 setFlags(flags.map((f) => (f.id === id ? { ...f, reason: editReason } : f)))
                 setEditingId(null)
+            } else {
+                const data = await response.json()
+                setError(data.error || 'Update failed')
             }
         } catch (err) {
             setError('Update failed')
+        } finally {
+            setIsUpdating(false)
         }
     }
 
@@ -148,11 +159,22 @@ export default function AdminPage() {
                                                     value={editReason}
                                                     onChange={(e) => setEditReason(e.target.value)}
                                                     className="flex-1"
+                                                    disabled={isUpdating}
+                                                    onKeyDown={(e) => {
+                                                        if (e.key === 'Enter') handleUpdate(flag.id)
+                                                        if (e.key === 'Escape') setEditingId(null)
+                                                    }}
+                                                    autoFocus
                                                 />
-                                                <Button size="sm" onClick={() => handleUpdate(flag.id)}>
-                                                    <Check className="w-4 h-4" />
+                                                <Button
+                                                    size="sm"
+                                                    onClick={() => handleUpdate(flag.id)}
+                                                    disabled={isUpdating || !editReason.trim()}
+                                                    className="bg-primary hover:bg-primary/90"
+                                                >
+                                                    {isUpdating ? '...' : <Check className="w-4 h-4" />}
                                                 </Button>
-                                                <Button variant="ghost" size="sm" onClick={() => setEditingId(null)}>
+                                                <Button variant="ghost" size="sm" onClick={() => setEditingId(null)} disabled={isUpdating}>
                                                     <X className="w-4 h-4" />
                                                 </Button>
                                             </div>

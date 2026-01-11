@@ -9,7 +9,7 @@ const flagSchema = z.object({
 })
 
 const patchSchema = z.object({
-    id: z.string().uuid(),
+    id: z.string().min(1),
     reason: z.string().min(1),
 })
 
