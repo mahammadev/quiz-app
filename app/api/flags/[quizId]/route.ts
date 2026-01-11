@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { z } from 'zod'
 import { flagQuestion, getFlaggedQuestions, getAllFlags, updateFlag, deleteFlag } from '../../../../lib/db'
 import { createClient } from '../../../../lib/supabase/server'
+import { isAdminUser } from '../../../../lib/auth'
 
 const flagSchema = z.object({
     question: z.string().min(1),
@@ -22,6 +23,17 @@ function getQuizId(request: Request, params?: { quizId?: string }) {
     )
 }
 
+async function requireAdmin() {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+
+    if (!user || !isAdminUser(user)) {
+        return { error: NextResponse.json({ error: 'Unauthorized' }, { status: 401 }) }
+    }
+
+    return { supabase }
+}
+
 export async function GET(request: Request, props: { params: Promise<{ quizId?: string }> }) {
     const params = await props.params
     const quizId = getQuizId(request, params)
@@ -31,8 +43,16 @@ export async function GET(request: Request, props: { params: Promise<{ quizId?: 
     }
 
     try {
-        const supabase = await createClient()
-        const flags = quizId === 'all' ? await getAllFlags(supabase) : await getFlaggedQuestions(quizId)
+        if (quizId === 'all') {
+            const adminCheck = await requireAdmin()
+            if (adminCheck.error) {
+                return adminCheck.error
+            }
+            const flags = await getAllFlags(adminCheck.supabase)
+            return NextResponse.json({ flags })
+        }
+
+        const flags = await getFlaggedQuestions(quizId)
         return NextResponse.json({ flags })
     } catch (error) {
         console.error('Failed to fetch flags', error)
@@ -67,11 +87,9 @@ export async function POST(request: Request, props: { params: Promise<{ quizId?:
 }
 
 export async function PATCH(request: Request) {
-    const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-
-    if (!user) {
-        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    const adminCheck = await requireAdmin()
+    if (adminCheck.error) {
+        return adminCheck.error
     }
 
     try {
@@ -83,7 +101,7 @@ export async function PATCH(request: Request) {
         }
 
         const { id, reason } = parsed.data
-        const flag = await updateFlag(id, reason, supabase)
+        const flag = await updateFlag(id, reason, adminCheck.supabase)
 
         return NextResponse.json({ flag })
     } catch (error: any) {
@@ -96,11 +114,9 @@ export async function PATCH(request: Request) {
 }
 
 export async function DELETE(request: Request) {
-    const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-
-    if (!user) {
-        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    const adminCheck = await requireAdmin()
+    if (adminCheck.error) {
+        return adminCheck.error
     }
 
     const url = new URL(request.url)
@@ -111,7 +127,7 @@ export async function DELETE(request: Request) {
     }
 
     try {
-        await deleteFlag(id, supabase)
+        await deleteFlag(id, adminCheck.supabase)
         return NextResponse.json({ success: true })
     } catch (error: any) {
         console.error('Failed to delete flag:', error)
