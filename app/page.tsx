@@ -137,12 +137,17 @@ export default function Home() {
         <div className="container mx-auto max-w-5xl px-3 sm:px-4 py-4 sm:py-8 min-h-screen flex flex-col">
           {state !== 'quiz' && (
             <header className="flex justify-between items-center mb-4 sm:mb-8 relative z-50">
-              <Link href="/admin">
-                <Button variant="ghost" size="sm" className="gap-2 text-muted-foreground hover:text-foreground">
+              <Button
+                asChild
+                variant="ghost"
+                size="sm"
+                className="gap-2 text-muted-foreground hover:text-foreground"
+              >
+                <Link href="/admin">
                   <Settings className="w-4 h-4" />
                   <span className="hidden sm:inline">Admin</span>
-                </Button>
-              </Link>
+                </Link>
+              </Button>
               <ThemeSwitcher />
             </header>
           )}
