@@ -1,7 +1,17 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 
+let serverClientOverride: any | null = null;
+
+export function setServerClient(client: any | null) {
+    serverClientOverride = client;
+}
+
 export async function createClient() {
+    if (serverClientOverride) {
+        return serverClientOverride;
+    }
+
     const cookieStore = await cookies();
 
     return createServerClient(
