@@ -22,8 +22,8 @@ const inter = Inter({
 })
 
 export const metadata: Metadata = {
-  title: 'Quiz Generator',
-  description: 'Create and take quizzes from JSON files',
+  title: 'İmtahanly',
+  description: 'İmtahanı hazırlanma',
 }
 
 export default function RootLayout({
@@ -32,7 +32,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en">
+    <html lang="az">
       <body className={`${poppins.variable} ${inter.variable} font-poppins antialiased`}>
         <ActiveUserProvider>
           <RouteSync />
