@@ -5,10 +5,15 @@ let browserClient: ReturnType<typeof createBrowserClient> | null = null;
 export function createClient() {
   if (browserClient) return browserClient;
 
-  browserClient = createBrowserClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-  );
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  if (!url || !anonKey) {
+    console.warn("Supabase credentials not found. Returning null client.");
+    return null as any;
+  }
+
+  browserClient = createBrowserClient(url, anonKey);
 
   return browserClient;
 }

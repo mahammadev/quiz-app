@@ -1,6 +1,6 @@
 type SupabaseUserLike = {
-  app_metadata?: { role?: string; claims?: { role?: string } }
-  user_metadata?: { role?: string; claims?: { role?: string } }
+  app_metadata: any
+  user_metadata: any
 } | null
 
 export function isAdminUser(user: SupabaseUserLike): boolean {
