@@ -25,7 +25,12 @@ export function ActiveUsers({ language, playerName }: { language: Language, play
     const t = (key: string, params?: Record<string, string | number>) => getTranslation(language, key, params)
 
     useEffect(() => {
-        const userId = Math.random().toString(36).substring(2, 11)
+        let userId = sessionStorage.getItem('quiz_user_id')
+        if (!userId) {
+            userId = Math.random().toString(36).substring(2, 11)
+            sessionStorage.setItem('quiz_user_id', userId)
+        }
+
         const channel = supabase.channel('online-users', {
             config: {
                 presence: {

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useMemo, useEffect, useRef } from 'react'
-import { CheckCircle, XCircle, ArrowLeft, Flag, AlertTriangle } from 'lucide-react'
+import { CheckCircle, XCircle, ArrowLeft, Flag, AlertTriangle, ThumbsUp } from 'lucide-react'
 import { QuestionSlider } from './question-slider'
 import ThemeSwitcher from './theme-switcher'
 import { Button } from './ui/button'
@@ -27,6 +27,8 @@ type QuestionState = {
   isCorrect: boolean | null
   isFlagged: boolean
   flagReason?: string
+  flagId?: string
+  upvotes?: number
 }
 
 function QuizDisplay({
@@ -56,7 +58,7 @@ function QuizDisplay({
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
   const [flaggingIndex, setFlaggingIndex] = useState<number | null>(null)
   const [tempFlagReason, setTempFlagReason] = useState('')
-  const [globalFlags, setGlobalFlags] = useState<Record<string, string>>({})
+  const [globalFlags, setGlobalFlags] = useState<Record<string, { reason: string; id: string; upvotes: number }>>({})
   const questionRefs = useRef<(HTMLDivElement | null)[]>([])
 
   useEffect(() => {
@@ -66,9 +68,9 @@ function QuizDisplay({
         const response = await fetch(`/api/flags/${quizId}`)
         if (response.ok) {
           const { flags } = await response.json()
-          const flagMap: Record<string, string> = {}
+          const flagMap: Record<string, { reason: string; id: string; upvotes: number }> = {}
           flags.forEach((f: any) => {
-            flagMap[f.question] = f.reason
+            flagMap[f.question] = { reason: f.reason, id: f.id, upvotes: f.upvotes }
           })
           setGlobalFlags(flagMap)
         }
@@ -84,19 +86,29 @@ function QuizDisplay({
       // If we already have states and the number of questions hasn't changed, 
       // just update the flags
       if (prev.length === questions.length && prev.length > 0) {
-        return questions.map((q, i) => ({
-          ...prev[i],
-          isFlagged: prev[i].isFlagged || !!globalFlags[q.question],
-          flagReason: prev[i].flagReason || globalFlags[q.question]
-        }))
+        return questions.map((q, i) => {
+          const flagData = globalFlags[q.question]
+          return {
+            ...prev[i],
+            isFlagged: prev[i].isFlagged || !!flagData,
+            flagReason: prev[i].flagReason || flagData?.reason,
+            flagId: prev[i].flagId || flagData?.id,
+            upvotes: prev[i].upvotes || flagData?.upvotes || 0
+          }
+        })
       }
       // Otherwise initialize
-      return questions.map((q) => ({
-        selectedAnswer: null,
-        isCorrect: null,
-        isFlagged: !!globalFlags[q.question],
-        flagReason: globalFlags[q.question]
-      }))
+      return questions.map((q) => {
+        const flagData = globalFlags[q.question]
+        return {
+          selectedAnswer: null,
+          isCorrect: null,
+          isFlagged: !!flagData,
+          flagReason: flagData?.reason,
+          flagId: flagData?.id,
+          upvotes: flagData?.upvotes || 0
+        }
+      })
     })
     // Only reset index if questions changed, not flags
   }, [questions, globalFlags])
@@ -224,17 +236,58 @@ function QuizDisplay({
       })
 
       if (response.ok) {
+        const { flag } = await response.json()
         setQuestionStates(prev => {
           const next = [...prev]
-          next[index] = { ...next[index], isFlagged: true, flagReason: tempFlagReason }
+          next[index] = {
+            ...next[index],
+            isFlagged: true,
+            flagReason: tempFlagReason,
+            flagId: flag.id,
+            upvotes: 0
+          }
           return next
         })
-        setGlobalFlags(prev => ({ ...prev, [questionText]: tempFlagReason }))
+        setGlobalFlags(prev => ({
+          ...prev,
+          [questionText]: { reason: tempFlagReason, id: flag.id, upvotes: 0 }
+        }))
         setFlaggingIndex(null)
         setTempFlagReason('')
       }
     } catch (error) {
       console.error('Failed to flag question', error)
+    }
+  }
+
+  const handleUpvote = async (index: number) => {
+    const state = questionStates[index]
+    if (!state.flagId) return
+
+    // Optimistic update
+    setQuestionStates(prev => {
+      const next = [...prev]
+      const currentUpvotes = next[index].upvotes || 0
+      next[index] = { ...next[index], upvotes: currentUpvotes + 1 }
+      return next
+    })
+
+    try {
+      await fetch('/api/flags/upvote', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ flagId: state.flagId }),
+      })
+    } catch (error) {
+      console.error('Failed to upvote', error)
+      // Revert on error
+      setQuestionStates(prev => {
+        const next = [...prev]
+        if (next[index].upvotes) {
+          next[index] = { ...next[index], upvotes: (next[index].upvotes || 1) - 1 }
+        }
+        return next
+      })
     }
   }
 
@@ -437,8 +490,19 @@ function QuizDisplay({
                 <div className="mb-4">
                   <Alert variant="default" className="bg-amber-500/10 border-amber-500/20 text-amber-600 dark:text-amber-400">
                     <AlertTriangle className="h-4 w-4" />
-                    <AlertDescription>
-                      <span className="font-semibold">{t[language].flagged}:</span> {state.flagReason}
+                    <AlertDescription className="flex items-center justify-between w-full">
+                      <span>
+                        <span className="font-semibold">{t[language].flagged}:</span> {state.flagReason}
+                      </span>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-6 px-2 ml-2 text-amber-600 hover:text-amber-700 hover:bg-amber-500/20"
+                        onClick={() => handleUpvote(questionIndex)}
+                      >
+                        <ThumbsUp className="w-3 h-3 mr-1" />
+                        <span className="text-xs">{state.upvotes || 0}</span>
+                      </Button>
                     </AlertDescription>
                   </Alert>
                 </div>

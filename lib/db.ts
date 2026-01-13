@@ -15,6 +15,7 @@ export type FlaggedQuestion = {
   quizId: string
   question: string
   reason: string
+  upvotes: number
   createdAt: string
 }
 
@@ -42,6 +43,7 @@ type FlaggedQuestionRow = {
   quiz_id: string
   question: string
   reason: string
+  upvotes: number
   created_at: string
 }
 
@@ -175,6 +177,7 @@ export async function flagQuestion(quizId: string, question: string, reason: str
       quiz_id: quizId,
       question,
       reason,
+      upvotes: 0,
       created_at: new Date().toISOString(),
     })
     .select()
@@ -189,6 +192,7 @@ export async function flagQuestion(quizId: string, question: string, reason: str
     quizId: data.quiz_id,
     question: data.question,
     reason: data.reason,
+    upvotes: data.upvotes,
     createdAt: data.created_at,
   }
 }
@@ -209,6 +213,7 @@ export async function getFlaggedQuestions(quizId: string) {
     quizId: row.quiz_id,
     question: row.question,
     reason: row.reason,
+    upvotes: row.upvotes,
     createdAt: row.created_at,
   }))
 }
@@ -229,6 +234,7 @@ export async function getAllFlags(customClient?: any) {
     quizId: row.quiz_id,
     question: row.question,
     reason: row.reason,
+    upvotes: row.upvotes,
     createdAt: row.created_at,
   }))
 }
@@ -251,6 +257,39 @@ export async function updateFlag(id: string, reason: string, customClient?: any)
     quizId: data.quiz_id,
     question: data.question,
     reason: data.reason,
+    upvotes: data.upvotes,
+    createdAt: data.created_at,
+  }
+}
+
+export async function upvoteFlag(id: string) {
+  const client = getSupabaseClient()
+
+  const { data: current, error: fetchError } = await client
+    .from(FLAGS_TABLE)
+    .select('upvotes')
+    .eq('id', id)
+    .single()
+
+  if (fetchError || !current) throw new Error(fetchError?.message || 'Flag not found')
+
+  const { data, error } = await client
+    .from(FLAGS_TABLE)
+    .update({ upvotes: current.upvotes + 1 })
+    .eq('id', id)
+    .select()
+    .single()
+
+  if (error || !data) {
+    throw new Error(error?.message || 'Failed to upvote flag')
+  }
+
+  return {
+    id: data.id,
+    quizId: data.quiz_id,
+    question: data.question,
+    reason: data.reason,
+    upvotes: data.upvotes,
     createdAt: data.created_at,
   }
 }
