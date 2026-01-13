@@ -8,10 +8,14 @@
  * @module
  */
 
+import type * as examAttempts from "../examAttempts.js";
 import type * as flags from "../flags.js";
+import type * as http from "../http.js";
 import type * as leaderboard from "../leaderboard.js";
 import type * as migrate from "../migrate.js";
 import type * as quizzes from "../quizzes.js";
+import type * as sessions from "../sessions.js";
+import type * as users from "../users.js";
 
 import type {
   ApiFromModules,
@@ -20,10 +24,14 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
+  examAttempts: typeof examAttempts;
   flags: typeof flags;
+  http: typeof http;
   leaderboard: typeof leaderboard;
   migrate: typeof migrate;
   quizzes: typeof quizzes;
+  sessions: typeof sessions;
+  users: typeof users;
 }>;
 
 /**
