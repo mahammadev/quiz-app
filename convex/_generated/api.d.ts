@@ -10,6 +10,7 @@
 
 import type * as flags from "../flags.js";
 import type * as leaderboard from "../leaderboard.js";
+import type * as migrate from "../migrate.js";
 import type * as quizzes from "../quizzes.js";
 
 import type {
@@ -21,6 +22,7 @@ import type {
 declare const fullApi: ApiFromModules<{
   flags: typeof flags;
   leaderboard: typeof leaderboard;
+  migrate: typeof migrate;
   quizzes: typeof quizzes;
 }>;
 
