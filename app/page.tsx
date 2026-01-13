@@ -134,41 +134,17 @@ export default function Home() {
         <div className="container mx-auto max-w-5xl px-3 sm:px-4 py-4 sm:py-8 min-h-screen flex flex-col">
           {state !== 'quiz' && (
             <header className="flex justify-between items-center mb-4 sm:mb-8 relative z-50">
-              <div className="flex items-center gap-2">
-                <Button
-                  asChild
-                  variant="ghost"
-                  size="sm"
-                  className="gap-2 text-muted-foreground hover:text-foreground"
-                >
-                  <Link href="/admin">
-                    <Settings className="w-4 h-4" />
-                    <span className="hidden sm:inline">Admin</span>
-                  </Link>
-                </Button>
-                <Button
-                  asChild
-                  variant="ghost"
-                  size="sm"
-                  className="gap-2 text-muted-foreground hover:text-foreground"
-                >
-                  <Link href="/teacher">
-                    <span className="hidden sm:inline">Müəllim</span>
-                    <span className="sm:hidden">M.</span>
-                  </Link>
-                </Button>
-                <Button
-                  asChild
-                  variant="outline"
-                  size="sm"
-                  className="gap-2 border-primary/50 text-primary hover:bg-primary/10"
-                >
-                  <Link href="/exam/join">
-                    <span className="hidden sm:inline">İmtahana qoşul</span>
-                    <span className="sm:hidden">İmtahan</span>
-                  </Link>
-                </Button>
-              </div>
+              <Button
+                asChild
+                variant="ghost"
+                size="sm"
+                className="gap-2 text-muted-foreground hover:text-foreground"
+              >
+                <Link href="/admin">
+                  <Settings className="w-4 h-4" />
+                  <span className="hidden sm:inline">Admin</span>
+                </Link>
+              </Button>
               <ThemeSwitcher />
             </header>
           )}
