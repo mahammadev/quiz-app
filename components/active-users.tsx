@@ -1,104 +1,21 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { createClient } from '@/lib/supabase/client'
+import { useActiveUsers } from './active-user-context'
 import { Users } from 'lucide-react'
 import { Language, getTranslation } from '@/lib/translations'
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
 import { Badge } from './ui/badge'
 import { Skeleton } from './ui/skeleton'
 
-const supabase = createClient()
-
-type PresenceInfo = {
-    name: string
-    online_at: string
-}
-
-type PresenceState = {
-    [key: string]: PresenceInfo[]
-}
-
 export function ActiveUsers({ language, playerName }: { language: Language, playerName: string }) {
-    const [onlineUsers, setOnlineUsers] = useState<{ id: string; name: string }[]>([])
-    const [isLoading, setIsLoading] = useState(true)
+    const { onlineUsers, isLoading, setPlayerName } = useActiveUsers()
     const t = (key: string, params?: Record<string, string | number>) => getTranslation(language, key, params)
 
+    // Sync local player name with global context
     useEffect(() => {
-        let userId = sessionStorage.getItem('quiz_user_id')
-        if (!userId) {
-            userId = Math.random().toString(36).substring(2, 11)
-            sessionStorage.setItem('quiz_user_id', userId)
-        }
-
-        const channel = supabase.channel('online-users', {
-            config: {
-                presence: {
-                    key: userId,
-                },
-            },
-        })
-
-        channel
-            .on('presence', { event: 'sync' }, () => {
-                const state = channel.presenceState() as PresenceState
-
-                // Get all users and sort them by online_at to have consistent guest numbering
-                const allPresences = Object.entries(state)
-                    .map(([id, presences]) => ({
-                        id,
-                        presence: presences[0]
-                    }))
-                    .filter(p => p.presence)
-                    .sort((a, b) => {
-                        const timeA = new Date(a.presence.online_at).getTime()
-                        const timeB = new Date(b.presence.online_at).getTime()
-                        return timeA - timeB
-                    })
-
-                let guestCount = 0
-                const users = allPresences.map((p) => {
-                    const name = p.presence.name
-                    const isGuest = !name || name === 'Guest' || name === 'qonaq'
-
-                    if (isGuest) {
-                        guestCount++
-                        return {
-                            id: p.id,
-                            name: `${t('activeUsers.guest')} ${guestCount}`
-                        }
-                    }
-
-                    return {
-                        id: p.id,
-                        name: name
-                    }
-                })
-
-                setOnlineUsers(users)
-                setIsLoading(false)
-            })
-            .subscribe(async (status) => {
-                if (status === 'SUBSCRIBED') {
-                    await channel.track({
-                        name: playerName || '',
-                        online_at: new Date().toISOString(),
-                    })
-                }
-            })
-
-        // Re-track when playerName changes
-        if (playerName) {
-            channel.track({
-                name: playerName,
-                online_at: new Date().toISOString(),
-            })
-        }
-
-        return () => {
-            channel.unsubscribe()
-        }
-    }, [playerName, language])
+        setPlayerName(playerName)
+    }, [playerName, setPlayerName])
 
     return (
         <Card className="border-border bg-card">

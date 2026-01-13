@@ -4,6 +4,9 @@ import { Analytics } from '@vercel/analytics/next'
 import '@/styles/globals.css'
 import { Poppins, Inter } from 'next/font/google'
 import RouteSync from '@/components/route-sync'
+import { ActiveUserProvider } from '@/components/active-user-context'
+import { VersionChecker } from '@/components/version-checker'
+import { Toaster } from '@/components/ui/sonner'
 
 // Initialize fonts
 const poppins = Poppins({
@@ -31,9 +34,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${poppins.variable} ${inter.variable} font-poppins antialiased`}>
-        <RouteSync />
-        {children}
-        <Analytics />
+        <ActiveUserProvider>
+          <RouteSync />
+          <VersionChecker />
+          {children}
+          <Toaster />
+          <Analytics />
+        </ActiveUserProvider>
       </body>
     </html>
   )

@@ -17,6 +17,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Leaderboard } from '@/components/leaderboard'
 import { ActiveUsers } from '@/components/active-users'
 import { UserWelcome } from '@/components/user-welcome'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 import { Language, getTranslation } from '@/lib/translations'
 
@@ -45,6 +46,7 @@ export default function Home() {
   const [quizDuration, setQuizDuration] = useState<number>(0)
   const [userName, setUserName] = useState('')
   const [hasLoadedName, setHasLoadedName] = useState(false)
+  const [activeTab, setActiveTab] = useState("quiz")
   const language: Language = 'az'
 
   useEffect(() => {
@@ -152,107 +154,131 @@ export default function Home() {
             </header>
           )}
 
-          <div className="relative flex-1 w-full grid grid-cols-1 items-start">
-            <AnimatePresence mode="popLayout">
-              {STEPS.map((step, index) => {
-                if (index > currentIndex) return null
-
-                const isCurrent = index === currentIndex
-                const isPast = index < currentIndex
-                const offset = currentIndex - index
-
-                return (
-                  <motion.div
-                    key={step}
-                    initial={{ y: '100%', opacity: 0, scale: 0.95 }}
-                    animate={{
-                      y: isCurrent ? 0 : -40 * offset,
-                      scale: isCurrent ? 1 : 1 - (0.05 * offset),
-                      opacity: isCurrent ? 1 : 0,
-                      zIndex: index,
-                      filter: isCurrent ? 'none' : 'brightness(0.95)'
-                    }}
-                    exit={{ y: '100%', opacity: 0 }}
-                    transition={{
-                      type: "spring",
-                      stiffness: 300,
-                      damping: 30
-                    }}
-                    className={`col-start-1 row-start-1 w-full ${isCurrent ? 'pointer-events-auto' : 'pointer-events-none'}`}
-                  >
-                    {step === 'quiz' ? (
-                      <div className="w-full">
-                        <QuizDisplay
-                          questions={currentQuiz}
-                          onComplete={handleQuizComplete}
-                          onBack={handleBack}
-                          shuffleAnswers={shuffleAnswers}
-                          studyMode={studyMode}
-                          showOnlyCorrect={showOnlyCorrect}
-                          language={language}
-                          quizId={quizId}
-                          allQuestions={questions}
-                        />
-                      </div>
-                    ) : (
-                      <Card className="w-full shadow-lg">
-                        <CardContent className="p-6 md:p-8">
-                          {currentIndex > 0 && step !== 'complete' && (
-                            <Button
-                              onClick={handleBack}
-                              variant="ghost"
-                              className="mb-6 flex items-center gap-2 text-muted-foreground hover:text-foreground"
-                            >
-                              <ArrowLeft className="w-4 h-4" />
-                              <span className="text-sm">Geri</span>
-                            </Button>
-                          )}
-
-                          {step === 'upload' && (
-                            <FileUpload onFileLoaded={handleFileLoaded} language={language} />
-                          )}
-                          {step === 'setup' && (
-                            <QuizSetup
-                              totalQuestions={questions.length}
-                              onQuizStart={handleQuizStart}
-                              allQuestions={questions}
-                              language={language}
-                              quizId={quizId}
-                            />
-                          )}
-                          {step === 'complete' && (
-                            <QuizComplete
-                              score={score}
-                              total={currentQuiz.length}
-                              incorrectAnswers={incorrectAnswers}
-                              onReset={handleReset}
-                              onRetryIncorrect={handleRetryIncorrect}
-                              language={language}
-                              quizId={quizId}
-                              durationMs={quizDuration}
-                              userName={userName}
-                              onNameChange={handleNameChange}
-                            />
-                          )}
-                        </CardContent>
-                      </Card>
-                    )}
-                  </motion.div>
-                )
-              })}
-            </AnimatePresence>
-          </div>
-
           {state !== 'quiz' && (
-            <div className="mt-8 space-y-8">
+            <Tabs defaultValue="quiz" value={activeTab} onValueChange={setActiveTab} className="w-full flex flex-col flex-1">
+              <div className="flex justify-center mb-6">
+                <TabsList className="grid w-full max-w-md grid-cols-3">
+                  <TabsTrigger value="quiz">Quiz</TabsTrigger>
+                  <TabsTrigger value="leaderboard">Liderlər</TabsTrigger>
+                  <TabsTrigger value="community">İcma</TabsTrigger>
+                </TabsList>
+              </div>
+
               <UserWelcome
                 language={language}
                 userName={userName}
                 onNameChange={handleNameChange}
                 isLoading={!hasLoadedName}
               />
-              <ActiveUsers language={language} playerName={userName} />
-              <Leaderboard quizId={quizId || 'global'} language={language} />
+              <div className="mt-6"></div>
+
+              <TabsContent value="quiz" className="mt-0 flex-1">
+                <div className="relative w-full grid grid-cols-1 items-start">
+                  <AnimatePresence mode="popLayout">
+                    {STEPS.map((step, index) => {
+                      if (index > currentIndex) return null
+                      if (step === 'quiz') return null // Should not happen in this view loop logic if state check handles it, but safe to keep
+
+                      const isCurrent = index === currentIndex
+                      const offset = currentIndex - index
+
+                      return (
+                        <motion.div
+                          key={step}
+                          initial={{ y: '100%', opacity: 0, scale: 0.95 }}
+                          animate={{
+                            y: isCurrent ? 0 : -40 * offset,
+                            scale: isCurrent ? 1 : 1 - (0.05 * offset),
+                            opacity: isCurrent ? 1 : 0,
+                            zIndex: index,
+                            filter: isCurrent ? 'none' : 'brightness(0.95)'
+                          }}
+                          exit={{ y: '100%', opacity: 0 }}
+                          transition={{
+                            type: "spring",
+                            stiffness: 300,
+                            damping: 30
+                          }}
+                          className={`col-start-1 row-start-1 w-full ${isCurrent ? 'pointer-events-auto' : 'pointer-events-none'}`}
+                        >
+                          <Card className="w-full shadow-lg">
+                            <CardContent className="p-6 md:p-8">
+                              {currentIndex > 0 && step !== 'complete' && (
+                                <Button
+                                  onClick={handleBack}
+                                  variant="ghost"
+                                  className="mb-6 flex items-center gap-2 text-muted-foreground hover:text-foreground"
+                                >
+                                  <ArrowLeft className="w-4 h-4" />
+                                  <span className="text-sm">Geri</span>
+                                </Button>
+                              )}
+
+                              {step === 'upload' && (
+                                <FileUpload onFileLoaded={handleFileLoaded} language={language} />
+                              )}
+                              {step === 'setup' && (
+                                <QuizSetup
+                                  totalQuestions={questions.length}
+                                  onQuizStart={handleQuizStart}
+                                  allQuestions={questions}
+                                  language={language}
+                                  quizId={quizId}
+                                />
+                              )}
+                              {step === 'complete' && (
+                                <QuizComplete
+                                  score={score}
+                                  total={currentQuiz.length}
+                                  incorrectAnswers={incorrectAnswers}
+                                  onReset={handleReset}
+                                  onRetryIncorrect={handleRetryIncorrect}
+                                  language={language}
+                                  quizId={quizId}
+                                  durationMs={quizDuration}
+                                  userName={userName}
+                                  onNameChange={handleNameChange}
+                                />
+                              )}
+                            </CardContent>
+                          </Card>
+                        </motion.div>
+                      )
+                    })}
+                  </AnimatePresence>
+                </div>
+              </TabsContent>
+
+              <TabsContent value="leaderboard">
+                <Card>
+                  <CardContent className="p-6">
+                    <Leaderboard quizId={quizId || 'global'} language={language} />
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="community">
+                <div className="space-y-6">
+                  <ActiveUsers language={language} playerName={userName} />
+                  {/* Placeholder for future chat or other community features */}
+                </div>
+              </TabsContent>
+            </Tabs>
+          )}
+
+          {state === 'quiz' && (
+            <div className="w-full">
+              <QuizDisplay
+                questions={currentQuiz}
+                onComplete={handleQuizComplete}
+                onBack={handleBack}
+                shuffleAnswers={shuffleAnswers}
+                studyMode={studyMode}
+                showOnlyCorrect={showOnlyCorrect}
+                language={language}
+                quizId={quizId}
+                allQuestions={questions}
+              />
             </div>
           )}
         </div>
