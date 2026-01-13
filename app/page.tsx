@@ -18,6 +18,7 @@ import { Leaderboard } from '@/components/leaderboard'
 import { ActiveUsers } from '@/components/active-users'
 import { UserWelcome } from '@/components/user-welcome'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { SignedOut, SignedIn, Protect, UserButton, SignInButton } from "@clerk/nextjs"
 
 import { Language, getTranslation } from '@/lib/translations'
 
@@ -134,17 +135,34 @@ export default function Home() {
         <div className="container mx-auto max-w-5xl px-3 sm:px-4 py-4 sm:py-8 min-h-screen flex flex-col">
           {state !== 'quiz' && (
             <header className="flex justify-between items-center mb-4 sm:mb-8 relative z-50">
-              <Button
-                asChild
-                variant="ghost"
-                size="sm"
-                className="gap-2 text-muted-foreground hover:text-foreground"
-              >
-                <Link href="/admin">
-                  <Settings className="w-4 h-4" />
-                  <span className="hidden sm:inline">Admin</span>
-                </Link>
-              </Button>
+              <div className="flex items-center gap-2">
+                <SignedOut>
+                  <SignInButton mode="modal">
+                    <Button variant="ghost" size="sm" className="gap-2 text-muted-foreground hover:text-foreground">
+                      <Settings className="w-4 h-4" />
+                      <span>Daxil ol</span>
+                    </Button>
+                  </SignInButton>
+                </SignedOut>
+                <SignedIn>
+                  <div className="flex items-center gap-3">
+                    <UserButton afterSignOutUrl="/" />
+                    <Protect role="admin">
+                      <Button
+                        asChild
+                        variant="ghost"
+                        size="sm"
+                        className="gap-2 text-muted-foreground hover:text-foreground"
+                      >
+                        <Link href="/admin">
+                          <Settings className="w-4 h-4" />
+                          <span className="hidden sm:inline">Admin</span>
+                        </Link>
+                      </Button>
+                    </Protect>
+                  </div>
+                </SignedIn>
+              </div>
               <ThemeSwitcher />
             </header>
           )}

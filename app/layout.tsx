@@ -8,6 +8,7 @@ import { ActiveUserProvider } from '@/components/active-user-context'
 import { VersionChecker } from '@/components/version-checker'
 import { Toaster } from '@/components/ui/sonner'
 import { ConvexClientProvider } from '@/components/convex-client-provider'
+import { ClerkProvider } from '@clerk/nextjs'
 
 // Initialize fonts
 const poppins = Poppins({
@@ -35,15 +36,17 @@ export default function RootLayout({
   return (
     <html lang="az">
       <body className={`${poppins.variable} ${inter.variable} font-poppins antialiased`}>
-        <ConvexClientProvider>
-          <ActiveUserProvider>
-            <RouteSync />
-            <VersionChecker />
-            {children}
-            <Toaster />
-            <Analytics />
-          </ActiveUserProvider>
-        </ConvexClientProvider>
+        <ClerkProvider>
+          <ConvexClientProvider>
+            <ActiveUserProvider>
+              <RouteSync />
+              <VersionChecker />
+              {children}
+              <Toaster />
+              <Analytics />
+            </ActiveUserProvider>
+          </ConvexClientProvider>
+        </ClerkProvider>
       </body>
     </html>
   )
