@@ -490,14 +490,14 @@ function QuizDisplay({
                 <div className="mb-4">
                   <Alert variant="default" className="bg-amber-500/10 border-amber-500/20 text-amber-600 dark:text-amber-400">
                     <AlertTriangle className="h-4 w-4" />
-                    <AlertDescription className="flex items-center justify-between w-full">
-                      <span>
+                    <AlertDescription className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 w-full">
+                      <span className="break-words">
                         <span className="font-semibold">{t[language].flagged}:</span> {state.flagReason}
                       </span>
                       <Button
                         variant="ghost"
                         size="sm"
-                        className="h-6 px-2 ml-2 text-amber-600 hover:text-amber-700 hover:bg-amber-500/20"
+                        className="h-8 px-3 self-start sm:self-auto text-amber-600 hover:text-amber-700 hover:bg-amber-500/20 shrink-0"
                         onClick={() => handleUpvote(questionIndex)}
                       >
                         <ThumbsUp className="w-3 h-3 mr-1" />
@@ -525,7 +525,7 @@ function QuizDisplay({
                   <div className="flex-1 space-y-2">
                     <Card className="border-amber-500/30">
                       <CardContent className="p-3">
-                        <div className="flex gap-2">
+                        <div className="flex flex-col sm:flex-row gap-2">
                           <Input
                             autoFocus
                             placeholder={t[language].flagReasonPlaceholder}
@@ -535,25 +535,28 @@ function QuizDisplay({
                               if (e.key === 'Enter') handleFlagSubmit(questionIndex)
                               if (e.key === 'Escape') setFlaggingIndex(null)
                             }}
-                            className="flex-1"
+                            className="flex-1 h-11"
                           />
-                          <Button
-                            size="sm"
-                            onClick={() => handleFlagSubmit(questionIndex)}
-                            className="bg-amber-600 hover:bg-amber-700 text-white"
-                          >
-                            {t[language].flagSubmit}
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => {
-                              setFlaggingIndex(null)
-                              setTempFlagReason('')
-                            }}
-                          >
-                            Cancel
-                          </Button>
+                          <div className="flex gap-2">
+                            <Button
+                              size="sm"
+                              onClick={() => handleFlagSubmit(questionIndex)}
+                              className="bg-amber-600 hover:bg-amber-700 text-white flex-1 sm:flex-none h-11"
+                            >
+                              {t[language].flagSubmit}
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => {
+                                setFlaggingIndex(null)
+                                setTempFlagReason('')
+                              }}
+                              className="flex-1 sm:flex-none h-11"
+                            >
+                              Cancel
+                            </Button>
+                          </div>
                         </div>
                       </CardContent>
                     </Card>

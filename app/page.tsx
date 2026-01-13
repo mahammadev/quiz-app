@@ -380,19 +380,19 @@ function QuizComplete({
             {getTranslation(language, 'results.scored', { score, total })}
           </p>
         </div>
-        <div className="flex flex-col sm:flex-row justify-center gap-3">
-          <Button onClick={onReset}>
+        <div className="flex flex-col sm:flex-row justify-center gap-2 sm:gap-3">
+          <Button onClick={onReset} className="w-full sm:w-auto">
             {getTranslation(language, 'results.resetBtn')}
           </Button>
           {incorrectAnswers.length > 0 && (
-            <Button variant="secondary" onClick={onRetryIncorrect}>
+            <Button variant="secondary" onClick={onRetryIncorrect} className="w-full sm:w-auto">
               {getTranslation(language, 'results.retryIncorrectBtn')}
             </Button>
           )}
         </div>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
         <Card>
           <CardHeader className="space-y-1">
             <div className="flex items-center justify-between">
@@ -447,37 +447,37 @@ function QuizComplete({
       {incorrectAnswers.length > 0 ? (
         <div className="space-y-4">
           <div className="flex items-center justify-center gap-4">
-            <Button variant="outline" onClick={() => setShowMistakes(!showMistakes)}>
+            <Button variant="outline" onClick={() => setShowMistakes(!showMistakes)} className="w-full sm:w-auto">
               {showMistakes ? 'Hide Mistakes' : getTranslation(language, 'results.reviewBtn')}
             </Button>
           </div>
 
           {showMistakes && (
             <>
-              <h2 className="text-2xl font-bold text-foreground text-center">
+              <h2 className="text-xl sm:text-2xl font-bold text-foreground text-center">
                 {getTranslation(language, 'results.incorrectTitle')}
               </h2>
               <div className="grid gap-4">
                 {incorrectAnswers.map((item, index) => (
                   <Card key={index}>
-                    <CardContent className="p-6">
-                      <h3 className="text-lg font-semibold text-foreground mb-4">
+                    <CardContent className="p-4 sm:p-6">
+                      <h3 className="text-base sm:text-lg font-semibold text-foreground mb-4 break-words">
                         {typeof item.question === 'string' ? item.question : JSON.stringify(item.question)}
                       </h3>
-                      <div className="grid gap-3 md:grid-cols-2">
-                        <div className="p-4 rounded-lg bg-error/10 border border-error/30">
+                      <div className="grid gap-3 grid-cols-1 sm:grid-cols-2">
+                        <div className="p-3 sm:p-4 rounded-lg bg-error/10 border border-error/30">
                           <span className="font-bold block text-xs uppercase tracking-wider mb-2 text-error">
                             {getTranslation(language, 'results.yourAnswer')}
                           </span>
-                          <span className="text-foreground font-medium">
+                          <span className="text-foreground font-medium break-words">
                             {typeof item.userAnswer === 'string' ? item.userAnswer : JSON.stringify(item.userAnswer)}
                           </span>
                         </div>
-                        <div className="p-4 rounded-lg bg-success/10 border border-success/30">
+                        <div className="p-3 sm:p-4 rounded-lg bg-success/10 border border-success/30">
                           <span className="font-bold block text-xs uppercase tracking-wider mb-2 text-success">
                             {getTranslation(language, 'results.correctAnswer')}
                           </span>
-                          <span className="text-foreground font-medium">
+                          <span className="text-foreground font-medium break-words">
                             {typeof item.correctAnswer === 'string' ? item.correctAnswer : JSON.stringify(item.correctAnswer)}
                           </span>
                         </div>

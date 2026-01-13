@@ -170,12 +170,30 @@ html.font-times kbd {
   font-family: var(--font-mono), 'Courier New', monospace !important;
 }
 
-/* Mobile-friendly touch targets */
+/* Mobile-friendly touch targets and responsive utilities */
 @media (max-width: 640px) {
-
+  /* Ensure minimum touch target sizes */
   .btn-primary,
-  button,
+  button:not(.h-6):not(.h-8),
   [role="button"] {
     min-height: 44px;
+  }
+
+  /* Better text handling on mobile */
+  .break-words {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+  }
+
+  /* Ensure inputs are properly sized */
+  input[type="text"],
+  input[type="email"],
+  textarea {
+    font-size: 16px; /* Prevents zoom on iOS */
+  }
+
+  /* Better spacing for cards on mobile */
+  .card-content-mobile {
+    padding: 1rem;
   }
 }

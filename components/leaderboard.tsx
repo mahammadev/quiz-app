@@ -79,36 +79,40 @@ export function Leaderboard({ quizId, playerName, language, refreshKey = 0 }: Le
 
         {quizId && hasEntries && (
           <div className="overflow-hidden rounded-lg border border-border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-16">{t('leaderboard.columns.rank')}</TableHead>
-                  <TableHead>{t('leaderboard.columns.name')}</TableHead>
-                  <TableHead className="text-right">{t('leaderboard.columns.score')}</TableHead>
-                  <TableHead className="text-right">{t('leaderboard.columns.time')}</TableHead>
-                  <TableHead className="text-right">{t('leaderboard.columns.date')}</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {leaderboard.map((entry, index) => {
-                  const isYou = highlightNames && entry.name.toLowerCase() === highlightNames
-                  return (
-                    <TableRow key={entry.id} className={isYou ? 'bg-primary/5' : undefined}>
-                      <TableCell className="font-medium">{index + 1}</TableCell>
-                      <TableCell className="flex items-center gap-2">
-                        <span>{entry.name}</span>
-                        {isYou && <Badge variant="secondary">{t('leaderboard.you')}</Badge>}
-                      </TableCell>
-                      <TableCell className="text-right font-semibold">{entry.score}</TableCell>
-                      <TableCell className="text-right text-muted-foreground">{formatDuration(entry.duration)}</TableCell>
-                      <TableCell className="text-right text-muted-foreground">
-                        {safelyFormatDate(entry.createdAt, 'MMM d, yyyy')}
-                      </TableCell>
-                    </TableRow>
-                  )
-                })}
-              </TableBody>
-            </Table>
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-12 sm:w-16">{t('leaderboard.columns.rank')}</TableHead>
+                    <TableHead className="min-w-[120px]">{t('leaderboard.columns.name')}</TableHead>
+                    <TableHead className="text-right w-16 sm:w-20">{t('leaderboard.columns.score')}</TableHead>
+                    <TableHead className="text-right w-16 sm:w-20">{t('leaderboard.columns.time')}</TableHead>
+                    <TableHead className="text-right hidden md:table-cell">{t('leaderboard.columns.date')}</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {leaderboard.map((entry, index) => {
+                    const isYou = highlightNames && entry.name.toLowerCase() === highlightNames
+                    return (
+                      <TableRow key={entry.id} className={isYou ? 'bg-primary/5' : undefined}>
+                        <TableCell className="font-medium">{index + 1}</TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-2 min-w-0">
+                            <span className="truncate">{entry.name}</span>
+                            {isYou && <Badge variant="secondary" className="shrink-0">{t('leaderboard.you')}</Badge>}
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-right font-semibold whitespace-nowrap">{entry.score}</TableCell>
+                        <TableCell className="text-right text-muted-foreground whitespace-nowrap">{formatDuration(entry.duration)}</TableCell>
+                        <TableCell className="text-right text-muted-foreground hidden md:table-cell whitespace-nowrap">
+                          {safelyFormatDate(entry.createdAt, 'MMM d, yyyy')}
+                        </TableCell>
+                      </TableRow>
+                    )
+                  })}
+                </TableBody>
+              </Table>
+            </div>
             {total > leaderboard.length && (
               <div className="border-t border-border bg-muted/30 px-4 py-2 text-xs text-muted-foreground">
                 {t('leaderboard.showing', { shown: leaderboard.length, total })}
@@ -118,13 +122,13 @@ export function Leaderboard({ quizId, playerName, language, refreshKey = 0 }: Le
         )}
 
         {personalBest && (
-          <div className="mt-4 rounded-lg border border-border bg-muted/30 px-4 py-3 text-sm text-foreground">
-            <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+          <div className="mt-4 rounded-lg border border-border bg-muted/30 px-3 sm:px-4 py-3 text-sm text-foreground">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
               <span className="font-semibold">{t('leaderboard.personal')}</span>
-              <div className="flex flex-wrap gap-2 text-muted-foreground">
-                <span>Score: {personalBest.score}</span>
-                <span>Time: {formatDuration(personalBest.duration)}</span>
-                <span>Date: {safelyFormatDate(personalBest.createdAt, 'PP')}</span>
+              <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs sm:text-sm text-muted-foreground">
+                <span className="whitespace-nowrap">Score: {personalBest.score}</span>
+                <span className="whitespace-nowrap">Time: {formatDuration(personalBest.duration)}</span>
+                <span className="whitespace-nowrap">Date: {safelyFormatDate(personalBest.createdAt, 'PP')}</span>
               </div>
             </div>
           </div>

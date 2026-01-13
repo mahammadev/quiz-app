@@ -71,18 +71,18 @@ export function UserWelcome({ language, userName, onNameChange, isLoading }: Use
                             <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
                                 {t('welcome.prompt')}
                             </p>
-                            <div className="flex items-center gap-2">
+                            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
                                 <Input
                                     value={tempName}
                                     onChange={handleChange}
                                     placeholder="..."
-                                    className="h-10 text-lg font-semibold"
+                                    className="h-11 text-base sm:text-lg font-semibold flex-1"
                                     onKeyDown={(e) => e.key === 'Enter' && handleSave()}
                                     autoFocus
                                 />
-                                <Button onClick={handleSave} className="h-10 px-4">
+                                <Button onClick={handleSave} className="h-11 px-4 w-full sm:w-auto">
                                     <Check className="h-4 w-4 mr-2" />
-                                    {t('welcome.saveBtn')}
+                                    <span>{t('welcome.saveBtn')}</span>
                                 </Button>
                             </div>
                         </div>
