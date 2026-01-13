@@ -1,23 +1,7 @@
 import { createClient } from '@supabase/supabase-js'
 import crypto from 'node:crypto'
 
-export type LeaderboardEntry = {
-  id: string
-  quizId: string
-  name: string
-  score: number
-  duration: number
-  createdAt: string
-}
-
-export type FlaggedQuestion = {
-  id: string
-  quizId: string
-  question: string
-  reason: string
-  upvotes: number
-  createdAt: string
-}
+import { LeaderboardEntry, FlaggedQuestion } from './schema'
 
 type SupabaseClientLike = any
 
@@ -36,6 +20,7 @@ type SupabaseRow = {
   score: number
   duration: number
   created_at: string
+  updated_at: string
 }
 
 type FlaggedQuestionRow = {
@@ -45,6 +30,7 @@ type FlaggedQuestionRow = {
   reason: string
   upvotes: number
   created_at: string
+  updated_at: string
 }
 
 let supabaseClient: SupabaseClientLike | null = null
@@ -82,10 +68,11 @@ function mapRow(row: SupabaseRow): LeaderboardEntry {
     score: row.score,
     duration: row.duration,
     createdAt: row.created_at,
+    updatedAt: row.updated_at,
   }
 }
 
-export async function recordScore(entry: Omit<LeaderboardEntry, 'id' | 'createdAt'>) {
+export async function recordScore(entry: Omit<LeaderboardEntry, 'id' | 'createdAt' | 'updatedAt'>) {
   const client = getSupabaseClient()
   const { data, error } = await client
     .from(TABLE)
@@ -194,10 +181,11 @@ export async function flagQuestion(quizId: string, question: string, reason: str
     reason: data.reason,
     upvotes: data.upvotes,
     createdAt: data.created_at,
+    updatedAt: data.updated_at,
   }
 }
 
-export async function getFlaggedQuestions(quizId: string) {
+export async function getFlaggedQuestions(quizId: string): Promise<FlaggedQuestion[]> {
   const client = getSupabaseClient()
   const { data, error } = await client
     .from(FLAGS_TABLE)
@@ -215,10 +203,11 @@ export async function getFlaggedQuestions(quizId: string) {
     reason: row.reason,
     upvotes: row.upvotes,
     createdAt: row.created_at,
+    updatedAt: row.updated_at,
   }))
 }
 
-export async function getAllFlags(customClient?: any) {
+export async function getAllFlags(customClient?: any): Promise<FlaggedQuestion[]> {
   const client = customClient || getSupabaseClient()
   const { data, error } = await client
     .from(FLAGS_TABLE)
@@ -236,10 +225,11 @@ export async function getAllFlags(customClient?: any) {
     reason: row.reason,
     upvotes: row.upvotes,
     createdAt: row.created_at,
+    updatedAt: row.updated_at,
   }))
 }
 
-export async function updateFlag(id: string, reason: string, customClient?: any) {
+export async function updateFlag(id: string, reason: string, customClient?: any): Promise<FlaggedQuestion> {
   const client = customClient || getSupabaseClient()
   const { data, error } = await client
     .from(FLAGS_TABLE)
@@ -259,10 +249,11 @@ export async function updateFlag(id: string, reason: string, customClient?: any)
     reason: data.reason,
     upvotes: data.upvotes,
     createdAt: data.created_at,
+    updatedAt: data.updated_at,
   }
 }
 
-export async function upvoteFlag(id: string) {
+export async function upvoteFlag(id: string): Promise<FlaggedQuestion> {
   const client = getSupabaseClient()
 
   const { data: current, error: fetchError } = await client
@@ -291,6 +282,7 @@ export async function upvoteFlag(id: string) {
     reason: data.reason,
     upvotes: data.upvotes,
     createdAt: data.created_at,
+    updatedAt: data.updated_at,
   }
 }
 

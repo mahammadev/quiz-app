@@ -11,11 +11,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
 import { Skeleton } from '@/components/ui/skeleton'
 
-type Question = {
-  question: string
-  answers: string[]
-  correct_answer: string
-}
+import { Question } from '@/lib/schema'
 
 type SavedQuiz = {
   id: string

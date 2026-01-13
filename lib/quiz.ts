@@ -1,10 +1,7 @@
+import { Question } from './schema'
 import { getTranslation, type Language } from './translations'
 
-export type Question = {
-  question: string
-  answers: string[]
-  correct_answer: string
-}
+export type { Question }
 
 export function parseQuestions(content: string, language: Language) {
   const data = JSON.parse(content)

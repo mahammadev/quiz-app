@@ -2,14 +2,12 @@ import { NextResponse } from 'next/server'
 import { z } from 'zod'
 import { upvoteFlag } from '../../../../lib/db'
 
-const upvoteSchema = z.object({
-    flagId: z.string().min(1),
-})
+import { UpvoteFlagSchema } from '../../../../lib/schema'
 
 export async function POST(request: Request) {
     try {
         const json = await request.json()
-        const parsed = upvoteSchema.safeParse(json)
+        const parsed = UpvoteFlagSchema.safeParse(json)
 
         if (!parsed.success) {
             return NextResponse.json({ error: 'Invalid payload', issues: parsed.error.issues }, { status: 400 })

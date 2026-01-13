@@ -21,12 +21,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 import { Language, getTranslation } from '@/lib/translations'
 
-type Question = {
-  question: string
-  answers: string[]
-  correct_answer: string
-  _originalIndex?: number
-}
+import { Question } from '@/lib/schema'
 
 type AppState = 'upload' | 'setup' | 'quiz' | 'complete'
 

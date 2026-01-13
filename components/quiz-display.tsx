@@ -9,12 +9,7 @@ import { Input } from './ui/input'
 import { Card, CardContent } from './ui/card'
 import { Alert, AlertDescription } from './ui/alert'
 
-type Question = {
-  question: string
-  answers: string[]
-  correct_answer: string
-  _originalIndex?: number
-}
+import { Question } from '@/lib/schema'
 
 export type IncorrectAnswer = {
   question: string
