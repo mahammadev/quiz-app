@@ -282,6 +282,9 @@ export default function Home() {
   )
 }
 
+import { useMutation } from 'convex/react'
+import { api } from '@/convex/_generated/api'
+
 function QuizComplete({
   score,
   total,
@@ -310,6 +313,7 @@ function QuizComplete({
   const [submitError, setSubmitError] = useState<string | null>(null)
   const [refreshKey, setRefreshKey] = useState(0)
   const [showMistakes, setShowMistakes] = useState(false)
+  const recordScore = useMutation(api.leaderboard.recordScore)
 
   const percentage = total ? Math.round((score / total) * 100) : 0
   const minutes = Math.floor(durationMs / 60000)
@@ -338,19 +342,12 @@ function QuizComplete({
     setSubmitError(null)
 
     try {
-      const response = await fetch(`/api/leaderboard/${quizId}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: playerName,
-          score,
-          duration: Math.max(0, durationMs),
-        }),
+      await recordScore({
+        quizId,
+        name: playerName,
+        score,
+        duration: Math.max(0, durationMs),
       })
-
-      if (!response.ok) {
-        throw new Error('Failed to submit score')
-      }
 
       setHasSubmitted(true)
       setRefreshKey((key) => key + 1)

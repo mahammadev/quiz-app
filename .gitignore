@@ -2,6 +2,7 @@
 node_modules
 /.pnp
 .pnp.js
+.env.local
 
 # Testing
 /coverage
@@ -59,3 +60,5 @@ data/leaderboard.json
 .next/dev/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_9212ccad._.js.map
 .next/dev/types/routes.d.ts
 .next/dev/types/validator.ts
+.env.local
+.env.local

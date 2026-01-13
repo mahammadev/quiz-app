@@ -7,7 +7,8 @@ import { Upload, Save } from "lucide-react"
 import { getTranslation, type Language } from "@/lib/translations"
 import { type Question, parseQuestions } from "@/lib/quiz"
 import QuizLibrary from "./quiz-library"
-import { createClient } from "@/lib/supabase/client"
+import { useMutation } from "convex/react"
+import { api } from "@/convex/_generated/api"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -31,8 +32,7 @@ export default function FileUpload({
 
   const [parsedQuestions, setParsedQuestions] = useState<Question[] | null>(null)
   const [quizName, setQuizName] = useState("")
-  const [libraryRefresh, setLibraryRefresh] = useState(0)
-  const supabase = createClient()
+  const saveQuiz = useMutation(api.quizzes.create)
 
   const handleFileUpload = async (file: File) => {
     setError("")
@@ -78,15 +78,11 @@ export default function FileUpload({
     if (!parsedQuestions || !quizName.trim()) return
 
     try {
-      const { error } = await supabase.from("quizzes").insert({
+      await saveQuiz({
         name: quizName.trim(),
-        questions: parsedQuestions,
-        created_at: new Date().toISOString(),
+        questions: parsedQuestions as any,
       })
 
-      if (error) throw error
-
-      setLibraryRefresh((prev) => prev + 1)
       setParsedQuestions(null)
       setPasteMode(false)
       setPastedText("")
@@ -99,10 +95,7 @@ export default function FileUpload({
 
   const handleStartQuiz = () => {
     if (parsedQuestions) {
-      const slug = quizName
-        ? `quiz-${quizName.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "custom"}`
-        : undefined
-      onFileLoaded(parsedQuestions, slug)
+      onFileLoaded(parsedQuestions)
     }
   }
 
@@ -287,7 +280,7 @@ export default function FileUpload({
         </div>
       )}
 
-      <QuizLibrary onSelectQuiz={onFileLoaded} language={language} refreshTrigger={libraryRefresh} />
+      <QuizLibrary onSelectQuiz={onFileLoaded} language={language} />
     </div>
   )
 }

@@ -1,7 +1,6 @@
 'use client'
 
 import { useMemo } from 'react'
-import { useLeaderboard } from '@/hooks/use-leaderboard'
 import { Language, getTranslation } from '@/lib/translations'
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table'
@@ -36,12 +35,29 @@ type LeaderboardProps = {
   refreshKey?: number
 }
 
-export function Leaderboard({ quizId, playerName, language, refreshKey = 0 }: LeaderboardProps) {
-  const { leaderboard, isLoading, error, personalBest, refresh, total } = useLeaderboard(quizId, playerName, refreshKey)
+import { useQuery } from 'convex/react'
+import { api } from '@/convex/_generated/api'
 
-  const hasEntries = leaderboard.length > 0
+export function Leaderboard({ quizId, playerName, language, refreshKey = 0 }: LeaderboardProps) {
+  const leaderboard = useQuery(api.leaderboard.getLeaderboard, {
+    quizId: quizId || 'global',
+    limit: 50,
+  })
+  const personalBest = useQuery(api.leaderboard.getPersonalBest, {
+    quizId: quizId || 'global',
+    name: playerName || '',
+  })
+
+  const isLoading = leaderboard === undefined
+  const hasEntries = (leaderboard?.length ?? 0) > 0
   const highlightNames = useMemo(() => playerName?.toLowerCase(), [playerName])
   const t = (key: string, params?: Record<string, string | number>) => getTranslation(language, key, params)
+
+  const refresh = () => {
+    // Convex queries are live, no need for manual refresh usually
+  }
+
+  const total = leaderboard?.length ?? 0
 
   return (
     <Card className="border-border bg-card">
@@ -55,11 +71,11 @@ export function Leaderboard({ quizId, playerName, language, refreshKey = 0 }: Le
         </Button>
       </CardHeader>
       <CardContent>
-        {error && (
+        {/* {error && (
           <div className="mb-4 rounded border border-destructive/50 bg-destructive/10 px-3 py-2 text-sm text-destructive">
             {error}
           </div>
-        )}
+        )} */}
 
         {!quizId && <p className="text-sm text-muted-foreground">{t('leaderboard.noQuiz')}</p>}
 
@@ -71,7 +87,7 @@ export function Leaderboard({ quizId, playerName, language, refreshKey = 0 }: Le
           </div>
         )}
 
-        {quizId && !isLoading && !hasEntries && !error && (
+        {quizId && !isLoading && !hasEntries && (
           <div className="rounded-lg border border-dashed border-border bg-muted/30 p-6 text-center text-sm text-muted-foreground">
             {t('leaderboard.empty')}
           </div>
@@ -91,10 +107,10 @@ export function Leaderboard({ quizId, playerName, language, refreshKey = 0 }: Le
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {leaderboard.map((entry, index) => {
+                  {leaderboard?.map((entry: any, index: number) => {
                     const isYou = highlightNames && entry.name.toLowerCase() === highlightNames
                     return (
-                      <TableRow key={entry.id} className={isYou ? 'bg-primary/5' : undefined}>
+                      <TableRow key={entry._id} className={isYou ? 'bg-primary/5' : undefined}>
                         <TableCell className="font-medium">{index + 1}</TableCell>
                         <TableCell>
                           <div className="flex items-center gap-2 min-w-0">
@@ -105,7 +121,7 @@ export function Leaderboard({ quizId, playerName, language, refreshKey = 0 }: Le
                         <TableCell className="text-right font-semibold whitespace-nowrap">{entry.score}</TableCell>
                         <TableCell className="text-right text-muted-foreground whitespace-nowrap">{formatDuration(entry.duration)}</TableCell>
                         <TableCell className="text-right text-muted-foreground hidden md:table-cell whitespace-nowrap">
-                          {safelyFormatDate(entry.createdAt, 'MMM d, yyyy')}
+                          {safelyFormatDate(entry._creationTime, 'MMM d, yyyy')}
                         </TableCell>
                       </TableRow>
                     )

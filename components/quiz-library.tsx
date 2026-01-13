@@ -1,61 +1,23 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
 import { Trash2, Play, FileJson, Pencil, Save, X } from 'lucide-react'
 import { getTranslation, Language } from '@/lib/translations'
-import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
-import { Textarea } from '@/components/ui/textarea'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
 import { Skeleton } from '@/components/ui/skeleton'
-
+import { useQuery } from 'convex/react'
+import { api } from '@/convex/_generated/api'
 import { Question } from '@/lib/schema'
-
-type SavedQuiz = {
-  id: string
-  name: string
-  created_at: string
-  questions: Question[]
-}
 
 export default function QuizLibrary({
   onSelectQuiz,
   language = 'en',
-  refreshTrigger = 0,
 }: {
   onSelectQuiz: (questions: Question[], id?: string) => void
   language?: Language
-  refreshTrigger?: number
 }) {
-  const [savedQuizzes, setSavedQuizzes] = useState<SavedQuiz[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const supabase = createClient()
-
-  const loadQuizzes = async () => {
-    setIsLoading(true)
-    try {
-      const { data, error } = await supabase
-        .from('quizzes')
-        .select('*')
-        .order('created_at', { ascending: false })
-
-      if (error) throw error
-
-      if (data) {
-        setSavedQuizzes(data)
-      }
-    } catch (e) {
-      console.error('Failed to load library', e)
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  useEffect(() => {
-    loadQuizzes()
-  }, [refreshTrigger])
+  const savedQuizzes = useQuery(api.quizzes.list)
+  const isLoading = savedQuizzes === undefined
 
   if (isLoading) {
     return (
@@ -79,7 +41,7 @@ export default function QuizLibrary({
     )
   }
 
-  if (!isLoading && savedQuizzes.length === 0) {
+  if (!savedQuizzes || savedQuizzes.length === 0) {
     return null
   }
 
@@ -87,7 +49,7 @@ export default function QuizLibrary({
     <div className="grid gap-4 md:grid-cols-2">
       {savedQuizzes.map((quiz) => (
         <Card
-          key={quiz.id}
+          key={quiz._id}
           className="group rounded-xl border border-border/70 bg-background/80 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
         >
           <CardContent className="flex h-full flex-col justify-between gap-5 p-5 sm:p-6 text-left">
@@ -104,14 +66,14 @@ export default function QuizLibrary({
                     {quiz.questions.length} questions
                   </span>
                   <span className="text-xs">
-                    {new Date(quiz.created_at).toLocaleDateString()}
+                    {new Date(quiz._creationTime).toLocaleDateString()}
                   </span>
                 </div>
               </div>
             </div>
             <div className="flex flex-wrap gap-2">
               <Button
-                onClick={() => onSelectQuiz(quiz.questions, quiz.id)}
+                onClick={() => onSelectQuiz(quiz.questions as any, quiz._id)}
                 className="cursor-target flex-1 min-w-[160px] flex items-center justify-center gap-2 text-sm"
               >
                 <Play className="h-4 w-4" />

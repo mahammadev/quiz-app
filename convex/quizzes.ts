@@ -1,0 +1,60 @@
+import { v } from "convex/values";
+import { mutation, query } from "./_generated/server";
+
+export const create = mutation({
+    args: {
+        name: v.string(),
+        questions: v.array(
+            v.object({
+                question: v.string(),
+                answers: v.array(v.string()),
+                correct_answer: v.string(),
+                _originalIndex: v.optional(v.number()),
+            })
+        ),
+    },
+    handler: async (ctx, args) => {
+        const quizId = await ctx.db.insert("quizzes", {
+            name: args.name,
+            questions: args.questions,
+        });
+        return quizId;
+    },
+});
+
+export const get = query({
+    args: { id: v.id("quizzes") },
+    handler: async (ctx, args) => {
+        return await ctx.db.get(args.id);
+    },
+});
+
+export const list = query({
+    handler: async (ctx) => {
+        return await ctx.db.query("quizzes").collect();
+    },
+});
+
+export const remove = mutation({
+    args: { id: v.id("quizzes") },
+    handler: async (ctx, args) => {
+        await ctx.db.delete(args.id);
+    },
+});
+
+export const update = mutation({
+    args: {
+        id: v.id("quizzes"),
+        questions: v.array(
+            v.object({
+                question: v.string(),
+                answers: v.array(v.string()),
+                correct_answer: v.string(),
+                _originalIndex: v.optional(v.number()),
+            })
+        ),
+    },
+    handler: async (ctx, args) => {
+        await ctx.db.patch(args.id, { questions: args.questions });
+    },
+});

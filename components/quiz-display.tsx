@@ -8,7 +8,8 @@ import { Button } from './ui/button'
 import { Input } from './ui/input'
 import { Card, CardContent } from './ui/card'
 import { Alert, AlertDescription } from './ui/alert'
-
+import { useQuery, useMutation } from 'convex/react'
+import { api } from '@/convex/_generated/api'
 import { Question } from '@/lib/schema'
 
 export type IncorrectAnswer = {
@@ -53,46 +54,34 @@ function QuizDisplay({
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
   const [flaggingIndex, setFlaggingIndex] = useState<number | null>(null)
   const [tempFlagReason, setTempFlagReason] = useState('')
-  const [globalFlags, setGlobalFlags] = useState<Record<string, { reason: string; id: string; upvotes: number }>>({})
   const questionRefs = useRef<(HTMLDivElement | null)[]>([])
 
-  useEffect(() => {
-    const fetchFlags = async () => {
-      if (!quizId) return
-      try {
-        const response = await fetch(`/api/flags/${quizId}`)
-        if (response.ok) {
-          const { flags } = await response.json()
-          const flagMap: Record<string, { reason: string; id: string; upvotes: number }> = {}
-          flags.forEach((f: any) => {
-            flagMap[f.question] = { reason: f.reason, id: f.id, upvotes: f.upvotes }
-          })
-          setGlobalFlags(flagMap)
-        }
-      } catch (error) {
-        console.error('Failed to fetch flags', error)
-      }
-    }
-    fetchFlags()
-  }, [quizId])
+  const flags = useQuery(api.flags.getFlags, { quizId: quizId || undefined })
+  const flagQuestion = useMutation(api.flags.flagQuestion)
+  const upvoteFlag = useMutation(api.flags.upvoteFlag)
+
+  const globalFlags = useMemo(() => {
+    const flagMap: Record<string, { reason: string; id: string; upvotes: number }> = {}
+    flags?.forEach((f: any) => {
+      flagMap[f.question] = { reason: f.reason, id: f._id, upvotes: f.upvotes }
+    })
+    return flagMap
+  }, [flags])
 
   useEffect(() => {
     setQuestionStates(prev => {
-      // If we already have states and the number of questions hasn't changed, 
-      // just update the flags
       if (prev.length === questions.length && prev.length > 0) {
         return questions.map((q, i) => {
           const flagData = globalFlags[q.question]
           return {
             ...prev[i],
-            isFlagged: prev[i].isFlagged || !!flagData,
-            flagReason: prev[i].flagReason || flagData?.reason,
-            flagId: prev[i].flagId || flagData?.id,
-            upvotes: prev[i].upvotes || flagData?.upvotes || 0
+            isFlagged: !!flagData,
+            flagReason: flagData?.reason,
+            flagId: flagData?.id,
+            upvotes: flagData?.upvotes || 0
           }
         })
       }
-      // Otherwise initialize
       return questions.map((q) => {
         const flagData = globalFlags[q.question]
         return {
@@ -105,7 +94,6 @@ function QuizDisplay({
         }
       })
     })
-    // Only reset index if questions changed, not flags
   }, [questions, globalFlags])
 
   useEffect(() => {
@@ -143,7 +131,6 @@ function QuizDisplay({
 
   const getText = (key: keyof typeof t.en) => t[language][key]
 
-  // Memoize shuffled answers for all questions to prevent re-shuffling
   const shuffledAnswersMap = useMemo(() => {
     if (!shuffleAnswers) return new Map()
 
@@ -155,33 +142,26 @@ function QuizDisplay({
   }, [questions, shuffleAnswers])
 
   const handleAnswer = (questionIndex: number, answer: string) => {
-    // Disable answers in study mode
     if (studyMode) return
 
     const question = questions[questionIndex]
     const currentState = questionStates[questionIndex]
 
-    // Prevent re-answering
     if (currentState.selectedAnswer !== null) return
 
     const correct = answer === question.correct_answer
 
-    // Update question state
     const newStates = [...questionStates]
     newStates[questionIndex] = { ...newStates[questionIndex], selectedAnswer: answer, isCorrect: correct }
     setQuestionStates(newStates)
 
-
-
-    // Custom scroll function with ease-out curve (starts fast, ends slow)
     const smoothScrollTo = (element: HTMLElement) => {
       const targetPosition = element.getBoundingClientRect().top + window.pageYOffset
       const startPosition = window.pageYOffset
       const distance = targetPosition - startPosition - (window.innerHeight / 2) + (element.offsetHeight / 2)
-      const duration = 1000 // ms
+      const duration = 1000
       let start: number | null = null
 
-      // Ease-in-out cubic function (slow-normal-slow)
       const easeInOutCubic = (t: number): number => {
         return t < 0.5
           ? 4 * t * t * t
@@ -204,7 +184,6 @@ function QuizDisplay({
       requestAnimationFrame(animation)
     }
 
-    // Auto-scroll to next question after a short delay
     setTimeout(() => {
       if (questionIndex + 1 < questions.length) {
         setCurrentQuestionIndex(questionIndex + 1)
@@ -221,35 +200,13 @@ function QuizDisplay({
 
     const questionText = questions[index].question
     try {
-      const response = await fetch(`/api/flags/${quizId}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          question: questionText,
-          reason: tempFlagReason,
-        }),
+      await flagQuestion({
+        quizId,
+        question: questionText,
+        reason: tempFlagReason,
       })
-
-      if (response.ok) {
-        const { flag } = await response.json()
-        setQuestionStates(prev => {
-          const next = [...prev]
-          next[index] = {
-            ...next[index],
-            isFlagged: true,
-            flagReason: tempFlagReason,
-            flagId: flag.id,
-            upvotes: 0
-          }
-          return next
-        })
-        setGlobalFlags(prev => ({
-          ...prev,
-          [questionText]: { reason: tempFlagReason, id: flag.id, upvotes: 0 }
-        }))
-        setFlaggingIndex(null)
-        setTempFlagReason('')
-      }
+      setFlaggingIndex(null)
+      setTempFlagReason('')
     } catch (error) {
       console.error('Failed to flag question', error)
     }
@@ -259,30 +216,10 @@ function QuizDisplay({
     const state = questionStates[index]
     if (!state.flagId) return
 
-    // Optimistic update
-    setQuestionStates(prev => {
-      const next = [...prev]
-      const currentUpvotes = next[index].upvotes || 0
-      next[index] = { ...next[index], upvotes: currentUpvotes + 1 }
-      return next
-    })
-
     try {
-      await fetch('/api/flags/upvote', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ flagId: state.flagId }),
-      })
+      await upvoteFlag({ id: state.flagId as any })
     } catch (error) {
       console.error('Failed to upvote', error)
-      // Revert on error
-      setQuestionStates(prev => {
-        const next = [...prev]
-        if (next[index].upvotes) {
-          next[index] = { ...next[index], upvotes: (next[index].upvotes || 1) - 1 }
-        }
-        return next
-      })
     }
   }
 
