@@ -23,6 +23,7 @@ import { SignedOut, SignedIn, Protect, UserButton, SignInButton, useUser } from 
 import { Language, getTranslation } from '@/lib/translations'
 
 import { Question } from '@/lib/schema'
+import { hashQuestion } from '@/lib/utils'
 
 type AppState = 'upload' | 'setup' | 'quiz' | 'complete'
 
@@ -114,209 +115,203 @@ export default function Home() {
     setQuizId(id)
     setQuizStartTime(Date.now())
     setQuizDuration(0)
-    setAppState('quiz')
   }
-  setQuizStartTime(Date.now())
-  setQuizDuration(0)
-  setQuizId(id)
-  setAppState('quiz')
-}
 
-const handleReset = () => {
-  setAppState('upload')
-  setQuestions([])
-  setCurrentQuiz([])
-  setScore(0)
-  setIncorrectAnswers([])
-  setShuffleAnswers(false)
-  setQuizId('')
-  setQuizDuration(0)
-  setQuizStartTime(null)
-}
-
-const handleBack = () => {
-  if (currentIndex > 0) {
-    setAppState(STEPS[currentIndex - 1])
+  const handleReset = () => {
+    setAppState('upload')
+    setQuestions([])
+    setCurrentQuiz([])
+    setScore(0)
+    setIncorrectAnswers([])
+    setShuffleAnswers(false)
+    setQuizId('')
+    setQuizDuration(0)
+    setQuizStartTime(null)
   }
-}
 
-return (
-  <>
-    <main className="min-h-screen bg-background text-foreground transition-colors duration-300 overflow-x-hidden">
-      <div className="container mx-auto max-w-5xl px-3 sm:px-6 py-4 sm:py-8 min-h-screen flex flex-col w-full">
-        {state !== 'quiz' && (
-          <header className="flex justify-between items-center mb-4 sm:mb-8 relative z-50">
-            <div className="flex items-center gap-2">
-              <SignedOut>
-                <SignInButton mode="modal">
-                  <Button variant="ghost" size="sm" className="gap-2 text-muted-foreground hover:text-foreground">
-                    <Settings className="w-4 h-4" />
-                    <span>{getTranslation(language, 'auth.signIn')}</span>
-                  </Button>
-                </SignInButton>
-              </SignedOut>
-              <SignedIn>
-                <div className="flex items-center gap-3">
-                  <UserButton afterSignOutUrl="/" />
-                  <Protect role="admin">
-                    <Button
-                      asChild
-                      variant="ghost"
-                      size="sm"
-                      className="gap-2 text-muted-foreground hover:text-foreground"
-                    >
-                      <Link href="/admin">
-                        <Settings className="w-4 h-4" />
-                        <span className="hidden sm:inline">{getTranslation(language, 'auth.admin')}</span>
-                      </Link>
+  const handleBack = () => {
+    if (currentIndex > 0) {
+      setAppState(STEPS[currentIndex - 1])
+    }
+  }
+
+  return (
+    <>
+      <main className="min-h-screen bg-background text-foreground transition-colors duration-300 overflow-x-hidden">
+        <div className="container mx-auto max-w-5xl px-3 sm:px-6 py-4 sm:py-8 min-h-screen flex flex-col w-full">
+          {state !== 'quiz' && (
+            <header className="flex justify-between items-center mb-4 sm:mb-8 relative z-50">
+              <div className="flex items-center gap-2">
+                <SignedOut>
+                  <SignInButton mode="modal">
+                    <Button variant="ghost" size="sm" className="gap-2 text-muted-foreground hover:text-foreground">
+                      <Settings className="w-4 h-4" />
+                      <span>{getTranslation(language, 'auth.signIn')}</span>
                     </Button>
-                  </Protect>
-                </div>
-              </SignedIn>
-            </div>
-            <ThemeSwitcher />
-          </header>
-        )}
-
-        {state !== 'quiz' && (
-          <Tabs defaultValue="quiz" value={activeTab} onValueChange={setActiveTab} className="w-full flex flex-col flex-1 space-y-4">
-            <div className="mb-6 w-full">
-              <TabsList className="grid w-full grid-cols-4 bg-muted/50 p-1 rounded-xl h-auto shadow-sm">
-                <TabsTrigger value="quiz" className="py-2 text-[10px] xs:text-xs sm:text-sm px-1 rounded-lg">{getTranslation(language, 'tabs.quiz')}</TabsTrigger>
-                <TabsTrigger value="leaderboard" className="py-2 text-[10px] xs:text-xs sm:text-sm px-1 rounded-lg">{getTranslation(language, 'tabs.leaderboard')}</TabsTrigger>
-                <TabsTrigger value="mistakes" className="py-2 text-[10px] xs:text-xs sm:text-sm px-1 rounded-lg">{getTranslation(language, 'tabs.mistakes')}</TabsTrigger>
-                <TabsTrigger value="community" className="py-2 text-[10px] xs:text-xs sm:text-sm px-1 rounded-lg">{getTranslation(language, 'tabs.community')}</TabsTrigger>
-              </TabsList>
-            </div>
-
-            <UserWelcome
-              language={language}
-              userName={userName}
-              onNameChange={handleNameChange}
-              isLoading={!hasLoadedName}
-            />
-            <div className="mt-6"></div>
-
-            <TabsContent value="quiz" className="mt-0 flex-1">
-              <div className="relative w-full grid grid-cols-1 items-start">
-                <AnimatePresence mode="popLayout">
-                  {STEPS.map((step, index) => {
-                    if (index > currentIndex) return null
-                    if (step === 'quiz') return null // Should not happen in this view loop logic if state check handles it, but safe to keep
-
-                    const isCurrent = index === currentIndex
-                    const offset = currentIndex - index
-
-                    return (
-                      <motion.div
-                        key={step}
-                        initial={{ y: '100%', opacity: 0, scale: 0.95 }}
-                        animate={{
-                          y: isCurrent ? 0 : -40 * offset,
-                          scale: isCurrent ? 1 : 1 - (0.05 * offset),
-                          opacity: isCurrent ? 1 : 0,
-                          zIndex: index,
-                          filter: isCurrent ? 'none' : 'brightness(0.95)'
-                        }}
-                        exit={{ y: '100%', opacity: 0 }}
-                        transition={{
-                          type: "spring",
-                          stiffness: 300,
-                          damping: 30
-                        }}
-                        className={`col-start-1 row-start-1 w-full ${isCurrent ? 'pointer-events-auto' : 'pointer-events-none'}`}
+                  </SignInButton>
+                </SignedOut>
+                <SignedIn>
+                  <div className="flex items-center gap-3">
+                    <UserButton afterSignOutUrl="/" />
+                    <Protect role="admin">
+                      <Button
+                        asChild
+                        variant="ghost"
+                        size="sm"
+                        className="gap-2 text-muted-foreground hover:text-foreground"
                       >
-                        <Card className="w-full shadow-lg border-none sm:border overflow-hidden">
-                          <CardContent className="p-4 sm:p-8">
-                            {currentIndex > 0 && step !== 'complete' && (
-                              <Button
-                                onClick={handleBack}
-                                variant="ghost"
-                                className="mb-6 flex items-center gap-2 text-muted-foreground hover:text-foreground"
-                              >
-                                <ArrowLeft className="w-4 h-4" />
-                                <span className="text-sm">{getTranslation(language, 'nav.back')}</span>
-                              </Button>
-                            )}
-
-                            {step === 'upload' && (
-                              <FileUpload onFileLoaded={handleFileLoaded} language={language} />
-                            )}
-                            {step === 'setup' && (
-                              <QuizSetup
-                                totalQuestions={questions.length}
-                                onQuizStart={handleQuizStart}
-                                allQuestions={questions}
-                                language={language}
-                                quizId={quizId}
-                              />
-                            )}
-                            {step === 'complete' && (
-                              <QuizComplete
-                                score={score}
-                                total={currentQuiz.length}
-                                incorrectAnswers={incorrectAnswers}
-                                onReset={handleReset}
-                                onRetryIncorrect={handleRetryIncorrect}
-                                language={language}
-                                quizId={quizId}
-                                durationMs={quizDuration}
-                                userName={userName}
-                                onNameChange={handleNameChange}
-                              />
-                            )}
-                          </CardContent>
-                        </Card>
-                      </motion.div>
-                    )
-                  })}
-                </AnimatePresence>
+                        <Link href="/admin">
+                          <Settings className="w-4 h-4" />
+                          <span className="hidden sm:inline">{getTranslation(language, 'auth.admin')}</span>
+                        </Link>
+                      </Button>
+                    </Protect>
+                  </div>
+                </SignedIn>
               </div>
-            </TabsContent>
+              <ThemeSwitcher />
+            </header>
+          )}
 
-            <TabsContent value="leaderboard">
-              <Card>
-                <CardContent className="p-6">
-                  <Leaderboard quizId={quizId || 'global'} language={language} />
-                </CardContent>
-              </Card>
-            </TabsContent>
+          {state !== 'quiz' && (
+            <Tabs defaultValue="quiz" value={activeTab} onValueChange={setActiveTab} className="w-full flex flex-col flex-1 space-y-4">
+              <div className="mb-6 w-full">
+                <TabsList className="grid w-full grid-cols-4 bg-muted/50 p-1 rounded-xl h-auto shadow-sm">
+                  <TabsTrigger value="quiz" className="py-2 text-[10px] xs:text-xs sm:text-sm px-1 rounded-lg">{getTranslation(language, 'tabs.quiz')}</TabsTrigger>
+                  <TabsTrigger value="leaderboard" className="py-2 text-[10px] xs:text-xs sm:text-sm px-1 rounded-lg">{getTranslation(language, 'tabs.leaderboard')}</TabsTrigger>
+                  <TabsTrigger value="mistakes" className="py-2 text-[10px] xs:text-xs sm:text-sm px-1 rounded-lg">{getTranslation(language, 'tabs.mistakes')}</TabsTrigger>
+                  <TabsTrigger value="community" className="py-2 text-[10px] xs:text-xs sm:text-sm px-1 rounded-lg">{getTranslation(language, 'tabs.community')}</TabsTrigger>
+                </TabsList>
+              </div>
 
-            <TabsContent value="mistakes">
-              <UserMistakes
+              <UserWelcome
                 language={language}
-                onRedo={handleRedo}
+                userName={userName}
+                onNameChange={handleNameChange}
+                isLoading={!hasLoadedName}
               />
-            </TabsContent>
+              <div className="mt-6"></div>
 
-            <TabsContent value="community">
-              <div className="space-y-6">
-                <ActiveUsers language={language} playerName={userName} />
-                {/* Placeholder for future chat or other community features */}
-              </div>
-            </TabsContent>
-          </Tabs>
-        )}
+              <TabsContent value="quiz" className="mt-0 flex-1">
+                <div className="relative w-full grid grid-cols-1 items-start">
+                  <AnimatePresence mode="popLayout">
+                    {STEPS.map((step, index) => {
+                      if (index > currentIndex) return null
+                      if (step === 'quiz') return null // Should not happen in this view loop logic if state check handles it, but safe to keep
 
-        {state === 'quiz' && (
-          <div className="w-full">
-            <QuizDisplay
-              questions={currentQuiz}
-              onComplete={handleQuizComplete}
-              onBack={handleBack}
-              shuffleAnswers={shuffleAnswers}
-              studyMode={studyMode}
-              showOnlyCorrect={showOnlyCorrect}
-              language={language}
-              quizId={quizId}
-              allQuestions={questions}
-            />
-          </div>
-        )}
-      </div>
-    </main>
-  </>
-)
+                      const isCurrent = index === currentIndex
+                      const offset = currentIndex - index
+
+                      return (
+                        <motion.div
+                          key={step}
+                          initial={{ y: '100%', opacity: 0, scale: 0.95 }}
+                          animate={{
+                            y: isCurrent ? 0 : -40 * offset,
+                            scale: isCurrent ? 1 : 1 - (0.05 * offset),
+                            opacity: isCurrent ? 1 : 0,
+                            zIndex: index,
+                            filter: isCurrent ? 'none' : 'brightness(0.95)'
+                          }}
+                          exit={{ y: '100%', opacity: 0 }}
+                          transition={{
+                            type: "spring",
+                            stiffness: 300,
+                            damping: 30
+                          }}
+                          className={`col-start-1 row-start-1 w-full ${isCurrent ? 'pointer-events-auto' : 'pointer-events-none'}`}
+                        >
+                          <Card className="w-full shadow-lg border-none sm:border overflow-hidden">
+                            <CardContent className="p-4 sm:p-8">
+                              {currentIndex > 0 && step !== 'complete' && (
+                                <Button
+                                  onClick={handleBack}
+                                  variant="ghost"
+                                  className="mb-6 flex items-center gap-2 text-muted-foreground hover:text-foreground"
+                                >
+                                  <ArrowLeft className="w-4 h-4" />
+                                  <span className="text-sm">{getTranslation(language, 'nav.back')}</span>
+                                </Button>
+                              )}
+
+                              {step === 'upload' && (
+                                <FileUpload onFileLoaded={handleFileLoaded} language={language} />
+                              )}
+                              {step === 'setup' && (
+                                <QuizSetup
+                                  totalQuestions={questions.length}
+                                  onQuizStart={handleQuizStart}
+                                  allQuestions={questions}
+                                  language={language}
+                                  quizId={quizId}
+                                />
+                              )}
+                              {step === 'complete' && (
+                                <QuizComplete
+                                  score={score}
+                                  total={currentQuiz.length}
+                                  incorrectAnswers={incorrectAnswers}
+                                  onReset={handleReset}
+                                  onRetryIncorrect={handleRetryIncorrect}
+                                  language={language}
+                                  quizId={quizId}
+                                  durationMs={quizDuration}
+                                  userName={userName}
+                                  onNameChange={handleNameChange}
+                                />
+                              )}
+                            </CardContent>
+                          </Card>
+                        </motion.div>
+                      )
+                    })}
+                  </AnimatePresence>
+                </div>
+              </TabsContent>
+
+              <TabsContent value="leaderboard">
+                <Card>
+                  <CardContent className="p-6">
+                    <Leaderboard quizId={quizId || 'global'} language={language} />
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="mistakes">
+                <UserMistakes
+                  language={language}
+                  onRedo={handleRedo}
+                />
+              </TabsContent>
+
+              <TabsContent value="community">
+                <div className="space-y-6">
+                  <ActiveUsers language={language} playerName={userName} />
+                  {/* Placeholder for future chat or other community features */}
+                </div>
+              </TabsContent>
+            </Tabs>
+          )}
+
+          {state === 'quiz' && (
+            <div className="w-full">
+              <QuizDisplay
+                questions={currentQuiz}
+                onComplete={handleQuizComplete}
+                onBack={handleBack}
+                shuffleAnswers={shuffleAnswers}
+                studyMode={studyMode}
+                showOnlyCorrect={showOnlyCorrect}
+                language={language}
+                quizId={quizId}
+                allQuestions={questions}
+              />
+            </div>
+          )}
+        </div>
+      </main>
+    </>
+  )
 }
 
 import { useMutation } from 'convex/react'
