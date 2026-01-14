@@ -8,14 +8,9 @@ import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
 import { Badge } from './ui/badge'
 import { Skeleton } from './ui/skeleton'
 
-export function ActiveUsers({ language, playerName }: { language: Language, playerName: string }) {
-    const { onlineUsers, isLoading, setPlayerName } = useActiveUsers()
+export function ActiveUsers({ language }: { language: Language }) {
+    const { onlineUsers, isLoading } = useActiveUsers()
     const t = (key: string, params?: Record<string, string | number>) => getTranslation(language, key, params)
-
-    // Sync local player name with global context
-    useEffect(() => {
-        setPlayerName(playerName)
-    }, [playerName, setPlayerName])
 
     return (
         <Card className="border-border bg-card">

@@ -13,15 +13,12 @@ type ActiveUser = {
 type ActiveUserContextType = {
     onlineUsers: ActiveUser[]
     isLoading: boolean
-    setPlayerName: (name: string) => void
-    username: string
 }
 
 const ActiveUserContext = createContext<ActiveUserContextType | undefined>(undefined)
 
 export function ActiveUserProvider({ children }: { children: React.ReactNode }) {
     const { user } = useUser()
-    const [localName, setLocalName] = useState('')
     const [visitorId, setVisitorId] = useState<string | null>(null)
 
     const updatePresence = useMutation(api.presence.update)
@@ -50,7 +47,7 @@ export function ActiveUserProvider({ children }: { children: React.ReactNode }) 
     useEffect(() => {
         if (!visitorId) return
 
-        const nameToUse = localName || user?.fullName || user?.username || 'qonaq'
+        const nameToUse = user?.fullName || user?.username || 'qonaq'
 
         const sendHeartbeat = () => {
             updatePresence({
@@ -63,14 +60,12 @@ export function ActiveUserProvider({ children }: { children: React.ReactNode }) 
         sendHeartbeat()
         const interval = setInterval(sendHeartbeat, 20000)
         return () => clearInterval(interval)
-    }, [user, localName, updatePresence, visitorId])
+    }, [user, updatePresence, visitorId])
 
     return (
         <ActiveUserContext.Provider value={{
             onlineUsers,
             isLoading,
-            setPlayerName: setLocalName,
-            username: localName
         }}>
             {children}
         </ActiveUserContext.Provider>

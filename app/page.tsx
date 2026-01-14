@@ -8,15 +8,12 @@ import FileUpload from '@/components/file-upload'
 import QuizSetup from '@/components/quiz-setup'
 import QuizDisplay, { IncorrectAnswer } from '@/components/quiz-display'
 import ThemeSwitcher from '@/components/theme-switcher'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Leaderboard } from '@/components/leaderboard'
 import { ActiveUsers } from '@/components/active-users'
-import { UserWelcome } from '@/components/user-welcome'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { SignedOut, SignedIn, Protect, UserButton, SignInButton, useUser } from "@clerk/nextjs"
 
@@ -41,32 +38,10 @@ export default function Home() {
   const [quizId, setQuizId] = useState<string>('')
   const [quizStartTime, setQuizStartTime] = useState<number | null>(null)
   const [quizDuration, setQuizDuration] = useState<number>(0)
-  const [userName, setUserName] = useState('')
-  const [hasLoadedName, setHasLoadedName] = useState(false)
   const [activeTab, setActiveTab] = useState("quiz")
   const language: Language = 'az'
 
-  useEffect(() => {
-    try {
-      const storedName = localStorage.getItem('quiz-player-name')
-      if (storedName) {
-        setUserName(storedName)
-      }
-    } catch (e) {
-      console.warn('Failed to load name', e)
-    } finally {
-      setHasLoadedName(true)
-    }
-  }, [])
 
-  const handleNameChange = (newName: string) => {
-    setUserName(newName)
-    try {
-      localStorage.setItem('quiz-player-name', newName)
-    } catch (e) {
-      console.warn('Failed to save name', e)
-    }
-  }
 
   const currentIndex = STEPS.indexOf(state)
 
@@ -184,12 +159,7 @@ export default function Home() {
                 </TabsList>
               </div>
 
-              <UserWelcome
-                language={language}
-                userName={userName}
-                onNameChange={handleNameChange}
-                isLoading={!hasLoadedName}
-              />
+
               <div className="mt-6"></div>
 
               <TabsContent value="quiz" className="mt-0 flex-1">
@@ -256,8 +226,6 @@ export default function Home() {
                                   language={language}
                                   quizId={quizId}
                                   durationMs={quizDuration}
-                                  userName={userName}
-                                  onNameChange={handleNameChange}
                                 />
                               )}
                             </CardContent>
@@ -286,7 +254,7 @@ export default function Home() {
 
               <TabsContent value="community">
                 <div className="space-y-6">
-                  <ActiveUsers language={language} playerName={userName} />
+                  <ActiveUsers language={language} />
                   {/* Placeholder for future chat or other community features */}
                 </div>
               </TabsContent>
@@ -327,8 +295,6 @@ function QuizComplete({
   language,
   quizId,
   durationMs,
-  userName,
-  onNameChange,
 }: {
   score: number
   total: number
@@ -338,8 +304,6 @@ function QuizComplete({
   language: Language
   quizId?: string
   durationMs: number
-  userName: string
-  onNameChange: (name: string) => void
 }) {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [hasSubmitted, setHasSubmitted] = useState(false)
@@ -372,7 +336,7 @@ function QuizComplete({
     }
     if (hasSubmitted) return
 
-    const playerName = userName.trim() || getTranslation(language, 'activeUsers.guest')
+    const playerName = user?.fullName || user?.username || getTranslation(language, 'activeUsers.guest')
     setIsSubmitting(true)
     setSubmitError(null)
 
@@ -452,16 +416,13 @@ function QuizComplete({
             </p>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="leaderboard-name" className="text-sm font-medium">
+            <div className="p-4 bg-muted/50 rounded-lg border border-border/50">
+              <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider mb-1">
                 {getTranslation(language, 'results.nameLabel')}
-              </Label>
-              <Input
-                id="leaderboard-name"
-                value={userName}
-                onChange={(e) => onNameChange(e.target.value)}
-                placeholder={getTranslation(language, 'results.namePlaceholder')}
-              />
+              </p>
+              <p className="text-lg font-bold text-foreground">
+                {user?.fullName || user?.username || getTranslation(language, 'activeUsers.guest')}
+              </p>
             </div>
             {submitError && (
               <Alert variant="destructive">
@@ -483,7 +444,7 @@ function QuizComplete({
           </CardContent>
         </Card>
 
-        <Leaderboard quizId={quizId} playerName={userName} language={language} refreshKey={refreshKey} />
+        <Leaderboard quizId={quizId} language={language} refreshKey={refreshKey} />
       </div>
 
       {incorrectAnswers.length > 0 ? (

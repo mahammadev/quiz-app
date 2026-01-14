@@ -30,22 +30,25 @@ function formatDuration(ms: number) {
 
 type LeaderboardProps = {
   quizId?: string
-  playerName?: string
   language: Language
   refreshKey?: number
 }
 
 import { useQuery } from 'convex/react'
 import { api } from '@/convex/_generated/api'
+import { useUser } from '@clerk/nextjs'
 
-export function Leaderboard({ quizId, playerName, language, refreshKey = 0 }: LeaderboardProps) {
+export function Leaderboard({ quizId, language, refreshKey = 0 }: LeaderboardProps) {
+  const { user } = useUser()
+  const playerName = user?.fullName || user?.username || ''
+
   const leaderboard = useQuery(api.leaderboard.getLeaderboard, {
     quizId: quizId || 'global',
     limit: 50,
   })
   const personalBest = useQuery(api.leaderboard.getPersonalBest, {
     quizId: quizId || 'global',
-    name: playerName || '',
+    name: playerName,
   })
 
   const isLoading = leaderboard === undefined
@@ -129,7 +132,7 @@ export function Leaderboard({ quizId, playerName, language, refreshKey = 0 }: Le
                 </TableBody>
               </Table>
             </div>
-            {total > leaderboard.length && (
+            {leaderboard && total > leaderboard.length && (
               <div className="border-t border-border bg-muted/30 px-4 py-2 text-xs text-muted-foreground">
                 {t('leaderboard.showing', { shown: leaderboard.length, total })}
               </div>
@@ -144,7 +147,9 @@ export function Leaderboard({ quizId, playerName, language, refreshKey = 0 }: Le
               <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs sm:text-sm text-muted-foreground">
                 <span className="whitespace-nowrap">Score: {personalBest.score}</span>
                 <span className="whitespace-nowrap">Time: {formatDuration(personalBest.duration)}</span>
-                <span className="whitespace-nowrap">Date: {safelyFormatDate(personalBest.createdAt, 'PP')}</span>
+                {personalBest.createdAt && (
+                  <span className="whitespace-nowrap">Date: {safelyFormatDate(personalBest.createdAt, 'PP')}</span>
+                )}
               </div>
             </div>
           </div>
