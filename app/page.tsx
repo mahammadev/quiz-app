@@ -18,7 +18,7 @@ import { Leaderboard } from '@/components/leaderboard'
 import { ActiveUsers } from '@/components/active-users'
 import { UserWelcome } from '@/components/user-welcome'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { SignedOut, SignedIn, Protect, UserButton, SignInButton } from "@clerk/nextjs"
+import { SignedOut, SignedIn, Protect, UserButton, SignInButton, useUser } from "@clerk/nextjs"
 
 import { Language, getTranslation } from '@/lib/translations'
 
@@ -99,15 +99,23 @@ export default function Home() {
 
     const retryQuestions = questions.filter(q =>
       incorrectAnswers.some(ia => ia.question === q.question)
-    )
+    ).map(q => {
+      // Find the incorrect answer object to get original indices or properties if needed
+      return q
+    })
 
-    setCurrentQuiz(retryQuestions)
+    handleRedo(retryQuestions, quizId)
+  }
+
+  const handleRedo = (redoQuestions: Question[], id: string) => {
+    setCurrentQuiz(redoQuestions)
     setScore(0)
     setIncorrectAnswers([])
     setStudyMode(false)
     setShowOnlyCorrect(false)
     setQuizStartTime(Date.now())
     setQuizDuration(0)
+    setQuizId(id)
     setAppState('quiz')
   }
 
@@ -131,8 +139,8 @@ export default function Home() {
 
   return (
     <>
-      <main className="min-h-screen bg-background text-foreground transition-colors duration-300">
-        <div className="container mx-auto max-w-5xl px-3 sm:px-4 py-4 sm:py-8 min-h-screen flex flex-col">
+      <main className="min-h-screen bg-background text-foreground transition-colors duration-300 overflow-x-hidden">
+        <div className="container mx-auto max-w-5xl px-3 sm:px-6 py-4 sm:py-8 min-h-screen flex flex-col w-full">
           {state !== 'quiz' && (
             <header className="flex justify-between items-center mb-4 sm:mb-8 relative z-50">
               <div className="flex items-center gap-2">
@@ -140,7 +148,7 @@ export default function Home() {
                   <SignInButton mode="modal">
                     <Button variant="ghost" size="sm" className="gap-2 text-muted-foreground hover:text-foreground">
                       <Settings className="w-4 h-4" />
-                      <span>Daxil ol</span>
+                      <span>{getTranslation(language, 'auth.signIn')}</span>
                     </Button>
                   </SignInButton>
                 </SignedOut>
@@ -156,7 +164,7 @@ export default function Home() {
                       >
                         <Link href="/admin">
                           <Settings className="w-4 h-4" />
-                          <span className="hidden sm:inline">Admin</span>
+                          <span className="hidden sm:inline">{getTranslation(language, 'auth.admin')}</span>
                         </Link>
                       </Button>
                     </Protect>
@@ -168,12 +176,13 @@ export default function Home() {
           )}
 
           {state !== 'quiz' && (
-            <Tabs defaultValue="quiz" value={activeTab} onValueChange={setActiveTab} className="w-full flex flex-col flex-1">
-              <div className="flex justify-center mb-6">
-                <TabsList className="grid w-full max-w-md grid-cols-3">
-                  <TabsTrigger value="quiz">Quiz</TabsTrigger>
-                  <TabsTrigger value="leaderboard">Liderlər</TabsTrigger>
-                  <TabsTrigger value="community">İcma</TabsTrigger>
+            <Tabs defaultValue="quiz" value={activeTab} onValueChange={setActiveTab} className="w-full flex flex-col flex-1 space-y-4">
+              <div className="mb-6 w-full">
+                <TabsList className="grid w-full grid-cols-4 bg-muted/50 p-1 rounded-xl h-auto shadow-sm">
+                  <TabsTrigger value="quiz" className="py-2 text-[10px] xs:text-xs sm:text-sm px-1 rounded-lg">{getTranslation(language, 'tabs.quiz')}</TabsTrigger>
+                  <TabsTrigger value="leaderboard" className="py-2 text-[10px] xs:text-xs sm:text-sm px-1 rounded-lg">{getTranslation(language, 'tabs.leaderboard')}</TabsTrigger>
+                  <TabsTrigger value="mistakes" className="py-2 text-[10px] xs:text-xs sm:text-sm px-1 rounded-lg">{getTranslation(language, 'tabs.mistakes')}</TabsTrigger>
+                  <TabsTrigger value="community" className="py-2 text-[10px] xs:text-xs sm:text-sm px-1 rounded-lg">{getTranslation(language, 'tabs.community')}</TabsTrigger>
                 </TabsList>
               </div>
 
@@ -214,8 +223,8 @@ export default function Home() {
                           }}
                           className={`col-start-1 row-start-1 w-full ${isCurrent ? 'pointer-events-auto' : 'pointer-events-none'}`}
                         >
-                          <Card className="w-full shadow-lg">
-                            <CardContent className="p-6 md:p-8">
+                          <Card className="w-full shadow-lg border-none sm:border overflow-hidden">
+                            <CardContent className="p-4 sm:p-8">
                               {currentIndex > 0 && step !== 'complete' && (
                                 <Button
                                   onClick={handleBack}
@@ -223,7 +232,7 @@ export default function Home() {
                                   className="mb-6 flex items-center gap-2 text-muted-foreground hover:text-foreground"
                                 >
                                   <ArrowLeft className="w-4 h-4" />
-                                  <span className="text-sm">Geri</span>
+                                  <span className="text-sm">{getTranslation(language, 'nav.back')}</span>
                                 </Button>
                               )}
 
@@ -270,6 +279,13 @@ export default function Home() {
                 </Card>
               </TabsContent>
 
+              <TabsContent value="mistakes">
+                <UserMistakes
+                  language={language}
+                  onRedo={handleRedo}
+                />
+              </TabsContent>
+
               <TabsContent value="community">
                 <div className="space-y-6">
                   <ActiveUsers language={language} playerName={userName} />
@@ -302,6 +318,7 @@ export default function Home() {
 
 import { useMutation } from 'convex/react'
 import { api } from '@/convex/_generated/api'
+import { UserMistakes } from '@/components/user-mistakes'
 
 function QuizComplete({
   score,
@@ -332,6 +349,8 @@ function QuizComplete({
   const [refreshKey, setRefreshKey] = useState(0)
   const [showMistakes, setShowMistakes] = useState(false)
   const recordScore = useMutation(api.leaderboard.recordScore)
+  const recordMistakes = useMutation(api.mistakes.recordMistakes)
+  const { user } = useUser()
 
   const percentage = total ? Math.round((score / total) * 100) : 0
   const minutes = Math.floor(durationMs / 60000)
@@ -369,7 +388,21 @@ function QuizComplete({
 
       setHasSubmitted(true)
       setRefreshKey((key) => key + 1)
+
+      // Also record mistakes if user is logged in
+      if (user && incorrectAnswers.length > 0) {
+        await recordMistakes({
+          clerkId: user.id,
+          quizId,
+          mistakes: incorrectAnswers.map(ia => ({
+            question: typeof ia.question === 'string' ? ia.question : JSON.stringify(ia.question),
+            answers: ia.allAnswers || [], // Need to ensure allAnswers is available
+            correctAnswer: typeof ia.correctAnswer === 'string' ? ia.correctAnswer : JSON.stringify(ia.correctAnswer)
+          }))
+        })
+      }
     } catch (err) {
+      console.error('Submit error:', err)
       setSubmitError(getTranslation(language, 'results.error'))
     } finally {
       setIsSubmitting(false)

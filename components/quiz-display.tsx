@@ -16,6 +16,7 @@ export type IncorrectAnswer = {
   question: string
   userAnswer: string
   correctAnswer: string
+  allAnswers?: string[]
 }
 
 type QuestionState = {
@@ -260,7 +261,8 @@ function QuizDisplay({
           incorrectAnswers.push({
             question: questions[idx].question,
             userAnswer: state.selectedAnswer,
-            correctAnswer: questions[idx].correct_answer
+            correctAnswer: questions[idx].correct_answer,
+            allAnswers: questions[idx].answers
           })
         }
       })

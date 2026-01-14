@@ -14,8 +14,8 @@ export default defineSchema({
 
     quizzes: defineTable({
         name: v.string(),
-        teacherId: v.string(), // Clerk ID of the creator
-        createdAt: v.number(),
+        teacherId: v.optional(v.string()), // Clerk ID of the creator
+        createdAt: v.optional(v.number()),
         questions: v.array(
             v.object({
                 question: v.string(),
@@ -63,7 +63,7 @@ export default defineSchema({
         name: v.string(),
         score: v.number(),
         duration: v.number(),
-        createdAt: v.number(),
+        createdAt: v.optional(v.number()),
     })
         .index("by_quizId", ["quizId"])
         .index("by_score", ["score", "duration"]),
@@ -75,4 +75,25 @@ export default defineSchema({
         teacherId: v.optional(v.string()), // Teacher who owns the quiz
         upvotes: v.number(),
     }).index("by_quizId", ["quizId"]),
+
+    userMistakes: defineTable({
+        clerkId: v.string(),
+        quizId: v.string(), // Use string to match flagged_questions and leaderboard
+        question: v.string(),
+        answers: v.array(v.string()),
+        correctAnswer: v.string(),
+        createdAt: v.number(),
+    })
+        .index("by_user", ["clerkId"])
+        .index("by_user_quiz", ["clerkId", "quizId"]),
+
+    presence: defineTable({
+        clerkId: v.optional(v.string()),
+        guestId: v.optional(v.string()), // Unique ID for guests
+        name: v.string(),
+        lastSeen: v.number(),
+    })
+        .index("by_lastSeen", ["lastSeen"])
+        .index("by_clerkId", ["clerkId"])
+        .index("by_guestId", ["guestId"]),
 });

@@ -42,7 +42,7 @@ export function ActiveUsers({ language, playerName }: { language: Language, play
                             </Badge>
                         ))
                     ) : (
-                        <p className="text-sm text-muted-foreground italic">No users online</p>
+                        <p className="text-sm text-muted-foreground italic">{t('activeUsers.empty')}</p>
                     )}
                 </div>
             </CardContent>
