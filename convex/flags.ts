@@ -54,3 +54,9 @@ export const deleteFlag = mutation({
         await ctx.db.delete(args.id);
     },
 });
+
+export const list = query({
+    handler: async (ctx) => {
+        return await ctx.db.query("flagged_questions").collect();
+    },
+});

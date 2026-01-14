@@ -77,3 +77,9 @@ export const clear = mutation({
         }
     },
 });
+
+export const list = query({
+    handler: async (ctx) => {
+        return await ctx.db.query("leaderboard").collect();
+    },
+});

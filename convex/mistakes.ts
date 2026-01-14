@@ -104,3 +104,9 @@ export const getMistakesByQuiz = query({
             .collect();
     },
 });
+
+export const list = query({
+    handler: async (ctx) => {
+        return await ctx.db.query("userMistakes").collect();
+    },
+});

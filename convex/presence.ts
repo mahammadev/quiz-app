@@ -12,12 +12,17 @@ export const update = mutation({
         const now = Date.now();
 
         let existing;
+
+        // 1. Try to find by clerkId
         if (clerkId) {
             existing = await ctx.db
                 .query("presence")
                 .withIndex("by_clerkId", (q) => q.eq("clerkId", clerkId))
                 .unique();
-        } else if (guestId) {
+        }
+
+        // 2. If not found by clerkId, try guestId
+        if (!existing && guestId) {
             existing = await ctx.db
                 .query("presence")
                 .withIndex("by_guestId", (q) => q.eq("guestId", guestId))
@@ -25,7 +30,12 @@ export const update = mutation({
         }
 
         if (existing) {
-            await ctx.db.patch(existing._id, { lastSeen: now, name, clerkId, guestId });
+            await ctx.db.patch(existing._id, {
+                lastSeen: now,
+                name,
+                clerkId: clerkId || existing.clerkId,
+                guestId: guestId || existing.guestId
+            });
         } else {
             await ctx.db.insert("presence", { clerkId, guestId, name, lastSeen: now });
         }

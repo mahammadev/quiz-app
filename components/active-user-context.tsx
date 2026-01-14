@@ -51,8 +51,8 @@ export function ActiveUserProvider({ children }: { children: React.ReactNode }) 
 
         const sendHeartbeat = () => {
             updatePresence({
-                clerkId: user?.id,
-                guestId: user ? undefined : visitorId,
+                clerkId: user?.id || undefined,
+                guestId: visitorId,
                 name: nameToUse
             }).catch(console.error)
         }
