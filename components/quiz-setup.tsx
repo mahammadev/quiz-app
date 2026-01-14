@@ -31,6 +31,8 @@ export default function QuizSetup({
   const [showOnlyCorrect, setShowOnlyCorrect] = useState(false)
   const [reverseOrder, setReverseOrder] = useState(false)
   const [startingQuestion, setStartingQuestion] = useState(1)
+  const [useInterval, setUseInterval] = useState(false)
+  const [endingQuestion, setEndingQuestion] = useState(totalQuestions)
   const [filterText, setFilterText] = useState('')
   const [filterKeywords, setFilterKeywords] = useState<string[]>([])
 
@@ -94,12 +96,17 @@ export default function QuizSetup({
         answers: [...q.answers] // Deep clone the answers array
       }))
     } else if (selectedMode === 'sequential') {
+      const normalizedStart = Math.max(1, Math.min(totalQuestions, startingQuestion))
+      const normalizedEnd = useInterval
+        ? Math.max(normalizedStart, Math.min(totalQuestions, endingQuestion))
+        : totalQuestions
+
       questionsToUse = [...allQuestions]
-        .slice(startingQuestion - 1)
+        .slice(normalizedStart - 1, normalizedEnd)
         .map((q, idx) => ({
           ...q,
           answers: [...q.answers], // Deep clone the answers array
-          _originalIndex: startingQuestion - 1 + idx
+          _originalIndex: normalizedStart - 1 + idx
         }))
 
       if (reverseOrder) {
@@ -271,7 +278,7 @@ export default function QuizSetup({
               {selectedMode === 'sequential' && (
                 <div>
                   <Label className="block text-sm font-semibold text-foreground mb-3">
-                    Başlanğıc sualı
+                    {getTranslation(language, 'setup.startingQuestion')}
                   </Label>
                   <Input
                     type="number"
@@ -279,14 +286,71 @@ export default function QuizSetup({
                     max={totalQuestions}
                     value={startingQuestion}
                     onChange={(e) =>
-                      setStartingQuestion(Math.max(1, Math.min(totalQuestions, parseInt(e.target.value) || 1)))
+                      setStartingQuestion(() => {
+                        const next = Math.max(1, Math.min(totalQuestions, parseInt(e.target.value) || 1))
+                        if (useInterval && endingQuestion < next) {
+                          setEndingQuestion(next)
+                        }
+                        return next
+                      })
                     }
                     className="cursor-target"
                   />
+                  <div className="mt-3">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() =>
+                        setUseInterval((prev) => {
+                          if (!prev && endingQuestion < startingQuestion) {
+                            setEndingQuestion(startingQuestion)
+                          }
+                          return !prev
+                        })
+                      }
+                      className="cursor-target"
+                    >
+                      {useInterval
+                        ? getTranslation(language, 'setup.interval.disable')
+                        : getTranslation(language, 'setup.interval.enable')}
+                    </Button>
+                  </div>
                   <p className="mt-2 text-sm text-muted-foreground">
-                    {totalQuestions - startingQuestion + 1} sual cavablandırılacaq (sual {startingQuestion} - {totalQuestions})
+                    {useInterval
+                      ? getTranslation(language, 'setup.interval.summary', {
+                        count: Math.max(1, Math.min(totalQuestions, endingQuestion)) - Math.max(1, Math.min(totalQuestions, startingQuestion)) + 1,
+                        start: Math.max(1, Math.min(totalQuestions, startingQuestion)),
+                        end: Math.max(Math.max(1, Math.min(totalQuestions, startingQuestion)), Math.min(totalQuestions, endingQuestion))
+                      })
+                      : getTranslation(language, 'setup.sequential.summary', {
+                        count: totalQuestions - Math.max(1, Math.min(totalQuestions, startingQuestion)) + 1,
+                        start: Math.max(1, Math.min(totalQuestions, startingQuestion)),
+                        end: totalQuestions
+                      })}
                   </p>
                 </div>
+              )}
+
+              {selectedMode === 'sequential' && (
+                useInterval ? (
+                  <div>
+                    <Label className="block text-sm font-semibold text-foreground mb-3">
+                      {getTranslation(language, 'setup.endingQuestion')}
+                    </Label>
+                    <Input
+                      type="number"
+                      min={startingQuestion}
+                      max={totalQuestions}
+                      value={endingQuestion}
+                      onChange={(e) =>
+                        setEndingQuestion(
+                          Math.max(startingQuestion, Math.min(totalQuestions, parseInt(e.target.value) || startingQuestion))
+                        )
+                      }
+                      className="cursor-target"
+                    />
+                  </div>
+                ) : null
               )}
 
               {selectedMode === 'sequential' && (
