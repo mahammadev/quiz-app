@@ -1,2 +1,2 @@
 // This file is updated during deployment or manual version bumps
-export const APP_VERSION = '1.0.5'
+export const APP_VERSION = '1.0.6'

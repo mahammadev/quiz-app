@@ -267,11 +267,11 @@ function QuizDisplay({
 
   const handleFinish = () => {
     try {
-      const score = questionStates.filter(state => state.isCorrect === true || state.isFlagged).length
+      const score = questionStates.filter(state => state.isCorrect === true).length
       const incorrectAnswers: IncorrectAnswer[] = []
 
       questionStates.forEach((state, idx) => {
-        if (state.isCorrect === false && state.selectedAnswer && !state.isFlagged) {
+        if (state.isCorrect === false && state.selectedAnswer) {
           const qText = questions[idx].question
           incorrectAnswers.push({
             questionId: hashQuestion(qText),
@@ -292,9 +292,9 @@ function QuizDisplay({
     }
   }
 
-  const allAnswered = questionStates.every(state => state.selectedAnswer !== null || state.isFlagged)
-  const score = questionStates.filter(state => state.isCorrect === true || state.isFlagged).length
-  const answeredCount = questionStates.filter(state => state.selectedAnswer !== null || state.isFlagged).length
+  const allAnswered = questionStates.every(state => state.selectedAnswer !== null)
+  const score = questionStates.filter(state => state.isCorrect === true).length
+  const answeredCount = questionStates.filter(state => state.selectedAnswer !== null).length
 
   // In study mode, show all questions immediately
   if (studyMode) {
@@ -532,11 +532,6 @@ function QuizDisplay({
                       textColor = 'text-success'
                     } else if (isSelected) {
                       textColor = 'text-error'
-                    }
-                  } else if (state.isFlagged) {
-                    if (isCorrectAnswer) {
-                      fontWeight = 'font-bold'
-                      textColor = 'text-orange-500'
                     }
                   } else if (isSelected) {
                     backgroundColor = 'bg-muted'
