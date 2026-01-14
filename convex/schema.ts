@@ -79,13 +79,15 @@ export default defineSchema({
     userMistakes: defineTable({
         clerkId: v.string(),
         quizId: v.string(), // Use string to match flagged_questions and leaderboard
+        questionId: v.string(), // Unique ID for the question (e.g. hash or quizId-index)
         question: v.string(),
         answers: v.array(v.string()),
         correctAnswer: v.string(),
         createdAt: v.number(),
     })
         .index("by_user", ["clerkId"])
-        .index("by_user_quiz", ["clerkId", "quizId"]),
+        .index("by_user_quiz", ["clerkId", "quizId"])
+        .index("by_user_question", ["clerkId", "questionId"]),
 
     presence: defineTable({
         clerkId: v.optional(v.string()),

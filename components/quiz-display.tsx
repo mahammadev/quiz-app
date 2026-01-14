@@ -11,8 +11,11 @@ import { Alert, AlertDescription } from './ui/alert'
 import { useQuery, useMutation } from 'convex/react'
 import { api } from '@/convex/_generated/api'
 import { Question } from '@/lib/schema'
+import { hashQuestion } from '@/lib/utils'
+import { useUser } from '@clerk/nextjs'
 
 export type IncorrectAnswer = {
+  questionId: string
   question: string
   userAnswer: string
   correctAnswer: string
@@ -60,6 +63,8 @@ function QuizDisplay({
   const flags = useQuery(api.flags.getFlags, { quizId: quizId || undefined })
   const flagQuestion = useMutation(api.flags.flagQuestion)
   const upvoteFlag = useMutation(api.flags.upvoteFlag)
+  const resolveMistake = useMutation(api.mistakes.resolveMistake)
+  const { user } = useUser()
 
   const globalFlags = useMemo(() => {
     const flagMap: Record<string, { reason: string; id: string; upvotes: number }> = {}
@@ -155,6 +160,15 @@ function QuizDisplay({
     const newStates = [...questionStates]
     newStates[questionIndex] = { ...newStates[questionIndex], selectedAnswer: answer, isCorrect: correct }
     setQuestionStates(newStates)
+
+    // Auto-resolve mistake if correct and user is signed in
+    if (correct && user) {
+      const questionId = hashQuestion(question.question)
+      resolveMistake({
+        clerkId: user.id,
+        questionId: questionId
+      }).catch(err => console.error('Failed to resolve mistake:', err))
+    }
 
     const smoothScrollTo = (element: HTMLElement) => {
       const targetPosition = element.getBoundingClientRect().top + window.pageYOffset
@@ -258,8 +272,10 @@ function QuizDisplay({
 
       questionStates.forEach((state, idx) => {
         if (state.isCorrect === false && state.selectedAnswer && !state.isFlagged) {
+          const qText = questions[idx].question
           incorrectAnswers.push({
-            question: questions[idx].question,
+            questionId: hashQuestion(qText),
+            question: qText,
             userAnswer: state.selectedAnswer,
             correctAnswer: questions[idx].correct_answer,
             allAnswers: questions[idx].answers

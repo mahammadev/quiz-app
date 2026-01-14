@@ -7,6 +7,7 @@ export const recordMistakes = mutation({
         quizId: v.string(),
         mistakes: v.array(
             v.object({
+                questionId: v.string(),
                 question: v.string(),
                 answers: v.array(v.string()),
                 correctAnswer: v.string(),
@@ -21,22 +22,41 @@ export const recordMistakes = mutation({
             // Check if this specific mistake already exists to avoid duplicates
             const existing = await ctx.db
                 .query("userMistakes")
-                .withIndex("by_user_quiz", (q) =>
-                    q.eq("clerkId", clerkId).eq("quizId", quizId)
+                .withIndex("by_user_question", (q) =>
+                    q.eq("clerkId", clerkId).eq("questionId", mistake.questionId)
                 )
-                .filter((q) => q.eq(q.field("question"), mistake.question))
                 .unique();
 
             if (!existing) {
                 await ctx.db.insert("userMistakes", {
                     clerkId,
                     quizId,
+                    questionId: mistake.questionId,
                     question: mistake.question,
                     answers: mistake.answers,
                     correctAnswer: mistake.correctAnswer,
                     createdAt: now,
                 });
             }
+        }
+    },
+});
+
+export const resolveMistake = mutation({
+    args: {
+        clerkId: v.string(),
+        questionId: v.string(),
+    },
+    handler: async (ctx, args) => {
+        const mistake = await ctx.db
+            .query("userMistakes")
+            .withIndex("by_user_question", (q) =>
+                q.eq("clerkId", args.clerkId).eq("questionId", args.questionId)
+            )
+            .unique();
+
+        if (mistake) {
+            await ctx.db.delete(mistake._id);
         }
     },
 });

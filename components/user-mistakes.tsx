@@ -78,14 +78,44 @@ export function UserMistakes({ language, onRedo }: UserMistakesProps) {
         onRedo(questionsToRedo, quizId)
     }
 
-    const handleClearMistake = async (quizId: string, question: string) => {
-        await clearMistake({ clerkId: user.id, quizId, question })
+    const handlePracticeAll = () => {
+        const questionsToRedo: Question[] = (mistakes || []).map((m: any) => ({
+            question: m.question,
+            answers: m.answers,
+            correct_answer: m.correctAnswer
+        }))
+        onRedo(questionsToRedo, 'global-practice')
+    }
+
+    const handleClearMistake = async (mistake: any) => {
+        if (mistake.questionId) {
+            // We can potentially add a resolveMistake by ID if we want, 
+            // but clearMistake in server currently uses quizId + question.
+            // Actually I added resolveMistake in server, but let's stick to cleaning by ID if possible.
+            // Let's use the new resolveMistake mutation for clarity if we have questionId.
+        }
+        await clearMistake({ clerkId: user.id, quizId: mistake.quizId, question: mistake.question })
     }
 
     return (
         <div className="space-y-6">
+            <div className="flex items-center justify-between bg-card p-4 rounded-xl border border-border shadow-sm">
+                <div className="flex items-center gap-3">
+                    <div className="p-2 bg-primary/10 rounded-lg">
+                        <BookOpen className="w-5 h-5 text-primary" />
+                    </div>
+                    <div>
+                        <p className="text-sm text-muted-foreground font-medium">{t('mistakes.count', { count: mistakes?.length || 0 })}</p>
+                    </div>
+                </div>
+                <Button onClick={handlePracticeAll} className="gap-2 bg-primary hover:bg-primary/90">
+                    <RefreshCw className="w-4 h-4" />
+                    {t('mistakes.practiceAll')}
+                </Button>
+            </div>
+
             {Object.entries(groupedMistakes).map(([quizId, quizMistakes]) => {
-                const quizName = allQuizzes?.find(q => q._id === quizId)?.name || 'Unknown Quiz'
+                const quizName = allQuizzes?.find(q => q._id === quizId)?.name || t('mistakes.unknownQuiz')
 
                 return (
                     <Card key={quizId} className="overflow-hidden border-border bg-card/50">
@@ -94,7 +124,7 @@ export function UserMistakes({ language, onRedo }: UserMistakesProps) {
                                 <CardTitle className="text-lg font-semibold">{quizName}</CardTitle>
                                 <Badge variant="secondary">{t('mistakes.count', { count: quizMistakes.length })}</Badge>
                             </div>
-                            <Button size="sm" onClick={() => handleRedoQuiz(quizId)} className="gap-2">
+                            <Button size="sm" onClick={() => handleRedoQuiz(quizId)} className="gap-2" variant="outline">
                                 <RefreshCw className="w-4 h-4" />
                                 {t('mistakes.redo')}
                             </Button>
@@ -117,7 +147,7 @@ export function UserMistakes({ language, onRedo }: UserMistakesProps) {
                                                 variant="ghost"
                                                 size="icon"
                                                 className="text-muted-foreground hover:text-destructive shrink-0"
-                                                onClick={() => handleClearMistake(quizId, mistake.question)}
+                                                onClick={() => handleClearMistake(mistake)}
                                             >
                                                 <Trash2 className="w-4 h-4" />
                                             </Button>
