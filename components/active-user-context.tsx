@@ -33,10 +33,7 @@ export function ActiveUserProvider({ children }: { children: React.ReactNode }) 
     const isAdmin = isLoaded && user?.publicMetadata?.role === 'admin'
 
     const updatePresence = useMutation(api.presence.update)
-    const rawOnlineUsers = useQuery(
-        isAdmin ? api.presence.getOnlineUsersAdmin : api.presence.getOnlineUsers,
-        isLoaded && user ? undefined : 'skip'
-    )
+    const rawOnlineUsers = useQuery(api.presence.getOnlineUsersAdmin)
 
     const isLoading = rawOnlineUsers === undefined
 
@@ -52,9 +49,9 @@ export function ActiveUserProvider({ children }: { children: React.ReactNode }) 
     }, [activity, pathname])
 
     useEffect(() => {
-        if (!user) return
+        if (!isLoaded || !user?.id) return
         let isMounted = true
-        fetch('/api/ip')
+        fetch('/api/ip', { credentials: 'include' })
             .then((res) => res.ok ? res.json() : null)
             .then((data) => {
                 if (isMounted && data?.ip) {
