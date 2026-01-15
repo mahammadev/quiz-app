@@ -9,14 +9,14 @@ import { Badge } from './ui/badge'
 import { Button } from './ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
 import { RotateCw } from 'lucide-react'
-import { format } from 'date-fns'
-import { enUS } from 'date-fns/locale'
+import { format, type Locale } from 'date-fns'
+import { az, enUS } from 'date-fns/locale'
 
-function safelyFormatDate(dateStr: string | number | Date, formatStr: string) {
+function safelyFormatDate(dateStr: string | number | Date, formatStr: string, locale?: Locale) {
   try {
     const date = new Date(dateStr)
     if (isNaN(date.getTime())) return 'Invalid Date'
-    return format(date, formatStr)
+    return format(date, formatStr, locale ? { locale } : undefined)
   } catch (e) {
     return 'Invalid Date'
   }
@@ -69,12 +69,13 @@ export function Leaderboard({ quizId, language, refreshKey = 0 }: LeaderboardPro
   }
 
   const total = leaderboard?.length ?? 0
+  const dateLocale = language === 'az' ? az : enUS
 
   return (
     <Card className="border-border bg-card">
       <CardHeader className="flex flex-row items-center justify-between">
         <div className="space-y-1">
-          <CardTitle className="text-xl font-semibold">{quizId === 'global' ? 'Global Leaderboard' : t('leaderboard.title')}</CardTitle>
+          <CardTitle className="text-xl font-semibold">{t('leaderboard.title')}</CardTitle>
           <p className="text-sm text-muted-foreground">{t('leaderboard.subtitle')}</p>
         </div>
         <Button variant="ghost" size="icon" onClick={refresh} disabled={isLoading || !quizId} aria-label="Refresh leaderboard">
@@ -138,7 +139,7 @@ export function Leaderboard({ quizId, language, refreshKey = 0 }: LeaderboardPro
                         <TableCell className="text-right font-semibold whitespace-nowrap">{entry.score}</TableCell>
                         <TableCell className="text-right text-muted-foreground whitespace-nowrap">{formatDuration(entry.duration)}</TableCell>
                         <TableCell className="text-right text-muted-foreground hidden md:table-cell whitespace-nowrap">
-                          {safelyFormatDate(entry._creationTime, 'MMM d, yyyy')}
+                          {safelyFormatDate(entry._creationTime, 'MMM d, yyyy', dateLocale)}
                         </TableCell>
                       </TableRow>
                     )
@@ -162,7 +163,7 @@ export function Leaderboard({ quizId, language, refreshKey = 0 }: LeaderboardPro
                 <span className="whitespace-nowrap">Score: {personalBest.score}</span>
                 <span className="whitespace-nowrap">Time: {formatDuration(personalBest.duration)}</span>
                 {personalBest.createdAt && (
-                  <span className="whitespace-nowrap">Date: {safelyFormatDate(personalBest.createdAt, 'PP')}</span>
+                  <span className="whitespace-nowrap">Date: {safelyFormatDate(personalBest.createdAt, 'PP', dateLocale)}</span>
                 )}
               </div>
             </div>

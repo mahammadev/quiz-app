@@ -18,7 +18,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 
 export default function FileUpload({
   onFileLoaded,
-  language = "en",
+  language = "az",
   enableUpload = false,
   enableStart = true,
 }: {

@@ -11,7 +11,7 @@ import { Question } from '@/lib/schema'
 
 export default function QuizLibrary({
   onSelectQuiz,
-  language = 'en',
+  language = 'az',
 }: {
   onSelectQuiz: (questions: Question[], id?: string) => void
   language?: Language

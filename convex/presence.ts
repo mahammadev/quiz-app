@@ -6,9 +6,13 @@ export const update = mutation({
         clerkId: v.optional(v.string()),
         guestId: v.optional(v.string()),
         name: v.string(),
+        activity: v.optional(v.string()),
+        path: v.optional(v.string()),
+        userAgent: v.optional(v.string()),
+        ip: v.optional(v.string()),
     },
     handler: async (ctx, args) => {
-        const { clerkId, guestId, name } = args;
+        const { clerkId, guestId, name, activity, path, userAgent, ip } = args;
         const now = Date.now();
 
         let existing;
@@ -34,10 +38,23 @@ export const update = mutation({
                 lastSeen: now,
                 name,
                 clerkId: clerkId || existing.clerkId,
-                guestId: guestId || existing.guestId
+                guestId: guestId || existing.guestId,
+                activity: activity ?? existing.activity,
+                path: path ?? existing.path,
+                userAgent: userAgent ?? existing.userAgent,
+                ip: ip ?? existing.ip,
             });
         } else {
-            await ctx.db.insert("presence", { clerkId, guestId, name, lastSeen: now });
+            await ctx.db.insert("presence", {
+                clerkId,
+                guestId,
+                name,
+                lastSeen: now,
+                activity,
+                path,
+                userAgent,
+                ip,
+            });
         }
     },
 });
@@ -45,6 +62,27 @@ export const update = mutation({
 export const getOnlineUsers = query({
     handler: async (ctx) => {
         const threshold = Date.now() - 30000; // 30 seconds ago
+        const online = await ctx.db
+            .query("presence")
+            .withIndex("by_lastSeen", (q) => q.gt("lastSeen", threshold))
+            .collect();
+
+        return online.map((user) => ({
+            _id: user._id,
+            name: user.name,
+        }));
+    },
+});
+
+export const getOnlineUsersAdmin = query({
+    handler: async (ctx) => {
+        const identity = await ctx.auth.getUserIdentity();
+        const role = identity?.publicMetadata?.role;
+        if (role !== "admin") {
+            return [];
+        }
+
+        const threshold = Date.now() - 30000;
         return await ctx.db
             .query("presence")
             .withIndex("by_lastSeen", (q) => q.gt("lastSeen", threshold))

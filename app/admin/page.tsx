@@ -16,6 +16,7 @@ import { useQuery, useMutation } from 'convex/react'
 import { api } from '@/convex/_generated/api'
 import { Id } from '@/convex/_generated/dataModel'
 import { SignOutButton, useUser } from "@clerk/nextjs";
+import { ActiveUsers } from '@/components/active-users'
 
 export default function AdminPage() {
     const [selectedQuizId, setSelectedQuizId] = useState('all')
@@ -141,6 +142,8 @@ export default function AdminPage() {
                             <AlertDescription>{error}</AlertDescription>
                         </Alert>
                     )}
+
+                    <ActiveUsers language="az" />
 
                     <Tabs defaultValue="flags" className="space-y-6">
                         <TabsList className="bg-muted/50 p-1 border">

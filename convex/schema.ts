@@ -96,6 +96,10 @@ export default defineSchema({
         guestId: v.optional(v.string()), // Unique ID for guests
         name: v.string(),
         lastSeen: v.number(),
+        activity: v.optional(v.string()),
+        path: v.optional(v.string()),
+        userAgent: v.optional(v.string()),
+        ip: v.optional(v.string()),
     })
         .index("by_lastSeen", ["lastSeen"])
         .index("by_clerkId", ["clerkId"])

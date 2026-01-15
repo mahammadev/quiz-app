@@ -15,7 +15,8 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Leaderboard } from '@/components/leaderboard'
 import { ActiveUsers } from '@/components/active-users'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { SignedOut, SignedIn, Protect, UserButton, SignInButton, useUser } from "@clerk/nextjs"
+import { SignedOut, SignedIn, Protect, UserButton, SignInButton, useUser, ClerkLoaded, ClerkLoading } from "@clerk/nextjs"
+import { useActiveUsers } from '@/components/active-user-context'
 
 import { Language, getTranslation } from '@/lib/translations'
 
@@ -40,7 +41,8 @@ export default function Home() {
   const [quizDuration, setQuizDuration] = useState<number>(0)
   const [activeTab, setActiveTab] = useState("quiz")
   const language: Language = 'az'
-  const { user, isLoaded: isUserLoaded } = useUser()
+  const { user, isLoaded: isUserLoaded, isSignedIn } = useUser()
+  const { setActivity } = useActiveUsers()
   const isAdmin = isUserLoaded && user?.publicMetadata?.role === 'admin'
 
 
@@ -113,172 +115,242 @@ export default function Home() {
     }
   }
 
+  useEffect(() => {
+    const activity =
+      state === 'upload'
+        ? `home:${activeTab}`
+        : state === 'complete'
+          ? 'results'
+          : state
+    if (!isSignedIn) return
+    setActivity(activity)
+  }, [activeTab, isSignedIn, setActivity, state])
+
   return (
     <>
       <main className="min-h-screen bg-background text-foreground transition-colors duration-300 overflow-x-hidden">
-        <div className="container mx-auto max-w-5xl px-3 sm:px-6 py-4 sm:py-8 min-h-screen flex flex-col w-full">
-          {state !== 'quiz' && (
-            <header className="flex justify-between items-center mb-4 sm:mb-8 relative z-50">
-              <div className="flex items-center gap-2">
-                <SignedOut>
-                  <SignInButton mode="modal">
-                    <Button variant="ghost" size="sm" className="gap-2 text-muted-foreground hover:text-foreground">
-                      <Settings className="w-4 h-4" />
-                      <span>{getTranslation(language, 'auth.signIn')}</span>
-                    </Button>
-                  </SignInButton>
-                </SignedOut>
-                <SignedIn>
-                  <div className="flex items-center gap-3">
-                    <UserButton afterSignOutUrl="/" />
-                    {isAdmin && (
-                      <Button
-                        asChild
-                        variant="ghost"
-                        size="sm"
-                        className="gap-2 text-muted-foreground hover:text-foreground"
-                      >
-                        <Link href="/admin">
-                          <Settings className="w-4 h-4" />
-                          <span className="hidden sm:inline">{getTranslation(language, 'auth.admin')}</span>
-                        </Link>
-                      </Button>
-                    )}
+        <ClerkLoading>
+          <div className="min-h-screen flex items-center justify-center text-muted-foreground">
+            Yüklənir...
+          </div>
+        </ClerkLoading>
+        <ClerkLoaded>
+          <SignedOut>
+            <div className="min-h-screen">
+              <div className="container mx-auto max-w-6xl px-4 sm:px-6 py-6 sm:py-10 min-h-screen flex flex-col">
+                <header className="flex items-center justify-between">
+                  <div className="text-lg sm:text-xl font-black tracking-tight">MHMMD</div>
+                  <ThemeSwitcher />
+                </header>
+                <div className="mt-12 sm:mt-20 grid grid-cols-12 gap-6 sm:gap-8 flex-1">
+                  <div className="col-span-12 lg:col-span-7">
+                    <div className="space-y-6 rounded-3xl border border-border/70 bg-card/80 p-6 sm:p-8 shadow-sm">
+                      <div className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-muted/40 px-3 py-1 text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+                        {getTranslation(language, 'landing.preview.label')}
+                      </div>
+                      <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-foreground">
+                        {getTranslation(language, 'landing.title')}
+                      </h1>
+                      <p className="text-base sm:text-lg text-muted-foreground max-w-xl">
+                        {getTranslation(language, 'landing.subtitle')}
+                      </p>
+                      <div className="flex flex-col sm:flex-row gap-3 sm:items-center">
+                        <SignInButton mode="modal">
+                          <Button className="rounded-full px-6 py-6 text-base font-semibold shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+                            {getTranslation(language, 'landing.cta')}
+                          </Button>
+                        </SignInButton>
+                        <div className="text-xs sm:text-sm text-muted-foreground rounded-full border border-border/60 px-4 py-2 w-fit">
+                          {getTranslation(language, 'landing.note')}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="mt-8 grid gap-3 sm:grid-cols-2">
+                      <div className="rounded-2xl border border-border/70 bg-muted/30 p-4 shadow-sm">
+                        <p className="text-sm font-semibold text-foreground">{getTranslation(language, 'landing.feature.fast')}</p>
+                        <p className="text-xs text-muted-foreground mt-1">{getTranslation(language, 'landing.feature.fastDesc')}</p>
+                      </div>
+                      <div className="rounded-2xl border border-border/70 bg-muted/30 p-4 shadow-sm">
+                        <p className="text-sm font-semibold text-foreground">{getTranslation(language, 'landing.feature.modes')}</p>
+                        <p className="text-xs text-muted-foreground mt-1">{getTranslation(language, 'landing.feature.modesDesc')}</p>
+                      </div>
+                      <div className="rounded-2xl border border-border/70 bg-muted/30 p-4 shadow-sm sm:col-span-2">
+                        <p className="text-sm font-semibold text-foreground">{getTranslation(language, 'landing.feature.stats')}</p>
+                        <p className="text-xs text-muted-foreground mt-1">{getTranslation(language, 'landing.feature.statsDesc')}</p>
+                      </div>
+                    </div>
                   </div>
-                </SignedIn>
-              </div>
-              <ThemeSwitcher />
-            </header>
-          )}
 
-          {state !== 'quiz' && (
-            <Tabs defaultValue="quiz" value={activeTab} onValueChange={setActiveTab} className="w-full flex flex-col flex-1 space-y-4">
-              <div className="mb-6 w-full">
-                <TabsList className="grid w-full grid-cols-4 bg-muted/50 p-1 rounded-xl h-auto shadow-sm">
-                  <TabsTrigger value="quiz" className="py-2 text-[10px] xs:text-xs sm:text-sm px-1 rounded-lg">{getTranslation(language, 'tabs.quiz')}</TabsTrigger>
-                  <TabsTrigger value="leaderboard" className="py-2 text-[10px] xs:text-xs sm:text-sm px-1 rounded-lg">{getTranslation(language, 'tabs.leaderboard')}</TabsTrigger>
-                  <TabsTrigger value="mistakes" className="py-2 text-[10px] xs:text-xs sm:text-sm px-1 rounded-lg">{getTranslation(language, 'tabs.mistakes')}</TabsTrigger>
-                  <TabsTrigger value="community" className="py-2 text-[10px] xs:text-xs sm:text-sm px-1 rounded-lg">{getTranslation(language, 'tabs.community')}</TabsTrigger>
-                </TabsList>
-              </div>
-
-
-
-              <TabsContent value="quiz" className="mt-0 flex-1">
-                <div className="relative w-full grid grid-cols-1 items-start">
-                  <AnimatePresence mode="popLayout">
-                    {STEPS.map((step, index) => {
-                      if (index > currentIndex) return null
-                      if (step === 'quiz') return null // Should not happen in this view loop logic if state check handles it, but safe to keep
-
-                      const isCurrent = index === currentIndex
-                      const offset = currentIndex - index
-
-                      return (
-                        <motion.div
-                          key={step}
-                          initial={{ y: '100%', opacity: 0, scale: 0.95 }}
-                          animate={{
-                            y: isCurrent ? 0 : -40 * offset,
-                            scale: isCurrent ? 1 : 1 - (0.05 * offset),
-                            opacity: isCurrent ? 1 : 0,
-                            zIndex: index,
-                            filter: isCurrent ? 'none' : 'brightness(0.95)'
-                          }}
-                          exit={{ y: '100%', opacity: 0 }}
-                          transition={{
-                            type: "spring",
-                            stiffness: 300,
-                            damping: 30
-                          }}
-                          className={`col-start-1 row-start-1 w-full ${isCurrent ? 'pointer-events-auto' : 'pointer-events-none'}`}
-                        >
-                          <Card className="w-full py-0 shadow-lg border-none sm:border overflow-hidden">
-                            <CardContent className="p-4 sm:p-8">
-                              {currentIndex > 0 && step !== 'complete' && (
-                                <Button
-                                  onClick={handleBack}
-                                  variant="ghost"
-                                  className="mb-6 flex items-center gap-2 text-muted-foreground hover:text-foreground"
-                                >
-                                  <ArrowLeft className="w-4 h-4" />
-                                  <span className="text-sm">{getTranslation(language, 'nav.back')}</span>
-                                </Button>
-                              )}
-
-                              {step === 'upload' && (
-                                <FileUpload onFileLoaded={handleFileLoaded} language={language} enableUpload={false} />
-                              )}
-                              {step === 'setup' && (
-                                <QuizSetup
-                                  totalQuestions={questions.length}
-                                  onQuizStart={handleQuizStart}
-                                  allQuestions={questions}
-                                  language={language}
-                                  quizId={quizId}
-                                />
-                              )}
-                              {step === 'complete' && (
-                                <QuizComplete
-                                  score={score}
-                                  total={currentQuiz.length}
-                                  incorrectAnswers={incorrectAnswers}
-                                  onReset={handleReset}
-                                  onRetryIncorrect={handleRetryIncorrect}
-                                  language={language}
-                                  quizId={quizId}
-                                  durationMs={quizDuration}
-                                />
-                              )}
-                            </CardContent>
-                          </Card>
-                        </motion.div>
-                      )
-                    })}
-                  </AnimatePresence>
+                  <div className="col-span-12 lg:col-span-5">
+                    <div className="rounded-3xl border border-border/70 bg-card/80 p-6 shadow-sm">
+                      <div className="flex items-center justify-between text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                        <span>{getTranslation(language, 'landing.preview.label')}</span>
+                        <span className="text-[10px] tracking-[0.3em] text-foreground">AZ</span>
+                      </div>
+                      <div className="mt-8 space-y-5">
+                        <div className="rounded-2xl border border-border/60 bg-muted/30 p-4">
+                          <p className="text-sm font-semibold text-foreground">{getTranslation(language, 'landing.preview.modeTitle')}</p>
+                          <p className="text-xs text-muted-foreground mt-1">{getTranslation(language, 'landing.preview.modeDesc')}</p>
+                        </div>
+                        <div className="rounded-2xl border border-border/60 bg-muted/30 p-4">
+                          <p className="text-sm font-semibold text-foreground">{getTranslation(language, 'landing.preview.countTitle')}</p>
+                          <p className="text-xs text-muted-foreground mt-1">{getTranslation(language, 'landing.preview.countDesc')}</p>
+                        </div>
+                        <div className="rounded-2xl border border-border/60 bg-muted/30 p-4">
+                          <p className="text-sm font-semibold text-foreground">{getTranslation(language, 'landing.preview.resultsTitle')}</p>
+                          <p className="text-xs text-muted-foreground mt-1">{getTranslation(language, 'landing.preview.resultsDesc')}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              </TabsContent>
-
-              <TabsContent value="leaderboard">
-                <Card>
-                  <CardContent className="p-6">
-                    <Leaderboard quizId={quizId || 'global'} language={language} />
-                  </CardContent>
-                </Card>
-              </TabsContent>
-
-              <TabsContent value="mistakes">
-                <UserMistakes
-                  language={language}
-                  onRedo={handleRedo}
-                />
-              </TabsContent>
-
-              <TabsContent value="community">
-                <div className="space-y-6">
-                  <ActiveUsers language={language} />
-                  {/* Placeholder for future chat or other community features */}
-                </div>
-              </TabsContent>
-            </Tabs>
-          )}
-
-          {state === 'quiz' && (
-            <div className="w-full">
-              <QuizDisplay
-                questions={currentQuiz}
-                onComplete={handleQuizComplete}
-                onBack={handleBack}
-                shuffleAnswers={shuffleAnswers}
-                studyMode={studyMode}
-                showOnlyCorrect={showOnlyCorrect}
-                language={language}
-                quizId={quizId}
-                allQuestions={questions}
-              />
+              </div>
             </div>
-          )}
-        </div>
+          </SignedOut>
+
+          <SignedIn>
+            <div className="container mx-auto max-w-5xl px-3 sm:px-6 py-4 sm:py-8 min-h-screen flex flex-col w-full">
+              {state !== 'quiz' && (
+                <header className="flex justify-between items-center mb-4 sm:mb-8 relative z-50">
+                  <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-3">
+                      <UserButton afterSignOutUrl="/" />
+                      {isAdmin && (
+                        <Button
+                          asChild
+                          variant="ghost"
+                          size="sm"
+                          className="gap-2 text-muted-foreground hover:text-foreground"
+                        >
+                          <Link href="/admin">
+                            <Settings className="w-4 h-4" />
+                            <span className="hidden sm:inline">{getTranslation(language, 'auth.admin')}</span>
+                          </Link>
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                  <ThemeSwitcher />
+                </header>
+              )}
+
+              {state !== 'quiz' && (
+                <Tabs defaultValue="quiz" value={activeTab} onValueChange={setActiveTab} className="w-full flex flex-col flex-1 space-y-4">
+                  <div className="mb-6 w-full">
+                    <TabsList className="grid w-full grid-cols-3 bg-muted/50 p-1 rounded-xl h-auto shadow-sm">
+                      <TabsTrigger value="quiz" className="py-2 text-[10px] xs:text-xs sm:text-sm px-1 rounded-lg">{getTranslation(language, 'tabs.quiz')}</TabsTrigger>
+                      <TabsTrigger value="leaderboard" className="py-2 text-[10px] xs:text-xs sm:text-sm px-1 rounded-lg">{getTranslation(language, 'tabs.leaderboard')}</TabsTrigger>
+                      <TabsTrigger value="mistakes" className="py-2 text-[10px] xs:text-xs sm:text-sm px-1 rounded-lg">{getTranslation(language, 'tabs.mistakes')}</TabsTrigger>
+                    </TabsList>
+                  </div>
+
+                  <TabsContent value="quiz" className="mt-0 flex-1">
+                    <div className="relative w-full grid grid-cols-1 items-start">
+                      <AnimatePresence mode="popLayout">
+                        {STEPS.map((step, index) => {
+                          if (index > currentIndex) return null
+                          if (step === 'quiz') return null // Should not happen in this view loop logic if state check handles it, but safe to keep
+
+                          const isCurrent = index === currentIndex
+                          const offset = currentIndex - index
+
+                          return (
+                            <motion.div
+                              key={step}
+                              initial={{ y: '100%', opacity: 0, scale: 0.95 }}
+                              animate={{
+                                y: isCurrent ? 0 : -40 * offset,
+                                scale: isCurrent ? 1 : 1 - (0.05 * offset),
+                                opacity: isCurrent ? 1 : 0,
+                                zIndex: index,
+                                filter: isCurrent ? 'none' : 'brightness(0.95)'
+                              }}
+                              exit={{ y: '100%', opacity: 0 }}
+                              transition={{
+                                type: "spring",
+                                stiffness: 300,
+                                damping: 30
+                              }}
+                              className={`col-start-1 row-start-1 w-full ${isCurrent ? 'pointer-events-auto' : 'pointer-events-none'}`}
+                            >
+                              <Card className="w-full py-0 shadow-lg border-none sm:border overflow-hidden">
+                                <CardContent className="p-4 sm:p-8">
+                                  {currentIndex > 0 && step !== 'complete' && (
+                                    <Button
+                                      onClick={handleBack}
+                                      variant="ghost"
+                                      className="mb-6 flex items-center gap-2 text-muted-foreground hover:text-foreground"
+                                    >
+                                      <ArrowLeft className="w-4 h-4" />
+                                      <span className="text-sm">{getTranslation(language, 'nav.back')}</span>
+                                    </Button>
+                                  )}
+
+                                  {step === 'upload' && (
+                                    <FileUpload onFileLoaded={handleFileLoaded} language={language} enableUpload={false} />
+                                  )}
+                                  {step === 'setup' && (
+                                    <QuizSetup
+                                      totalQuestions={questions.length}
+                                      onQuizStart={handleQuizStart}
+                                      allQuestions={questions}
+                                      language={language}
+                                      quizId={quizId}
+                                    />
+                                  )}
+                                  {step === 'complete' && (
+                                    <QuizComplete
+                                      score={score}
+                                      total={currentQuiz.length}
+                                      incorrectAnswers={incorrectAnswers}
+                                      onReset={handleReset}
+                                      onRetryIncorrect={handleRetryIncorrect}
+                                      language={language}
+                                      quizId={quizId}
+                                      durationMs={quizDuration}
+                                    />
+                                  )}
+                                </CardContent>
+                              </Card>
+                            </motion.div>
+                          )
+                        })}
+                      </AnimatePresence>
+                    </div>
+                  </TabsContent>
+
+                  <TabsContent value="leaderboard">
+                    <Leaderboard quizId={quizId || 'global'} language={language} />
+                  </TabsContent>
+
+                  <TabsContent value="mistakes">
+                    <UserMistakes
+                      language={language}
+                      onRedo={handleRedo}
+                    />
+                  </TabsContent>
+
+                </Tabs>
+              )}
+
+              {state === 'quiz' && (
+                <div className="w-full">
+                  <QuizDisplay
+                    questions={currentQuiz}
+                    onComplete={handleQuizComplete}
+                    onBack={handleBack}
+                    shuffleAnswers={shuffleAnswers}
+                    studyMode={studyMode}
+                    showOnlyCorrect={showOnlyCorrect}
+                    language={language}
+                    quizId={quizId}
+                    allQuestions={questions}
+                  />
+                </div>
+              )}
+            </div>
+          </SignedIn>
+        </ClerkLoaded>
       </main>
     </>
   )
@@ -330,6 +402,14 @@ function QuizComplete({
     setSubmitError(null)
     setRefreshKey((key) => key + 1)
   }, [quizId, score, durationMs])
+
+  useEffect(() => {
+    if (!quizId) return
+    if (durationMs < 5 * 60 * 1000) return
+    if (hasSubmitted || isSubmitting) return
+    handleSubmitScore()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [quizId, durationMs, hasSubmitted, isSubmitting])
 
   const handleSubmitScore = async () => {
     if (!quizId) {
@@ -437,13 +517,15 @@ function QuizComplete({
               <div className="text-xs text-muted-foreground">
                 {getTranslation(language, 'results.duration', { minutes, seconds })}
               </div>
-              <Button onClick={handleSubmitScore} disabled={isSubmitting || hasSubmitted || !quizId}>
-                {isSubmitting
-                  ? getTranslation(language, 'results.submitting')
-                  : hasSubmitted
-                    ? getTranslation(language, 'results.alreadySubmitted')
-                    : getTranslation(language, 'results.submitScore')}
-              </Button>
+              {durationMs >= 5 * 60 * 1000 && (
+                <div className="text-xs text-muted-foreground">
+                  {isSubmitting
+                    ? getTranslation(language, 'results.submitting')
+                    : hasSubmitted
+                      ? getTranslation(language, 'results.submitted')
+                      : getTranslation(language, 'results.submitting')}
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>

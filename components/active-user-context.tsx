@@ -1,6 +1,7 @@
 'use client'
 
 import React, { createContext, useContext, useState, useEffect, useMemo } from 'react'
+import { usePathname } from 'next/navigation'
 import { useQuery, useMutation } from 'convex/react'
 import { api } from '@/convex/_generated/api'
 import { useUser } from '@clerk/nextjs'
@@ -8,64 +9,105 @@ import { useUser } from '@clerk/nextjs'
 type ActiveUser = {
     id: string
     name: string
+    activity?: string
+    path?: string
+    userAgent?: string
+    ip?: string
+    lastSeen?: number
 }
 
 type ActiveUserContextType = {
     onlineUsers: ActiveUser[]
     isLoading: boolean
+    setActivity: (activity: string) => void
 }
 
 const ActiveUserContext = createContext<ActiveUserContextType | undefined>(undefined)
 
 export function ActiveUserProvider({ children }: { children: React.ReactNode }) {
-    const { user } = useUser()
-    const [visitorId, setVisitorId] = useState<string | null>(null)
+    const { user, isLoaded } = useUser()
+    const pathname = usePathname()
+    const [activity, setActivity] = useState<string>('')
+    const [ipAddress, setIpAddress] = useState<string | null>(null)
+
+    const isAdmin = isLoaded && user?.publicMetadata?.role === 'admin'
 
     const updatePresence = useMutation(api.presence.update)
-    const rawOnlineUsers = useQuery(api.presence.getOnlineUsers)
+    const rawOnlineUsers = useQuery(
+        isAdmin ? api.presence.getOnlineUsersAdmin : api.presence.getOnlineUsers,
+        isLoaded && user ? undefined : 'skip'
+    )
 
     const isLoading = rawOnlineUsers === undefined
 
-    // Generate/Load visitor ID for guests
     useEffect(() => {
-        let vid = localStorage.getItem('quiz-visitor-id')
-        if (!vid) {
-            vid = 'v-' + Math.random().toString(36).substring(2, 11)
-            localStorage.setItem('quiz-visitor-id', vid)
+        if (!pathname) return
+        if (pathname !== '/') {
+            setActivity(`page:${pathname}`)
+            return
         }
-        setVisitorId(vid)
-    }, [])
+        if (!activity || activity.startsWith('page:')) {
+            setActivity(`page:${pathname}`)
+        }
+    }, [activity, pathname])
+
+    useEffect(() => {
+        if (!user) return
+        let isMounted = true
+        fetch('/api/ip')
+            .then((res) => res.ok ? res.json() : null)
+            .then((data) => {
+                if (isMounted && data?.ip) {
+                    setIpAddress(data.ip)
+                }
+            })
+            .catch(() => undefined)
+
+        return () => {
+            isMounted = false
+        }
+    }, [user])
 
     const onlineUsers = useMemo(() => {
         return (rawOnlineUsers ?? []).map((u: any) => ({
             id: u._id,
-            name: u.name
+            name: u.name,
+            activity: u.activity,
+            path: u.path,
+            userAgent: u.userAgent,
+            ip: u.ip,
+            lastSeen: u.lastSeen,
         }))
     }, [rawOnlineUsers])
 
     // Update presence every 20 seconds
     useEffect(() => {
-        if (!visitorId) return
+        if (!user?.id) return
 
         const nameToUse = user?.fullName || user?.username || 'qonaq'
+        const userAgent = typeof navigator !== 'undefined' ? navigator.userAgent : undefined
 
         const sendHeartbeat = () => {
             updatePresence({
                 clerkId: user?.id || undefined,
-                guestId: visitorId,
-                name: nameToUse
+                name: nameToUse,
+                activity,
+                path: pathname,
+                userAgent,
+                ip: ipAddress || undefined,
             }).catch(console.error)
         }
 
         sendHeartbeat()
         const interval = setInterval(sendHeartbeat, 20000)
         return () => clearInterval(interval)
-    }, [user, updatePresence, visitorId])
+    }, [user, updatePresence, activity, pathname, ipAddress])
 
     return (
         <ActiveUserContext.Provider value={{
             onlineUsers,
             isLoading,
+            setActivity,
         }}>
             {children}
         </ActiveUserContext.Provider>
