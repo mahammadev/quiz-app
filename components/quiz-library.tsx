@@ -21,9 +21,9 @@ export default function QuizLibrary({
 
   if (isLoading) {
     return (
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {[1, 2, 3, 4].map((i) => (
-          <Card key={i} className="rounded-xl border border-border/70 bg-background/80 shadow-sm p-5 sm:p-6 space-y-4">
+          <Card key={i} className="w-full rounded-xl border border-border/70 bg-background/80 shadow-sm p-2 sm:p-3 space-y-2">
             <div className="flex items-start gap-3">
               <Skeleton className="h-10 w-10 rounded-lg" />
               <div className="min-w-0 flex-1 space-y-2">
@@ -46,22 +46,22 @@ export default function QuizLibrary({
   }
 
   return (
-    <div className="grid gap-4 md:grid-cols-2">
+    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
       {savedQuizzes.map((quiz) => (
         <Card
           key={quiz._id}
-          className="group rounded-xl border border-border/70 bg-background/80 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+          className="group w-full py-0 rounded-xl border border-border/70 bg-background/80 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
         >
-          <CardContent className="flex h-full flex-col justify-between gap-5 p-5 sm:p-6 text-left">
-            <div className="flex items-start gap-3">
+          <CardContent className="flex h-full flex-col justify-between gap-3 px-3 py-2 sm:px-4 sm:py-3 text-left">
+            <div className="flex items-start gap-2">
               <div className="rounded-lg border border-border bg-muted p-2 text-primary shadow-sm">
                 <FileJson className="h-5 w-5" />
               </div>
-              <div className="min-w-0 space-y-2">
+              <div className="min-w-0 space-y-1.5">
                 <h3 className="truncate text-lg font-semibold text-foreground">
                   {quiz.name}
                 </h3>
-                <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+                <div className="flex flex-wrap items-center gap-1.5 text-sm text-muted-foreground">
                   <span className="rounded-full border border-border/70 bg-muted px-2 py-0.5 text-xs font-medium text-foreground">
                     {quiz.questions.length} questions
                   </span>

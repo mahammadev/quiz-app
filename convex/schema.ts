@@ -61,6 +61,8 @@ export default defineSchema({
     leaderboard: defineTable({
         quizId: v.string(),
         name: v.string(),
+        avatarUrl: v.optional(v.string()),
+        clerkId: v.optional(v.string()),
         score: v.number(),
         duration: v.number(),
         createdAt: v.optional(v.number()),

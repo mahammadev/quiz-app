@@ -8,7 +8,6 @@
  * @module
  */
 
-import type * as dataMigration from "../dataMigration.js";
 import type * as flags from "../flags.js";
 import type * as leaderboard from "../leaderboard.js";
 import type * as mistakes from "../mistakes.js";
@@ -22,7 +21,6 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
-  dataMigration: typeof dataMigration;
   flags: typeof flags;
   leaderboard: typeof leaderboard;
   mistakes: typeof mistakes;

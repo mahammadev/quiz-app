@@ -5,10 +5,8 @@ const isAdminRoute = createRouteMatcher(["/admin(.*)"]);
 
 export default clerkMiddleware(async (auth, req) => {
     if (isAdminRoute(req)) {
-        const { sessionClaims } = await auth();
-        const role = (sessionClaims?.publicMetadata as { role?: string } | undefined)?.role;
-
-        if (role !== "admin") {
+        const { userId } = await auth();
+        if (!userId) {
             const url = req.nextUrl.clone();
             url.pathname = "/";
             return NextResponse.redirect(url);

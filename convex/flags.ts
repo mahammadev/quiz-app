@@ -1,6 +1,17 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 
+const requireAdmin = async (ctx: { auth: { getUserIdentity: () => Promise<{ publicMetadata?: Record<string, unknown> } | null> } }) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
+        throw new Error("Unauthorized");
+    }
+    const role = identity.publicMetadata?.role;
+    if (role !== "admin") {
+        throw new Error("Forbidden");
+    }
+};
+
 export const flagQuestion = mutation({
     args: {
         quizId: v.string(),
@@ -35,6 +46,7 @@ export const updateFlag = mutation({
         reason: v.string(),
     },
     handler: async (ctx, args) => {
+        await requireAdmin(ctx);
         await ctx.db.patch(args.id, { reason: args.reason });
     },
 });
@@ -51,6 +63,7 @@ export const upvoteFlag = mutation({
 export const deleteFlag = mutation({
     args: { id: v.id("flagged_questions") },
     handler: async (ctx, args) => {
+        await requireAdmin(ctx);
         await ctx.db.delete(args.id);
     },
 });

@@ -5,6 +5,8 @@ export const recordScore = mutation({
     args: {
         quizId: v.string(),
         name: v.string(),
+        clerkId: v.optional(v.string()),
+        avatarUrl: v.optional(v.string()),
         score: v.number(),
         duration: v.number(),
     },
@@ -12,6 +14,8 @@ export const recordScore = mutation({
         const id = await ctx.db.insert("leaderboard", {
             quizId: args.quizId,
             name: args.name,
+            clerkId: args.clerkId,
+            avatarUrl: args.avatarUrl,
             score: args.score,
             duration: args.duration,
         });
@@ -49,6 +53,7 @@ export const getPersonalBest = query({
     args: {
         quizId: v.string(),
         name: v.string(),
+        clerkId: v.optional(v.string()),
     },
     handler: async (ctx, args) => {
         let q = ctx.db.query("leaderboard");
@@ -57,7 +62,9 @@ export const getPersonalBest = query({
         }
 
         const results = await q.collect();
-        const userResults = results.filter(r => r.name.toLowerCase() === args.name.toLowerCase());
+        const userResults = args.clerkId
+            ? results.filter(r => r.clerkId === args.clerkId)
+            : results.filter(r => r.name.toLowerCase() === args.name.toLowerCase());
 
         if (userResults.length === 0) return null;
 

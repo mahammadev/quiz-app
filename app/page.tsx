@@ -40,6 +40,8 @@ export default function Home() {
   const [quizDuration, setQuizDuration] = useState<number>(0)
   const [activeTab, setActiveTab] = useState("quiz")
   const language: Language = 'az'
+  const { user, isLoaded: isUserLoaded } = useUser()
+  const isAdmin = isUserLoaded && user?.publicMetadata?.role === 'admin'
 
 
 
@@ -128,7 +130,7 @@ export default function Home() {
                 <SignedIn>
                   <div className="flex items-center gap-3">
                     <UserButton afterSignOutUrl="/" />
-                    <Protect role="admin">
+                    {isAdmin && (
                       <Button
                         asChild
                         variant="ghost"
@@ -140,7 +142,7 @@ export default function Home() {
                           <span className="hidden sm:inline">{getTranslation(language, 'auth.admin')}</span>
                         </Link>
                       </Button>
-                    </Protect>
+                    )}
                   </div>
                 </SignedIn>
               </div>
@@ -160,7 +162,6 @@ export default function Home() {
               </div>
 
 
-              <div className="mt-6"></div>
 
               <TabsContent value="quiz" className="mt-0 flex-1">
                 <div className="relative w-full grid grid-cols-1 items-start">
@@ -191,7 +192,7 @@ export default function Home() {
                           }}
                           className={`col-start-1 row-start-1 w-full ${isCurrent ? 'pointer-events-auto' : 'pointer-events-none'}`}
                         >
-                          <Card className="w-full shadow-lg border-none sm:border overflow-hidden">
+                          <Card className="w-full py-0 shadow-lg border-none sm:border overflow-hidden">
                             <CardContent className="p-4 sm:p-8">
                               {currentIndex > 0 && step !== 'complete' && (
                                 <Button
@@ -205,7 +206,7 @@ export default function Home() {
                               )}
 
                               {step === 'upload' && (
-                                <FileUpload onFileLoaded={handleFileLoaded} language={language} />
+                                <FileUpload onFileLoaded={handleFileLoaded} language={language} enableUpload={false} />
                               )}
                               {step === 'setup' && (
                                 <QuizSetup
@@ -344,6 +345,8 @@ function QuizComplete({
       await recordScore({
         quizId,
         name: playerName,
+        clerkId: user?.id,
+        avatarUrl: user?.imageUrl,
         score,
         duration: Math.max(0, durationMs),
       })

@@ -1,7 +1,7 @@
 'use client'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Flag, Trash2, Edit2, Check, X, LogOut, ArrowLeft, FileJson, Play, Save, Pencil } from 'lucide-react'
+import { Flag, Trash2, Edit2, Check, X, LogOut, ArrowLeft, FileJson, Play, Save, Pencil, Upload } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -11,10 +11,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Textarea } from '@/components/ui/textarea'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import FileUpload from '@/components/file-upload'
 import { useQuery, useMutation } from 'convex/react'
 import { api } from '@/convex/_generated/api'
 import { Id } from '@/convex/_generated/dataModel'
-import { SignOutButton, Protect } from "@clerk/nextjs";
+import { SignOutButton, useUser } from "@clerk/nextjs";
 
 export default function AdminPage() {
     const [selectedQuizId, setSelectedQuizId] = useState('all')
@@ -26,6 +27,8 @@ export default function AdminPage() {
     const [error, setError] = useState<string | null>(null)
 
     const router = useRouter()
+    const { user, isLoaded: isUserLoaded } = useUser()
+    const isAdmin = isUserLoaded && user?.publicMetadata?.role === 'admin'
     const quizzes = useQuery(api.quizzes.list)
     const rawFlags = useQuery(api.flags.getFlags, { quizId: selectedQuizId === 'all' ? undefined : selectedQuizId })
 
@@ -89,17 +92,25 @@ export default function AdminPage() {
         }
     }
 
+    if (!isUserLoaded) {
+        return (
+            <div className="flex items-center justify-center min-h-screen p-4 text-center">
+                <p className="text-muted-foreground">Loading...</p>
+            </div>
+        )
+    }
+
+    if (!isAdmin) {
+        return (
+            <div className="flex flex-col items-center justify-center min-h-screen p-4 text-center">
+                <h2 className="text-2xl font-bold mb-2">Giriş qadağandır</h2>
+                <p className="text-muted-foreground mb-4">Bu səhifəyə daxil olmaq üçün admin səlahiyyətiniz olmalıdır.</p>
+                <Button onClick={() => router.push('/')}>Ana Səhifəyə Qayıt</Button>
+            </div>
+        )
+    }
+
     return (
-        <Protect
-            role="admin"
-            fallback={
-                <div className="flex flex-col items-center justify-center min-h-screen p-4 text-center">
-                    <h2 className="text-2xl font-bold mb-2">Giriş qadağandır</h2>
-                    <p className="text-muted-foreground mb-4">Bu səhifəyə daxil olmaq üçün admin səlahiyyətiniz olmalıdır.</p>
-                    <Button onClick={() => router.push('/')}>Ana Səhifəyə Qayıt</Button>
-                </div>
-            }
-        >
             <div className="min-h-screen bg-background p-4 sm:p-8">
                 <div className="max-w-6xl mx-auto space-y-8">
                     <header className="flex items-center justify-between gap-4 flex-wrap">
@@ -141,6 +152,10 @@ export default function AdminPage() {
                                 <FileJson className="w-4 h-4" />
                                 Quizzes
                             </TabsTrigger>
+                            <TabsTrigger value="uploads" className="gap-2">
+                                <Upload className="w-4 h-4" />
+                                Uploads
+                            </TabsTrigger>
                         </TabsList>
 
                         <TabsContent value="flags" className="space-y-6 outline-none">
@@ -171,7 +186,7 @@ export default function AdminPage() {
                                     </Card>
                                 ) : (
                                     flags.map((flag: any) => (
-                                        <Card key={flag._id} className="overflow-hidden border-border/50 hover:border-border transition-colors shadow-sm">
+                                        <Card key={flag._id} className="overflow-hidden border-border/50 hover:border-border transition-colors shadow-sm py-0">
                                             <CardHeader className="bg-muted/50 p-4 border-b flex flex-row items-center justify-between space-y-0">
                                                 <div className="flex items-center gap-3">
                                                     <Flag className="w-4 h-4 text-amber-500" />
@@ -276,6 +291,15 @@ export default function AdminPage() {
                                 )}
                             </div>
                         </TabsContent>
+
+                        <TabsContent value="uploads" className="space-y-6 outline-none">
+                            <FileUpload
+                                onFileLoaded={() => {}}
+                                language="az"
+                                enableUpload
+                                enableStart={false}
+                            />
+                        </TabsContent>
                     </Tabs>
                 </div>
 
@@ -309,6 +333,5 @@ export default function AdminPage() {
                     </DialogContent>
                 </Dialog>
             </div>
-        </Protect>
     )
 }

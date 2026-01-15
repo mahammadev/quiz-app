@@ -7,6 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '.
 import { Skeleton } from './ui/skeleton'
 import { Badge } from './ui/badge'
 import { Button } from './ui/button'
+import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
 import { RotateCw } from 'lucide-react'
 import { format } from 'date-fns'
 import { enUS } from 'date-fns/locale'
@@ -26,6 +27,12 @@ function formatDuration(ms: number) {
   const minutes = Math.floor(totalSeconds / 60)
   const seconds = totalSeconds % 60
   return `${minutes}:${seconds.toString().padStart(2, '0')}`
+}
+
+function getInitials(name: string) {
+  const parts = name.trim().split(/\s+/).slice(0, 2)
+  if (parts.length === 0) return '?'
+  return parts.map((part) => part[0]?.toUpperCase() || '').join('') || '?'
 }
 
 type LeaderboardProps = {
@@ -49,6 +56,7 @@ export function Leaderboard({ quizId, language, refreshKey = 0 }: LeaderboardPro
   const personalBest = useQuery(api.leaderboard.getPersonalBest, {
     quizId: quizId || 'global',
     name: playerName,
+    clerkId: user?.id,
   })
 
   const isLoading = leaderboard === undefined
@@ -103,7 +111,7 @@ export function Leaderboard({ quizId, language, refreshKey = 0 }: LeaderboardPro
                 <TableHeader>
                   <TableRow>
                     <TableHead className="w-12 sm:w-16">{t('leaderboard.columns.rank')}</TableHead>
-                    <TableHead className="min-w-[120px]">{t('leaderboard.columns.name')}</TableHead>
+                    <TableHead className="min-w-[180px]">{t('leaderboard.columns.name')}</TableHead>
                     <TableHead className="text-right w-16 sm:w-20">{t('leaderboard.columns.score')}</TableHead>
                     <TableHead className="text-right w-16 sm:w-20">{t('leaderboard.columns.time')}</TableHead>
                     <TableHead className="text-right hidden md:table-cell">{t('leaderboard.columns.date')}</TableHead>
@@ -116,7 +124,13 @@ export function Leaderboard({ quizId, language, refreshKey = 0 }: LeaderboardPro
                       <TableRow key={entry._id} className={isYou ? 'bg-primary/5' : undefined}>
                         <TableCell className="font-medium">{index + 1}</TableCell>
                         <TableCell>
-                          <div className="flex items-center gap-2 min-w-0">
+                          <div className="flex items-center gap-3 min-w-0">
+                            <Avatar className="h-7 w-7">
+                              <AvatarImage src={entry.avatarUrl || undefined} alt={entry.name} />
+                              <AvatarFallback className="text-[10px] font-semibold">
+                                {getInitials(entry.name)}
+                              </AvatarFallback>
+                            </Avatar>
                             <span className="truncate">{entry.name}</span>
                             {isYou && <Badge variant="secondary" className="shrink-0">{t('leaderboard.you')}</Badge>}
                           </div>

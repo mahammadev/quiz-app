@@ -118,10 +118,10 @@ export function UserMistakes({ language, onRedo }: UserMistakesProps) {
                 const quizName = allQuizzes?.find(q => q._id === quizId)?.name || t('mistakes.unknownQuiz')
 
                 return (
-                    <Card key={quizId} className="overflow-hidden border-border bg-card/50">
-                        <CardHeader className="flex flex-row items-center justify-between bg-muted/30 py-4 px-6 border-b border-border">
-                            <div className="flex items-center gap-3">
-                                <CardTitle className="text-lg font-semibold">{quizName}</CardTitle>
+                    <Card key={quizId} className="overflow-hidden border-border bg-card/50 py-0">
+                        <CardHeader className="flex flex-row items-center justify-between bg-muted/30 border-b border-border !py-3 !px-6 !items-center">
+                            <div className="flex items-center gap-2">
+                                <CardTitle className="text-lg font-semibold leading-tight">{quizName}</CardTitle>
                                 <Badge variant="secondary">{t('mistakes.count', { count: quizMistakes.length })}</Badge>
                             </div>
                             <Button size="sm" onClick={() => handleRedoQuiz(quizId)} className="gap-2" variant="outline">

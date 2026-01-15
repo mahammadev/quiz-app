@@ -19,9 +19,13 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 export default function FileUpload({
   onFileLoaded,
   language = "en",
+  enableUpload = false,
+  enableStart = true,
 }: {
   onFileLoaded: (questions: Question[], id?: string) => void
   language?: Language
+  enableUpload?: boolean
+  enableStart?: boolean
 }) {
   const [error, setError] = useState<string>("")
   const [loading, setLoading] = useState(false)
@@ -94,30 +98,32 @@ export default function FileUpload({
   }
 
   const handleStartQuiz = () => {
-    if (parsedQuestions) {
+    if (enableStart && parsedQuestions) {
       onFileLoaded(parsedQuestions)
     }
   }
 
   return (
-    <div className="mt-8 space-y-8">
+    <div className="space-y-8">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h2 className="text-2xl font-bold text-foreground">
           {getTranslation(language, "library.saved")}
         </h2>
-        <Button
-          onClick={() => {
-            setShowUpload(true)
-            setPasteMode(false)
-            setError("")
-          }}
-          className="cursor-target"
-        >
-          {getTranslation(language, "upload.title")}
-        </Button>
+        {enableUpload && (
+          <Button
+            onClick={() => {
+              setShowUpload(true)
+              setPasteMode(false)
+              setError("")
+            }}
+            className="cursor-target"
+          >
+            {getTranslation(language, "upload.title")}
+          </Button>
+        )}
       </div>
 
-      {showUpload && (
+      {enableUpload && showUpload && (
         <div className="space-y-4">
           <Card className="border-border/60 shadow-lg">
             <CardHeader className="space-y-1">
@@ -151,12 +157,14 @@ export default function FileUpload({
                     </div>
 
                     <div className="flex gap-3">
-                      <Button
-                        onClick={handleStartQuiz}
-                        className="flex-1 cursor-target"
-                      >
-                        {getTranslation(language, "library.startBtn")}
-                      </Button>
+                      {enableStart && (
+                        <Button
+                          onClick={handleStartQuiz}
+                          className="flex-1 cursor-target"
+                        >
+                          {getTranslation(language, "library.startBtn")}
+                        </Button>
+                      )}
                       <Button
                         onClick={handleSaveToLibrary}
                         disabled={!quizName.trim()}
