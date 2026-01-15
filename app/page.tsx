@@ -92,6 +92,7 @@ export default function Home() {
     setQuizId(id)
     setQuizStartTime(Date.now())
     setQuizDuration(0)
+    setAppState('quiz')
   }
 
   const handleReset = () => {
