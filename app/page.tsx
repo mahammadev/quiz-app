@@ -14,7 +14,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Leaderboard } from '@/components/leaderboard'
 import { ActiveUsers } from '@/components/active-users'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/animated-tabs"
 import { SignedOut, SignedIn, Protect, UserButton, SignInButton, useUser, ClerkLoaded, ClerkLoading } from "@clerk/nextjs"
 import { useActiveUsers } from '@/components/active-user-context'
 

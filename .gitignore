@@ -8,7 +8,7 @@ node_modules
 # Testing
 /coverage
 .test-dist
-
+.history
 # Next.js
 /.next/
 /out/
