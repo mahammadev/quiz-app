@@ -141,9 +141,12 @@ export default function AdminPage() {
     }
 
     const handleAdvancedExport = async (quiz: any, type: 'with_answers' | 'exam', limit?: number) => {
-        console.log('Starting chunked advanced export...', { type, limit });
+        console.log('Starting isolated chunked advanced export...', { type, limit });
         setIsExporting(true);
         setError(null);
+
+        let iframe: HTMLIFrameElement | null = null;
+
         try {
             let questionsToExport = [...quiz.questions];
             if (limit && limit > 0 && questionsToExport.length > limit) {
@@ -158,7 +161,7 @@ export default function AdminPage() {
             const margin = 10;
             const contentWidth = 190; // mm
 
-            // Chunk questions to avoid massive canvas (browser limit is approx 16k-32k px)
+            // Chunk questions to avoid massive canvas
             const chunkSize = 10;
             const chunks = [];
             for (let i = 0; i < questionsToExport.length; i += chunkSize) {
@@ -167,26 +170,43 @@ export default function AdminPage() {
 
             console.log(`Exporting ${questionsToExport.length} questions in ${chunks.length} batches`);
 
+            // Create hidden iframe for isolated rendering (avoids Tailwind 4 lab() color parsing crash)
+            iframe = document.createElement('iframe');
+            iframe.style.position = 'fixed';
+            iframe.style.left = '0';
+            iframe.style.top = '0';
+            iframe.style.width = '800px';
+            iframe.style.height = '100%';
+            iframe.style.zIndex = '-9999';
+            iframe.style.visibility = 'hidden';
+            iframe.style.border = 'none';
+            document.body.appendChild(iframe);
+
+            const iframeDoc = iframe.contentWindow?.document;
+            if (!iframeDoc) throw new Error('Could not access iframe document');
+
+            // Standard CSS only (no modern color functions to crash html2canvas)
+            const standardStyles = `
+                body { font-family: Arial, sans-serif; background: #ffffff; color: #000000; padding: 40px; margin: 0; }
+                .header { margin-bottom: 40px; border-bottom: 2px solid #000; padding-bottom: 20px; }
+                .header h1 { font-size: 28px; margin-bottom: 10px; margin-top: 0; }
+                .header-info { display: flex; justify-content: space-between; margin-top: 20px; }
+                .question-block { margin-bottom: 30px; page-break-inside: avoid; }
+                .question-text { font-weight: bold; font-size: 18px; margin-bottom: 10px; }
+                .answers { margin-left: 20px; }
+                .answer { margin: 5px 0; }
+                .correct { color: #059669; font-weight: bold; }
+                p { margin: 0; }
+            `;
+
             for (let chunkIndex = 0; chunkIndex < chunks.length; chunkIndex++) {
                 const chunk = chunks[chunkIndex];
-                const container = document.createElement('div');
-                container.style.position = 'fixed';
-                container.style.left = '0';
-                container.style.top = '0';
-                container.style.width = '800px';
-                container.style.zIndex = '-9999';
-                container.style.visibility = 'hidden';
-                container.style.backgroundColor = '#ffffff';
-                container.style.color = '#000000';
-                container.style.fontFamily = 'Arial, sans-serif';
-                container.style.padding = '40px';
-                document.body.appendChild(container);
-
                 const isFirstChunk = chunkIndex === 0;
+
                 const headerHtml = isFirstChunk ? `
-                    <div style="margin-bottom: 40px; border-bottom: 2px solid #000; padding-bottom: 20px;">
-                        <h1 style="font-size: 28px; margin-bottom: 10px;">${quiz.name}</h1>
-                        <div style="display: flex; justify-content: space-between; margin-top: 20px;">
+                    <div class="header">
+                        <h1>${quiz.name}</h1>
+                        <div class="header-info">
                             <div>
                                 <p><strong>Ad:</strong> ___________________________</p>
                                 <p><strong>Soyad:</strong> ___________________________</p>
@@ -199,20 +219,19 @@ export default function AdminPage() {
                     </div>
                 ` : '';
 
-                container.innerHTML = `
-                    ${headerHtml}
+                const contentHtml = `
                     <div style="line-height: 1.6;">
                         ${chunk.map((q, i) => {
                     const qIndex = (chunkIndex * chunkSize) + i + 1;
                     return `
-                                <div style="margin-bottom: 30px; page-break-inside: avoid;">
-                                    <p style="font-weight: bold; font-size: 18px; margin-bottom: 10px;">${qIndex}. ${q.question}</p>
-                                    <div style="margin-left: 20px;">
+                                <div class="question-block">
+                                    <p class="question-text">${qIndex}. ${q.question}</p>
+                                    <div class="answers">
                                         ${q.answers.map((ans: string, ai: number) => {
                         const label = String.fromCharCode(65 + ai);
                         const isCorrect = type === 'with_answers' && ans === q.correct_answer;
                         return `
-                                                <p style="margin: 5px 0; ${isCorrect ? 'color: #059669; font-weight: bold;' : ''}">
+                                                <p class="answer ${isCorrect ? 'correct' : ''}">
                                                     ${label}) ${ans} ${isCorrect ? '✓' : ''}
                                                 </p>
                                             `;
@@ -224,10 +243,22 @@ export default function AdminPage() {
                     </div>
                 `;
 
-                // Give it a moment to render
-                await new Promise(r => setTimeout(r, 400));
+                iframeDoc.open();
+                iframeDoc.write(`
+                    <html>
+                        <head><style>${standardStyles}</style></head>
+                        <body>
+                            ${headerHtml}
+                            ${contentHtml}
+                        </body>
+                    </html>
+                `);
+                iframeDoc.close();
 
-                const canvas = await html2canvas(container, {
+                // Give it a moment to render
+                await new Promise(r => setTimeout(r, 500));
+
+                const canvas = await html2canvas(iframeDoc.body, {
                     scale: 2,
                     useCORS: true,
                     backgroundColor: '#ffffff',
@@ -241,24 +272,15 @@ export default function AdminPage() {
                 let position = 0;
 
                 while (heightLeft > 0) {
-                    // If we have content left and it's not the very start of the chunk, or it's a subsequent chunk
-                    // we need to handle page breaks.
-                    // Simplified for now: Each chunk starts on a new page if it's not the first one, 
-                    // and internal chunk scrolling handles multiple pages.
-                    if (chunkIndex > 0 && position === 0) {
+                    if (chunkIndex > 0 || position < 0) {
                         pdf.addPage();
                     }
 
                     pdf.addImage(imgData, 'PNG', margin, position, contentWidth, chunkPdfHeight);
                     heightLeft -= pageHeight;
                     position -= pageHeight;
-
-                    if (heightLeft > 0) {
-                        pdf.addPage();
-                    }
                 }
 
-                document.body.removeChild(container);
                 console.log(`Chunk ${chunkIndex + 1}/${chunks.length} processed`);
             }
 
@@ -270,6 +292,9 @@ export default function AdminPage() {
             setError(`PDF generation failed: ${err instanceof Error ? err.message : 'Unknown error'}`);
         } finally {
             setIsExporting(false);
+            if (iframe && iframe.parentNode) {
+                document.body.removeChild(iframe);
+            }
         }
     }
 
@@ -327,16 +352,13 @@ export default function AdminPage() {
 
                 <Tabs defaultValue="flags" className="space-y-6">
                     <TabsList className="bg-muted/50 p-1 border">
-                        <TabsTrigger value="flags" className="gap-2">
-                            <Flag className="w-4 h-4" />
+                        <TabsTrigger value="flags">
                             Flagged Questions
                         </TabsTrigger>
-                        <TabsTrigger value="quizzes" className="gap-2">
-                            <FileJson className="w-4 h-4" />
+                        <TabsTrigger value="quizzes">
                             Quizzes
                         </TabsTrigger>
-                        <TabsTrigger value="uploads" className="gap-2">
-                            <Upload className="w-4 h-4" />
+                        <TabsTrigger value="uploads">
                             Uploads
                         </TabsTrigger>
                     </TabsList>
@@ -575,7 +597,7 @@ export default function AdminPage() {
                                         variant="outline"
                                         className="h-10"
                                         onClick={() => handleAdvancedExport(exportQuiz, 'exam', 40)}
-                                        disabled={isExporting || exportQuiz?.questions?.length < 40}
+                                        disabled={isExporting || (exportQuiz?.questions?.length || 0) < 40}
                                     >
                                         Təsadüfi 40 sual
                                     </Button>
