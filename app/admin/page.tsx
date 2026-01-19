@@ -1,7 +1,9 @@
 'use client'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Flag, Trash2, Edit2, Check, X, LogOut, ArrowLeft, FileJson, Play, Save, Pencil, Upload } from 'lucide-react'
+import { Flag, Trash2, Edit2, Check, X, LogOut, ArrowLeft, FileJson, FileText, Play, Save, Pencil, Upload } from 'lucide-react'
+import jsPDF from 'jspdf'
+import autoTable from 'jspdf-autotable'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -91,6 +93,46 @@ export default function AdminPage() {
         } catch (err) {
             setEditQuizError(err instanceof Error ? err.message : 'Invalid JSON')
         }
+    }
+
+    const handleDownloadJSON = (quiz: any) => {
+        const dataStr = JSON.stringify(quiz.questions, null, 2);
+        const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
+        const exportFileDefaultName = `${quiz.name.replace(/\s+/g, '_')}_quiz.json`;
+        const linkElement = document.createElement('a');
+        linkElement.setAttribute('href', dataUri);
+        linkElement.setAttribute('download', exportFileDefaultName);
+        linkElement.click();
+    }
+
+    const handleDownloadPDF = (quiz: any) => {
+        const doc = new jsPDF();
+        doc.text(quiz.name, 14, 15);
+
+        const tableData = quiz.questions.map((q: any, index: number) => {
+            return [
+                index + 1,
+                q.question,
+                q.answers.join('\n'),
+                q.correct_answer
+            ];
+        });
+
+        autoTable(doc, {
+            head: [['#', 'Sual', 'Variantlar', 'Düzgün Cavab']],
+            body: tableData,
+            startY: 20,
+            styles: { fontSize: 10 },
+            columnStyles: {
+                0: { cellWidth: 10 },
+                1: { cellWidth: 'auto' },
+                2: { cellWidth: 60 },
+                3: { cellWidth: 30 }
+            },
+            headStyles: { fillColor: [63, 81, 181] }
+        });
+
+        doc.save(`${quiz.name.replace(/\s+/g, '_')}_quiz.pdf`);
     }
 
     if (!isUserLoaded) {
@@ -280,6 +322,12 @@ export default function AdminPage() {
                                                     </div>
                                                 </div>
                                                 <div className="flex items-center gap-1">
+                                                    <Button variant="ghost" size="icon" onClick={() => handleDownloadJSON(quiz)} title="JSON yüklə" className="h-8 w-8 text-blue-500 hover:text-blue-600 hover:bg-blue-50">
+                                                        <FileJson className="w-4 h-4" />
+                                                    </Button>
+                                                    <Button variant="ghost" size="icon" onClick={() => handleDownloadPDF(quiz)} title="PDF yüklə" className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-50">
+                                                        <FileText className="w-4 h-4" />
+                                                    </Button>
                                                     <Button variant="ghost" size="icon" onClick={() => startEditQuiz(quiz)} className="h-8 w-8">
                                                         <Pencil className="w-4 h-4" />
                                                     </Button>
