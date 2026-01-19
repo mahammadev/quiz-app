@@ -1,9 +1,10 @@
 'use client'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Flag, Trash2, Edit2, Check, X, LogOut, ArrowLeft, FileJson, FileText, Play, Save, Pencil, Upload } from 'lucide-react'
+import { Flag, Trash2, Edit2, Check, X, LogOut, ArrowLeft, FileJson, FileText, Play, Save, Pencil, Upload, Download, FileType } from 'lucide-react'
 import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
+import html2canvas from 'html2canvas'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -28,6 +29,10 @@ export default function AdminPage() {
     const [editQuizValue, setEditQuizValue] = useState('')
     const [editQuizError, setEditQuizError] = useState('')
     const [error, setError] = useState<string | null>(null)
+    const [exportDialogOpen, setExportDialogOpen] = useState(false)
+    const [exportQuiz, setExportQuiz] = useState<any>(null)
+    const [exportType, setExportType] = useState<'with_answers' | 'exam'>('with_answers')
+    const [isExporting, setIsExporting] = useState(false)
 
     const router = useRouter()
     const { user, isLoaded: isUserLoaded } = useUser()
@@ -133,6 +138,102 @@ export default function AdminPage() {
         });
 
         doc.save(`${quiz.name.replace(/\s+/g, '_')}_quiz.pdf`);
+    }
+
+    const handleAdvancedExport = async (quiz: any, type: 'with_answers' | 'exam', limit?: number) => {
+        setIsExporting(true);
+        try {
+            const container = document.createElement('div');
+            container.style.position = 'absolute';
+            container.style.left = '-9999px';
+            container.style.top = '0';
+            container.style.width = '800px';
+            container.style.backgroundColor = '#ffffff';
+            container.style.color = '#000000';
+            container.style.fontFamily = 'Arial, sans-serif';
+            container.style.padding = '40px';
+            document.body.appendChild(container);
+
+            let questionsToExport = [...quiz.questions];
+            if (limit && limit > 0) {
+                questionsToExport = questionsToExport
+                    .sort(() => Math.random() - 0.5)
+                    .slice(0, limit);
+            }
+
+            const content = `
+                <div style="margin-bottom: 40px; border-bottom: 2px solid #000; padding-bottom: 20px;">
+                    <h1 style="font-size: 28px; margin-bottom: 10px;">${quiz.name}</h1>
+                    <div style="display: flex; justify-content: space-between; margin-top: 20px;">
+                        <div>
+                            <p><strong>Ad:</strong> ___________________________</p>
+                            <p><strong>Soyad:</strong> ___________________________</p>
+                        </div>
+                        <div>
+                            <p><strong>Tarix:</strong> ${new Date().toLocaleDateString('az-AZ')}</p>
+                            <p><strong>Sual sayı:</strong> ${questionsToExport.length}</p>
+                        </div>
+                    </div>
+                </div>
+                <div style="line-height: 1.6;">
+                    ${questionsToExport.map((q, i) => `
+                        <div style="margin-bottom: 30px; page-break-inside: avoid;">
+                            <p style="font-weight: bold; font-size: 18px; margin-bottom: 10px;">${i + 1}. ${q.question}</p>
+                            <div style="margin-left: 20px;">
+                                ${q.answers.map((ans: string, ai: number) => {
+                const label = String.fromCharCode(65 + ai); // A, B, C...
+                const isCorrect = type === 'with_answers' && ans === q.correct_answer;
+                return `
+                                        <p style="margin: 5px 0; ${isCorrect ? 'color: #059669; font-weight: bold;' : ''}">
+                                            ${label}) ${ans} ${isCorrect ? '✓' : ''}
+                                        </p>
+                                    `;
+            }).join('')}
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+
+            container.innerHTML = content;
+
+            // Split into pages if it's too long for a single canvas (optional, but jspdf handles single long one better if we scaling)
+            const canvas = await html2canvas(container, {
+                scale: 2,
+                useCORS: true,
+                logging: false,
+            });
+
+            const imgData = canvas.toDataURL('image/png');
+            const pdf = new jsPDF('p', 'mm', 'a4');
+            const imgProps = pdf.getImageProperties(imgData);
+            const pdfWidth = pdf.internal.pageSize.getWidth();
+            const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+
+            // Add multiple pages if height exceeds A4 height
+            let heightLeft = pdfHeight;
+            let position = 0;
+            const pageHeight = pdf.internal.pageSize.getHeight();
+
+            pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, pdfHeight);
+            heightLeft -= pageHeight;
+
+            while (heightLeft > 0) {
+                position = heightLeft - pdfHeight;
+                pdf.addPage();
+                pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, pdfHeight);
+                heightLeft -= pageHeight;
+            }
+
+            pdf.save(`${quiz.name.replace(/\s+/g, '_')}_${type}.pdf`);
+            document.body.removeChild(container);
+            setExportDialogOpen(false);
+        } catch (err) {
+            console.error(err);
+            setError('PDF generation failed');
+        } finally {
+            setIsExporting(false);
+        }
     }
 
     if (!isUserLoaded) {
@@ -325,7 +426,16 @@ export default function AdminPage() {
                                                     <Button variant="ghost" size="icon" onClick={() => handleDownloadJSON(quiz)} title="JSON yüklə" className="h-8 w-8 text-blue-500 hover:text-blue-600 hover:bg-blue-50">
                                                         <FileJson className="w-4 h-4" />
                                                     </Button>
-                                                    <Button variant="ghost" size="icon" onClick={() => handleDownloadPDF(quiz)} title="PDF yüklə" className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-50">
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        onClick={() => {
+                                                            setExportQuiz(quiz)
+                                                            setExportDialogOpen(true)
+                                                        }}
+                                                        title="PDF yüklə"
+                                                        className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-50"
+                                                    >
                                                         <FileText className="w-4 h-4" />
                                                     </Button>
                                                     <Button variant="ghost" size="icon" onClick={() => startEditQuiz(quiz)} className="h-8 w-8">
@@ -381,6 +491,76 @@ export default function AdminPage() {
                             Yadda Saxla
                         </Button>
                     </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+            <Dialog open={exportDialogOpen} onOpenChange={setExportDialogOpen}>
+                <DialogContent className="max-w-md">
+                    <DialogHeader>
+                        <DialogTitle>PDF İxrac Et</DialogTitle>
+                    </DialogHeader>
+                    <div className="grid gap-6 py-4">
+                        <div className="space-y-4">
+                            <h4 className="text-sm font-medium">İxrac formatı seçin:</h4>
+                            <div className="grid grid-cols-2 gap-4">
+                                <Button
+                                    variant={exportType === 'with_answers' ? 'default' : 'outline'}
+                                    className="h-24 flex flex-col gap-2"
+                                    onClick={() => setExportType('with_answers')}
+                                >
+                                    <Check className="h-6 w-6" />
+                                    <span>Cavablarla</span>
+                                </Button>
+                                <Button
+                                    variant={exportType === 'exam' ? 'default' : 'outline'}
+                                    className="h-24 flex flex-col gap-2"
+                                    onClick={() => setExportType('exam')}
+                                >
+                                    <FileType className="h-6 w-6" />
+                                    <span>İmtahan formatı</span>
+                                </Button>
+                            </div>
+                        </div>
+
+                        {exportType === 'exam' && (
+                            <div className="space-y-4 pt-2 border-t">
+                                <h4 className="text-sm font-medium">Sual seçimi:</h4>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <Button
+                                        variant="outline"
+                                        className="h-10"
+                                        onClick={() => handleAdvancedExport(exportQuiz, 'exam')}
+                                        disabled={isExporting}
+                                    >
+                                        Bütün suallar
+                                    </Button>
+                                    <Button
+                                        variant="outline"
+                                        className="h-10"
+                                        onClick={() => handleAdvancedExport(exportQuiz, 'exam', 40)}
+                                        disabled={isExporting || exportQuiz?.questions?.length < 40}
+                                    >
+                                        Təsadüfi 40 sual
+                                    </Button>
+                                </div>
+                            </div>
+                        )}
+
+                        {exportType === 'with_answers' && (
+                            <Button
+                                className="w-full"
+                                onClick={() => handleAdvancedExport(exportQuiz, 'with_answers')}
+                                disabled={isExporting}
+                            >
+                                {isExporting ? 'Hazırlanır...' : 'İndi yüklə'}
+                            </Button>
+                        )}
+                    </div>
+                    {isExporting && (
+                        <div className="text-center text-sm text-muted-foreground animate-pulse">
+                            PDF hazırlanır, xahiş olunur gözləyin...
+                        </div>
+                    )}
                 </DialogContent>
             </Dialog>
         </div>
