@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Flag, Trash2, Edit2, Check, X, LogOut, ArrowLeft, FileJson, FileText, Play, Save, Pencil, Upload, Download, FileType } from 'lucide-react'
 import jsPDF from 'jspdf'
@@ -13,7 +13,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/animat
 import { Textarea } from '@/components/ui/textarea'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Switch } from '@/components/ui/switch'
+import { Label } from '@/components/ui/label'
 import FileUpload from '@/components/file-upload'
+import { QuizExportView } from '@/components/admin/quiz-export-view'
 import { useQuery, useMutation } from 'convex/react'
 import { api } from '@/convex/_generated/api'
 import { Id } from '@/convex/_generated/dataModel'
@@ -28,10 +31,9 @@ export default function AdminPage() {
     const [editQuizValue, setEditQuizValue] = useState('')
     const [editQuizError, setEditQuizError] = useState('')
     const [error, setError] = useState<string | null>(null)
-    const [exportDialogOpen, setExportDialogOpen] = useState(false)
+
+    // Export State
     const [exportQuiz, setExportQuiz] = useState<any>(null)
-    const [exportType, setExportType] = useState<'with_answers' | 'exam'>('with_answers')
-    const [isExporting, setIsExporting] = useState(false)
 
     const router = useRouter()
     const { user, isLoaded: isUserLoaded } = useUser()
@@ -45,6 +47,8 @@ export default function AdminPage() {
 
     const loading = quizzes === undefined || rawFlags === undefined
     const flags = rawFlags || []
+
+    // Reset export settings when dialog opens
 
 
     const handleDelete = async (id: string) => {
@@ -99,188 +103,9 @@ export default function AdminPage() {
         }
     }
 
-    const handleDownloadJSON = (quiz: any) => {
-        const dataStr = JSON.stringify(quiz.questions, null, 2);
-        const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
-        const exportFileDefaultName = `${quiz.name.replace(/\s+/g, '_')}_quiz.json`;
-        const linkElement = document.createElement('a');
-        linkElement.setAttribute('href', dataUri);
-        linkElement.setAttribute('download', exportFileDefaultName);
-        linkElement.click();
-    }
 
-    const handleDownloadPDF = (quiz: any) => {
-        // Fallback or simple list export
-        const doc = new jsPDF();
-        doc.text(quiz.name, 14, 15);
 
-        const tableData = quiz.questions.map((q: any, index: number) => {
-            return [
-                index + 1,
-                q.question,
-                q.answers.join('\n'),
-                q.correct_answer
-            ];
-        });
 
-        autoTable(doc, {
-            head: [['#', 'Sual', 'Variantlar', 'Düzgün Cavab']],
-            body: tableData,
-            startY: 20,
-            styles: { fontSize: 10 },
-            columnStyles: {
-                0: { cellWidth: 10 },
-                1: { cellWidth: 'auto' },
-                2: { cellWidth: 60 },
-                3: { cellWidth: 30 }
-            },
-            headStyles: { fillColor: [63, 81, 181] }
-        });
-
-        doc.save(`${quiz.name.replace(/\s+/g, '_')}_quiz.pdf`);
-    }
-
-    const handlePrintableExport = (quiz: any, type: 'with_answers' | 'exam', limit?: number) => {
-        console.log('Starting native print export...', { type, limit });
-        setIsExporting(true);
-        setError(null);
-
-        try {
-            let questionsToExport = [...quiz.questions];
-            if (limit && limit > 0 && questionsToExport.length > limit) {
-                questionsToExport = questionsToExport
-                    .sort(() => Math.random() - 0.5)
-                    .slice(0, limit);
-            }
-
-            const printWindow = window.open('', '_blank');
-            if (!printWindow) {
-                setError('Popup blocker prevented opening the print window.');
-                setIsExporting(false);
-                return;
-            }
-
-            const headerHtml = `
-                <div class="header">
-                    <h1>${quiz.name}</h1>
-                    <div class="header-info">
-                        <div>
-                            <p><strong>Ad:</strong> ___________________________</p>
-                            <p><strong>Soyad:</strong> ___________________________</p>
-                        </div>
-                        <div>
-                            <p><strong>Tarix:</strong> ${new Date().toLocaleDateString('az-AZ')}</p>
-                            <p><strong>Sual sayı:</strong> ${questionsToExport.length}</p>
-                        </div>
-                    </div>
-                </div>
-            `;
-
-            const contentHtml = `
-                <div class="questions-container">
-                    ${questionsToExport.map((q, i) => `
-                        <div class="question-block">
-                            <p class="question-text">${i + 1}. ${q.question}</p>
-                            <div class="answers">
-                                ${q.answers.map((ans: string, ai: number) => {
-                const label = String.fromCharCode(65 + ai);
-                const isCorrect = type === 'with_answers' && ans === q.correct_answer;
-                return `
-                                        <p class="answer ${isCorrect ? 'correct' : ''}">
-                                            ${label}) ${ans} ${isCorrect ? '✓' : ''}
-                                        </p>
-                                    `;
-            }).join('')}
-                            </div>
-                        </div>
-                    `).join('')}
-                </div>
-            `;
-
-            const html = `
-                <!DOCTYPE html>
-                <html>
-                <head>
-                    <title>${quiz.name} - ${type === 'exam' ? 'İmtahan' : 'Cavablar'}</title>
-                    <style>
-                        @media print {
-                            @page { margin: 2cm; }
-                            body { -webkit-print-color-adjust: exact; }
-                            .no-print { display: none; }
-                        }
-                        body { 
-                            font-family: 'Segoe UI', Arial, sans-serif; 
-                            color: #000; 
-                            line-height: 1.5; 
-                            padding: 20px;
-                            max-width: 800px;
-                            margin: 0 auto;
-                        }
-                        .header { 
-                            margin-bottom: 30px; 
-                            border-bottom: 2px solid #000; 
-                            padding-bottom: 20px; 
-                        }
-                        .header h1 { 
-                            font-size: 24px; 
-                            margin: 0 0 15px 0; 
-                            text-align: center;
-                            text-transform: uppercase;
-                        }
-                        .header-info { 
-                            display: flex; 
-                            justify-content: space-between; 
-                            font-size: 14px;
-                        }
-                        .question-block { 
-                            margin-bottom: 25px; 
-                            page-break-inside: avoid; 
-                        }
-                        .question-text { 
-                            font-weight: 600; 
-                            font-size: 16px; 
-                            margin-bottom: 8px; 
-                        }
-                        .answers { 
-                            margin-left: 15px; 
-                        }
-                        .answer { 
-                            margin: 4px 0; 
-                            font-size: 14px;
-                        }
-                        .correct { 
-                            color: #059669; 
-                            font-weight: bold; 
-                        }
-                        p { margin: 0; }
-                    </style>
-                </head>
-                <body>
-                    ${headerHtml}
-                    ${contentHtml}
-                    <script>
-                        window.onload = function() {
-                            setTimeout(function() {
-                                window.print();
-                                // Optional: window.close();
-                            }, 500);
-                        }
-                    </script>
-                </body>
-                </html>
-            `;
-
-            printWindow.document.write(html);
-            printWindow.document.close();
-
-            setExportDialogOpen(false);
-        } catch (err) {
-            console.error('Export Error:', err);
-            setError(`Export failed: ${err instanceof Error ? err.message : 'Unknown error'}`);
-        } finally {
-            setIsExporting(false);
-        }
-    }
 
     if (!isUserLoaded) {
         return (
@@ -298,6 +123,10 @@ export default function AdminPage() {
                 <Button onClick={() => router.push('/')}>Ana Səhifəyə Qayıt</Button>
             </div>
         )
+    }
+
+    if (exportQuiz) {
+        return <QuizExportView quiz={exportQuiz} onBack={() => setExportQuiz(null)} />
     }
 
     return (
@@ -474,7 +303,7 @@ export default function AdminPage() {
                                                         size="icon"
                                                         onClick={() => {
                                                             setExportQuiz(quiz)
-                                                            setExportDialogOpen(true)
+                                                            // setExportDialogOpen(true)
                                                         }}
                                                         title="PDF yüklə"
                                                         className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-50"
@@ -537,70 +366,7 @@ export default function AdminPage() {
                 </DialogContent>
             </Dialog>
 
-            <Dialog open={exportDialogOpen} onOpenChange={setExportDialogOpen}>
-                <DialogContent className="max-w-md">
-                    <DialogHeader>
-                        <DialogTitle>PDF İxrac Et</DialogTitle>
-                    </DialogHeader>
-                    <div className="grid gap-6 py-4">
-                        <div className="space-y-4">
-                            <h4 className="text-sm font-medium">İxrac formatı seçin:</h4>
-                            <div className="grid grid-cols-2 gap-4">
-                                <Button
-                                    variant={exportType === 'with_answers' ? 'default' : 'outline'}
-                                    className="h-24 flex flex-col gap-2"
-                                    onClick={() => setExportType('with_answers')}
-                                >
-                                    <Check className="h-6 w-6" />
-                                    <span>Cavablarla</span>
-                                </Button>
-                                <Button
-                                    variant={exportType === 'exam' ? 'default' : 'outline'}
-                                    className="h-24 flex flex-col gap-2"
-                                    onClick={() => setExportType('exam')}
-                                >
-                                    <FileType className="h-6 w-6" />
-                                    <span>İmtahan formatı</span>
-                                </Button>
-                            </div>
-                        </div>
 
-                        {exportType === 'exam' && (
-                            <div className="space-y-4 pt-2 border-t">
-                                <h4 className="text-sm font-medium">Sual seçimi:</h4>
-                                <div className="grid grid-cols-2 gap-4">
-                                    <Button
-                                        variant="outline"
-                                        className="h-10"
-                                        onClick={() => handlePrintableExport(exportQuiz, 'exam')}
-                                        disabled={isExporting}
-                                    >
-                                        Bütün suallar
-                                    </Button>
-                                    <Button
-                                        variant="outline"
-                                        className="h-10"
-                                        onClick={() => handlePrintableExport(exportQuiz, 'exam', 40)}
-                                        disabled={isExporting || (exportQuiz?.questions?.length || 0) < 40}
-                                    >
-                                        Təsadüfi 40 sual
-                                    </Button>
-                                </div>
-                            </div>
-                        )}
-
-                        {exportType === 'with_answers' && (
-                            <Button
-                                className="w-full"
-                                onClick={() => handlePrintableExport(exportQuiz, 'with_answers')}
-                                disabled={isExporting}
-                            >
-                                {isExporting ? 'Hazırlanır...' : 'İndi yüklə'}
-                            </Button>
-                        )}
-                    </div>
-                </DialogContent>
-            </Dialog>
         </div>
     )
 }
