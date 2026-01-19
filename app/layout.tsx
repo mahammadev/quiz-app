@@ -25,7 +25,10 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: 'İmtahanly',
-  description: 'İmtahanı hazırlanma',
+  description: 'İmtahana hazırlanma',
+    icons: {
+    icon: '/icon.ico',
+  },
 }
 
 export default function RootLayout({
