@@ -4,7 +4,6 @@ import { useRouter } from 'next/navigation'
 import { Flag, Trash2, Edit2, Check, X, LogOut, ArrowLeft, FileJson, FileText, Play, Save, Pencil, Upload, Download, FileType } from 'lucide-react'
 import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
-import html2canvas from 'html2canvas'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -111,6 +110,7 @@ export default function AdminPage() {
     }
 
     const handleDownloadPDF = (quiz: any) => {
+        // Fallback or simple list export
         const doc = new jsPDF();
         doc.text(quiz.name, 14, 15);
 
@@ -140,12 +140,10 @@ export default function AdminPage() {
         doc.save(`${quiz.name.replace(/\s+/g, '_')}_quiz.pdf`);
     }
 
-    const handleAdvancedExport = async (quiz: any, type: 'with_answers' | 'exam', limit?: number) => {
-        console.log('Starting isolated chunked advanced export...', { type, limit });
+    const handlePrintableExport = (quiz: any, type: 'with_answers' | 'exam', limit?: number) => {
+        console.log('Starting native print export...', { type, limit });
         setIsExporting(true);
         setError(null);
-
-        let iframe: HTMLIFrameElement | null = null;
 
         try {
             let questionsToExport = [...quiz.questions];
@@ -155,146 +153,132 @@ export default function AdminPage() {
                     .slice(0, limit);
             }
 
-            const pdf = new jsPDF('p', 'mm', 'a4');
-            const pageWidth = pdf.internal.pageSize.getWidth();
-            const pageHeight = pdf.internal.pageSize.getHeight();
-            const margin = 10;
-            const contentWidth = 190; // mm
-
-            // Chunk questions to avoid massive canvas
-            const chunkSize = 10;
-            const chunks = [];
-            for (let i = 0; i < questionsToExport.length; i += chunkSize) {
-                chunks.push(questionsToExport.slice(i, i + chunkSize));
+            const printWindow = window.open('', '_blank');
+            if (!printWindow) {
+                setError('Popup blocker prevented opening the print window.');
+                setIsExporting(false);
+                return;
             }
 
-            console.log(`Exporting ${questionsToExport.length} questions in ${chunks.length} batches`);
-
-            // Create hidden iframe for isolated rendering (avoids Tailwind 4 lab() color parsing crash)
-            iframe = document.createElement('iframe');
-            iframe.style.position = 'fixed';
-            iframe.style.left = '0';
-            iframe.style.top = '0';
-            iframe.style.width = '800px';
-            iframe.style.height = '100%';
-            iframe.style.zIndex = '-9999';
-            iframe.style.visibility = 'hidden';
-            iframe.style.border = 'none';
-            document.body.appendChild(iframe);
-
-            const iframeDoc = iframe.contentWindow?.document;
-            if (!iframeDoc) throw new Error('Could not access iframe document');
-
-            // Standard CSS only (no modern color functions to crash html2canvas)
-            const standardStyles = `
-                body { font-family: Arial, sans-serif; background: #ffffff; color: #000000; padding: 40px; margin: 0; }
-                .header { margin-bottom: 40px; border-bottom: 2px solid #000; padding-bottom: 20px; }
-                .header h1 { font-size: 28px; margin-bottom: 10px; margin-top: 0; }
-                .header-info { display: flex; justify-content: space-between; margin-top: 20px; }
-                .question-block { margin-bottom: 30px; page-break-inside: avoid; }
-                .question-text { font-weight: bold; font-size: 18px; margin-bottom: 10px; }
-                .answers { margin-left: 20px; }
-                .answer { margin: 5px 0; }
-                .correct { color: #059669; font-weight: bold; }
-                p { margin: 0; }
-            `;
-
-            for (let chunkIndex = 0; chunkIndex < chunks.length; chunkIndex++) {
-                const chunk = chunks[chunkIndex];
-                const isFirstChunk = chunkIndex === 0;
-
-                const headerHtml = isFirstChunk ? `
-                    <div class="header">
-                        <h1>${quiz.name}</h1>
-                        <div class="header-info">
-                            <div>
-                                <p><strong>Ad:</strong> ___________________________</p>
-                                <p><strong>Soyad:</strong> ___________________________</p>
-                            </div>
-                            <div>
-                                <p><strong>Tarix:</strong> ${new Date().toLocaleDateString('az-AZ')}</p>
-                                <p><strong>Sual sayı:</strong> ${questionsToExport.length}</p>
-                            </div>
+            const headerHtml = `
+                <div class="header">
+                    <h1>${quiz.name}</h1>
+                    <div class="header-info">
+                        <div>
+                            <p><strong>Ad:</strong> ___________________________</p>
+                            <p><strong>Soyad:</strong> ___________________________</p>
+                        </div>
+                        <div>
+                            <p><strong>Tarix:</strong> ${new Date().toLocaleDateString('az-AZ')}</p>
+                            <p><strong>Sual sayı:</strong> ${questionsToExport.length}</p>
                         </div>
                     </div>
-                ` : '';
+                </div>
+            `;
 
-                const contentHtml = `
-                    <div style="line-height: 1.6;">
-                        ${chunk.map((q, i) => {
-                    const qIndex = (chunkIndex * chunkSize) + i + 1;
-                    return `
-                                <div class="question-block">
-                                    <p class="question-text">${qIndex}. ${q.question}</p>
-                                    <div class="answers">
-                                        ${q.answers.map((ans: string, ai: number) => {
-                        const label = String.fromCharCode(65 + ai);
-                        const isCorrect = type === 'with_answers' && ans === q.correct_answer;
-                        return `
-                                                <p class="answer ${isCorrect ? 'correct' : ''}">
-                                                    ${label}) ${ans} ${isCorrect ? '✓' : ''}
-                                                </p>
-                                            `;
-                    }).join('')}
-                                    </div>
-                                </div>
-                            `;
-                }).join('')}
-                    </div>
-                `;
+            const contentHtml = `
+                <div class="questions-container">
+                    ${questionsToExport.map((q, i) => `
+                        <div class="question-block">
+                            <p class="question-text">${i + 1}. ${q.question}</p>
+                            <div class="answers">
+                                ${q.answers.map((ans: string, ai: number) => {
+                const label = String.fromCharCode(65 + ai);
+                const isCorrect = type === 'with_answers' && ans === q.correct_answer;
+                return `
+                                        <p class="answer ${isCorrect ? 'correct' : ''}">
+                                            ${label}) ${ans} ${isCorrect ? '✓' : ''}
+                                        </p>
+                                    `;
+            }).join('')}
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
 
-                iframeDoc.open();
-                iframeDoc.write(`
-                    <html>
-                        <head><style>${standardStyles}</style></head>
-                        <body>
-                            ${headerHtml}
-                            ${contentHtml}
-                        </body>
-                    </html>
-                `);
-                iframeDoc.close();
+            const html = `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>${quiz.name} - ${type === 'exam' ? 'İmtahan' : 'Cavablar'}</title>
+                    <style>
+                        @media print {
+                            @page { margin: 2cm; }
+                            body { -webkit-print-color-adjust: exact; }
+                            .no-print { display: none; }
+                        }
+                        body { 
+                            font-family: 'Segoe UI', Arial, sans-serif; 
+                            color: #000; 
+                            line-height: 1.5; 
+                            padding: 20px;
+                            max-width: 800px;
+                            margin: 0 auto;
+                        }
+                        .header { 
+                            margin-bottom: 30px; 
+                            border-bottom: 2px solid #000; 
+                            padding-bottom: 20px; 
+                        }
+                        .header h1 { 
+                            font-size: 24px; 
+                            margin: 0 0 15px 0; 
+                            text-align: center;
+                            text-transform: uppercase;
+                        }
+                        .header-info { 
+                            display: flex; 
+                            justify-content: space-between; 
+                            font-size: 14px;
+                        }
+                        .question-block { 
+                            margin-bottom: 25px; 
+                            page-break-inside: avoid; 
+                        }
+                        .question-text { 
+                            font-weight: 600; 
+                            font-size: 16px; 
+                            margin-bottom: 8px; 
+                        }
+                        .answers { 
+                            margin-left: 15px; 
+                        }
+                        .answer { 
+                            margin: 4px 0; 
+                            font-size: 14px;
+                        }
+                        .correct { 
+                            color: #059669; 
+                            font-weight: bold; 
+                        }
+                        p { margin: 0; }
+                    </style>
+                </head>
+                <body>
+                    ${headerHtml}
+                    ${contentHtml}
+                    <script>
+                        window.onload = function() {
+                            setTimeout(function() {
+                                window.print();
+                                // Optional: window.close();
+                            }, 500);
+                        }
+                    </script>
+                </body>
+                </html>
+            `;
 
-                // Give it a moment to render
-                await new Promise(r => setTimeout(r, 500));
+            printWindow.document.write(html);
+            printWindow.document.close();
 
-                const canvas = await html2canvas(iframeDoc.body, {
-                    scale: 2,
-                    useCORS: true,
-                    backgroundColor: '#ffffff',
-                });
-
-                const imgData = canvas.toDataURL('image/png');
-                const imgProps = pdf.getImageProperties(imgData);
-                const chunkPdfHeight = (imgProps.height * contentWidth) / imgProps.width;
-
-                let heightLeft = chunkPdfHeight;
-                let position = 0;
-
-                while (heightLeft > 0) {
-                    if (chunkIndex > 0 || position < 0) {
-                        pdf.addPage();
-                    }
-
-                    pdf.addImage(imgData, 'PNG', margin, position, contentWidth, chunkPdfHeight);
-                    heightLeft -= pageHeight;
-                    position -= pageHeight;
-                }
-
-                console.log(`Chunk ${chunkIndex + 1}/${chunks.length} processed`);
-            }
-
-            pdf.save(`${quiz.name.replace(/\s+/g, '_')}_${type}.pdf`);
-            console.log('PDF saved successfully');
             setExportDialogOpen(false);
         } catch (err) {
-            console.error('PDF Export Error:', err);
-            setError(`PDF generation failed: ${err instanceof Error ? err.message : 'Unknown error'}`);
+            console.error('Export Error:', err);
+            setError(`Export failed: ${err instanceof Error ? err.message : 'Unknown error'}`);
         } finally {
             setIsExporting(false);
-            if (iframe && iframe.parentNode) {
-                document.body.removeChild(iframe);
-            }
         }
     }
 
@@ -588,7 +572,7 @@ export default function AdminPage() {
                                     <Button
                                         variant="outline"
                                         className="h-10"
-                                        onClick={() => handleAdvancedExport(exportQuiz, 'exam')}
+                                        onClick={() => handlePrintableExport(exportQuiz, 'exam')}
                                         disabled={isExporting}
                                     >
                                         Bütün suallar
@@ -596,7 +580,7 @@ export default function AdminPage() {
                                     <Button
                                         variant="outline"
                                         className="h-10"
-                                        onClick={() => handleAdvancedExport(exportQuiz, 'exam', 40)}
+                                        onClick={() => handlePrintableExport(exportQuiz, 'exam', 40)}
                                         disabled={isExporting || (exportQuiz?.questions?.length || 0) < 40}
                                     >
                                         Təsadüfi 40 sual
@@ -608,18 +592,13 @@ export default function AdminPage() {
                         {exportType === 'with_answers' && (
                             <Button
                                 className="w-full"
-                                onClick={() => handleAdvancedExport(exportQuiz, 'with_answers')}
+                                onClick={() => handlePrintableExport(exportQuiz, 'with_answers')}
                                 disabled={isExporting}
                             >
                                 {isExporting ? 'Hazırlanır...' : 'İndi yüklə'}
                             </Button>
                         )}
                     </div>
-                    {isExporting && (
-                        <div className="text-center text-sm text-muted-foreground animate-pulse">
-                            PDF hazırlanır, xahiş olunur gözləyin...
-                        </div>
-                    )}
                 </DialogContent>
             </Dialog>
         </div>
