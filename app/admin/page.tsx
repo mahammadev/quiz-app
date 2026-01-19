@@ -141,96 +141,133 @@ export default function AdminPage() {
     }
 
     const handleAdvancedExport = async (quiz: any, type: 'with_answers' | 'exam', limit?: number) => {
+        console.log('Starting chunked advanced export...', { type, limit });
         setIsExporting(true);
+        setError(null);
         try {
-            const container = document.createElement('div');
-            container.style.position = 'absolute';
-            container.style.left = '-9999px';
-            container.style.top = '0';
-            container.style.width = '800px';
-            container.style.backgroundColor = '#ffffff';
-            container.style.color = '#000000';
-            container.style.fontFamily = 'Arial, sans-serif';
-            container.style.padding = '40px';
-            document.body.appendChild(container);
-
             let questionsToExport = [...quiz.questions];
-            if (limit && limit > 0) {
+            if (limit && limit > 0 && questionsToExport.length > limit) {
                 questionsToExport = questionsToExport
                     .sort(() => Math.random() - 0.5)
                     .slice(0, limit);
             }
 
-            const content = `
-                <div style="margin-bottom: 40px; border-bottom: 2px solid #000; padding-bottom: 20px;">
-                    <h1 style="font-size: 28px; margin-bottom: 10px;">${quiz.name}</h1>
-                    <div style="display: flex; justify-content: space-between; margin-top: 20px;">
-                        <div>
-                            <p><strong>Ad:</strong> ___________________________</p>
-                            <p><strong>Soyad:</strong> ___________________________</p>
-                        </div>
-                        <div>
-                            <p><strong>Tarix:</strong> ${new Date().toLocaleDateString('az-AZ')}</p>
-                            <p><strong>Sual sayı:</strong> ${questionsToExport.length}</p>
-                        </div>
-                    </div>
-                </div>
-                <div style="line-height: 1.6;">
-                    ${questionsToExport.map((q, i) => `
-                        <div style="margin-bottom: 30px; page-break-inside: avoid;">
-                            <p style="font-weight: bold; font-size: 18px; margin-bottom: 10px;">${i + 1}. ${q.question}</p>
-                            <div style="margin-left: 20px;">
-                                ${q.answers.map((ans: string, ai: number) => {
-                const label = String.fromCharCode(65 + ai); // A, B, C...
-                const isCorrect = type === 'with_answers' && ans === q.correct_answer;
-                return `
-                                        <p style="margin: 5px 0; ${isCorrect ? 'color: #059669; font-weight: bold;' : ''}">
-                                            ${label}) ${ans} ${isCorrect ? '✓' : ''}
-                                        </p>
-                                    `;
-            }).join('')}
+            const pdf = new jsPDF('p', 'mm', 'a4');
+            const pageWidth = pdf.internal.pageSize.getWidth();
+            const pageHeight = pdf.internal.pageSize.getHeight();
+            const margin = 10;
+            const contentWidth = 190; // mm
+
+            // Chunk questions to avoid massive canvas (browser limit is approx 16k-32k px)
+            const chunkSize = 10;
+            const chunks = [];
+            for (let i = 0; i < questionsToExport.length; i += chunkSize) {
+                chunks.push(questionsToExport.slice(i, i + chunkSize));
+            }
+
+            console.log(`Exporting ${questionsToExport.length} questions in ${chunks.length} batches`);
+
+            for (let chunkIndex = 0; chunkIndex < chunks.length; chunkIndex++) {
+                const chunk = chunks[chunkIndex];
+                const container = document.createElement('div');
+                container.style.position = 'fixed';
+                container.style.left = '0';
+                container.style.top = '0';
+                container.style.width = '800px';
+                container.style.zIndex = '-9999';
+                container.style.visibility = 'hidden';
+                container.style.backgroundColor = '#ffffff';
+                container.style.color = '#000000';
+                container.style.fontFamily = 'Arial, sans-serif';
+                container.style.padding = '40px';
+                document.body.appendChild(container);
+
+                const isFirstChunk = chunkIndex === 0;
+                const headerHtml = isFirstChunk ? `
+                    <div style="margin-bottom: 40px; border-bottom: 2px solid #000; padding-bottom: 20px;">
+                        <h1 style="font-size: 28px; margin-bottom: 10px;">${quiz.name}</h1>
+                        <div style="display: flex; justify-content: space-between; margin-top: 20px;">
+                            <div>
+                                <p><strong>Ad:</strong> ___________________________</p>
+                                <p><strong>Soyad:</strong> ___________________________</p>
+                            </div>
+                            <div>
+                                <p><strong>Tarix:</strong> ${new Date().toLocaleDateString('az-AZ')}</p>
+                                <p><strong>Sual sayı:</strong> ${questionsToExport.length}</p>
                             </div>
                         </div>
-                    `).join('')}
-                </div>
-            `;
+                    </div>
+                ` : '';
 
-            container.innerHTML = content;
+                container.innerHTML = `
+                    ${headerHtml}
+                    <div style="line-height: 1.6;">
+                        ${chunk.map((q, i) => {
+                    const qIndex = (chunkIndex * chunkSize) + i + 1;
+                    return `
+                                <div style="margin-bottom: 30px; page-break-inside: avoid;">
+                                    <p style="font-weight: bold; font-size: 18px; margin-bottom: 10px;">${qIndex}. ${q.question}</p>
+                                    <div style="margin-left: 20px;">
+                                        ${q.answers.map((ans: string, ai: number) => {
+                        const label = String.fromCharCode(65 + ai);
+                        const isCorrect = type === 'with_answers' && ans === q.correct_answer;
+                        return `
+                                                <p style="margin: 5px 0; ${isCorrect ? 'color: #059669; font-weight: bold;' : ''}">
+                                                    ${label}) ${ans} ${isCorrect ? '✓' : ''}
+                                                </p>
+                                            `;
+                    }).join('')}
+                                    </div>
+                                </div>
+                            `;
+                }).join('')}
+                    </div>
+                `;
 
-            // Split into pages if it's too long for a single canvas (optional, but jspdf handles single long one better if we scaling)
-            const canvas = await html2canvas(container, {
-                scale: 2,
-                useCORS: true,
-                logging: false,
-            });
+                // Give it a moment to render
+                await new Promise(r => setTimeout(r, 400));
 
-            const imgData = canvas.toDataURL('image/png');
-            const pdf = new jsPDF('p', 'mm', 'a4');
-            const imgProps = pdf.getImageProperties(imgData);
-            const pdfWidth = pdf.internal.pageSize.getWidth();
-            const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+                const canvas = await html2canvas(container, {
+                    scale: 2,
+                    useCORS: true,
+                    backgroundColor: '#ffffff',
+                });
 
-            // Add multiple pages if height exceeds A4 height
-            let heightLeft = pdfHeight;
-            let position = 0;
-            const pageHeight = pdf.internal.pageSize.getHeight();
+                const imgData = canvas.toDataURL('image/png');
+                const imgProps = pdf.getImageProperties(imgData);
+                const chunkPdfHeight = (imgProps.height * contentWidth) / imgProps.width;
 
-            pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, pdfHeight);
-            heightLeft -= pageHeight;
+                let heightLeft = chunkPdfHeight;
+                let position = 0;
 
-            while (heightLeft > 0) {
-                position = heightLeft - pdfHeight;
-                pdf.addPage();
-                pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, pdfHeight);
-                heightLeft -= pageHeight;
+                while (heightLeft > 0) {
+                    // If we have content left and it's not the very start of the chunk, or it's a subsequent chunk
+                    // we need to handle page breaks.
+                    // Simplified for now: Each chunk starts on a new page if it's not the first one, 
+                    // and internal chunk scrolling handles multiple pages.
+                    if (chunkIndex > 0 && position === 0) {
+                        pdf.addPage();
+                    }
+
+                    pdf.addImage(imgData, 'PNG', margin, position, contentWidth, chunkPdfHeight);
+                    heightLeft -= pageHeight;
+                    position -= pageHeight;
+
+                    if (heightLeft > 0) {
+                        pdf.addPage();
+                    }
+                }
+
+                document.body.removeChild(container);
+                console.log(`Chunk ${chunkIndex + 1}/${chunks.length} processed`);
             }
 
             pdf.save(`${quiz.name.replace(/\s+/g, '_')}_${type}.pdf`);
-            document.body.removeChild(container);
+            console.log('PDF saved successfully');
             setExportDialogOpen(false);
         } catch (err) {
-            console.error(err);
-            setError('PDF generation failed');
+            console.error('PDF Export Error:', err);
+            setError(`PDF generation failed: ${err instanceof Error ? err.message : 'Unknown error'}`);
         } finally {
             setIsExporting(false);
         }
@@ -337,7 +374,7 @@ export default function AdminPage() {
                                             <div className="flex items-center gap-3">
                                                 <Flag className="w-4 h-4 text-amber-500" />
                                                 <span className="text-xs font-medium text-muted-foreground truncate max-w-[200px]">
-                                                    Quiz: {quizzes?.find((quiz: any) => quiz._id === flag.quizId)?.name || flag.quizId}
+                                                    Quiz: {quizzes?.find((quiz: any) => quiz._id === selectedQuizId)?.name || flag.quizId}
                                                 </span>
                                             </div>
                                             <div className="text-xs text-muted-foreground">
