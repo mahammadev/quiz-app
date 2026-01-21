@@ -82,10 +82,17 @@ export default function FileUpload({
   const handleSaveToLibrary = async () => {
     if (!parsedQuestions || !quizName.trim()) return
 
+    const sanitizedQuestions = parsedQuestions.map((question) => ({
+      question: question.question,
+      answers: question.answers,
+      correct_answer: question.correct_answer,
+      ...(typeof question._originalIndex === "number" ? { _originalIndex: question._originalIndex } : {}),
+    }))
+
     try {
       await saveQuiz({
         name: quizName.trim(),
-        questions: parsedQuestions as any,
+        questions: sanitizedQuestions as any,
       })
 
       setParsedQuestions(null)
@@ -94,7 +101,7 @@ export default function FileUpload({
       alert(getTranslation(language, "library.saveSuccess"))
     } catch (e) {
       console.error("Failed to save quiz", e)
-      setError("Failed to save quiz to database")
+      setError(e instanceof Error ? e.message : "Failed to save quiz to database")
     }
   }
 
