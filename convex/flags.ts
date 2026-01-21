@@ -1,13 +1,18 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 
-const requireAdmin = async (ctx: { auth: { getUserIdentity: () => Promise<{ publicMetadata?: Record<string, unknown> } | null> } }) => {
+const requireAdmin = async (ctx: { auth: { getUserIdentity: () => Promise<Record<string, unknown> | null> } }) => {
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) {
         throw new Error("Unauthorized");
     }
-    const role = identity.publicMetadata?.role;
-    if (role !== "admin") {
+    const role =
+        (identity.publicMetadata as { role?: string } | undefined)?.role ||
+        (identity.customClaims as { public_metadata?: { role?: string } } | undefined)?.public_metadata?.role ||
+        (identity.customClaims as { publicMetadata?: { role?: string } } | undefined)?.publicMetadata?.role ||
+        (identity as { public_metadata?: { role?: string } } | null | undefined)?.public_metadata?.role ||
+        (identity as { role?: string } | null | undefined)?.role;
+    if (!role || role.toLowerCase() !== "admin") {
         throw new Error("Forbidden");
     }
 };
