@@ -4,7 +4,8 @@ import { getTranslation, type Language } from './translations'
 export type { Question }
 
 export function parseQuestions(content: string, language: Language) {
-  const data = JSON.parse(content)
+  const normalizedContent = content.replace(/^\uFEFF/, '').trim()
+  const data = JSON.parse(normalizedContent)
   const questions = Array.isArray(data) ? data : [data]
 
   questions.forEach((q, idx) => {
