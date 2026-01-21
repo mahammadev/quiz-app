@@ -64,6 +64,7 @@ export default function FileUpload({
       setQuizName("My Quiz")
     } catch (err) {
       setError(err instanceof Error ? err.message : getTranslation(language, "upload.parseErrorPaste"))
+    } finally {
       setLoading(false)
     }
   }
