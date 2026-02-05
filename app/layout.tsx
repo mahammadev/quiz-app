@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 
 import { Analytics } from '@vercel/analytics/next'
 import '@/styles/globals.css'
-import { Poppins, Inter } from 'next/font/google'
+import { Montserrat, Inter, Playfair_Display, DM_Sans } from 'next/font/google'
 import RouteSync from '@/components/route-sync'
 import { ActiveUserProvider } from '@/components/active-user-context'
 import { VersionChecker } from '@/components/version-checker'
@@ -11,22 +11,34 @@ import { ConvexClientProvider } from '@/components/convex-client-provider'
 import { ClerkProvider } from '@clerk/nextjs'
 
 // Initialize fonts
-const poppins = Poppins({
-  subsets: ['latin'],
+const montserrat = Montserrat({
+  subsets: ['latin', 'cyrillic'],
   weight: ['100', '200', '300', '400', '500', '600', '700', '800', '900'],
-  variable: '--font-poppins',
+  variable: '--font-montserrat',
 })
 
 const inter = Inter({
-  subsets: ['latin'],
+  subsets: ['latin', 'cyrillic'],
   weight: ['100', '200', '300', '400', '500', '600', '700', '800', '900'],
   variable: '--font-inter',
+})
+
+const playfair = Playfair_Display({
+  subsets: ['latin', 'cyrillic'],
+  weight: ['400', '500', '600', '700', '800', '900'],
+  variable: '--font-playfair',
+})
+
+const dmSans = DM_Sans({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-dm-sans',
 })
 
 export const metadata: Metadata = {
   title: 'İmtahanly',
   description: 'İmtahana hazırlanma',
-    icons: {
+  icons: {
     icon: '/icon.ico',
   },
 }
@@ -38,7 +50,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="az">
-      <body className={`${poppins.variable} ${inter.variable} font-poppins antialiased`}>
+      <body className={`${montserrat.variable} ${inter.variable} ${playfair.variable} ${dmSans.variable} font-montserrat antialiased`}>
         <ClerkProvider
           appearance={{
             variables: {
@@ -49,9 +61,8 @@ export default function RootLayout({
               colorInputBackground: 'hsl(var(--background))',
               colorInputText: 'hsl(var(--foreground))',
               colorNeutral: 'var(--border-neutral)',
-              colorTextOnPrimary: 'hsl(var(--primary-foreground))',
               borderRadius: '0.625rem',
-              fontFamily: 'var(--font-poppins)',
+              fontFamily: 'var(--font-montserrat)',
             },
             elements: {
               modalBackdrop: 'bg-black/40',

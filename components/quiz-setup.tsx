@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label'
 import { Checkbox } from '@/components/ui/checkbox'
 
 import { Question } from '@/lib/schema'
+import { normalizeText, shuffleArray } from '@/lib/utils'
 
 type QuizMode = 'quick' | 'sequential' | 'practice' | 'study' | 'filtered'
 
@@ -36,14 +37,6 @@ export default function QuizSetup({
   const [filterText, setFilterText] = useState('')
   const [filterKeywords, setFilterKeywords] = useState<string[]>([])
 
-  const normalizeText = (text: string) =>
-    text
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .toLowerCase()
-      .replace(/[^\p{L}\p{N}\s]/gu, ' ')
-      .replace(/\s+/g, ' ')
-      .trim()
 
   const keywordTokens = filterKeywords
     .map((token) => normalizeText(token))
@@ -86,11 +79,7 @@ export default function QuizSetup({
     let questionsToUse: Question[] = []
 
     if (selectedMode === 'quick') {
-      const shuffled = [...allQuestions]
-      for (let i = shuffled.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
-      }
+      const shuffled = shuffleArray(allQuestions)
       questionsToUse = shuffled.slice(0, numQuestions).map(q => ({
         ...q,
         answers: [...q.answers] // Deep clone the answers array
@@ -114,11 +103,7 @@ export default function QuizSetup({
       }
     } else if (selectedMode === 'practice') {
       // Shuffle all questions for practice mode
-      const shuffled = [...allQuestions]
-      for (let i = shuffled.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
-      }
+      const shuffled = shuffleArray(allQuestions)
       questionsToUse = shuffled.map((q, idx) => ({
         ...q,
         answers: [...q.answers], // Deep clone the answers array
@@ -270,7 +255,7 @@ export default function QuizSetup({
                 variant="ghost"
                 className="cursor-target text-sm text-muted-foreground hover:text-foreground"
               >
-                Geri
+                {getTranslation(language, 'nav.back')}
               </Button>
             </div>
 

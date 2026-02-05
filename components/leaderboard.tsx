@@ -160,10 +160,10 @@ export function Leaderboard({ quizId, language, refreshKey = 0 }: LeaderboardPro
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
               <span className="font-semibold">{t('leaderboard.personal')}</span>
               <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs sm:text-sm text-muted-foreground">
-                <span className="whitespace-nowrap">Score: {personalBest.score}</span>
-                <span className="whitespace-nowrap">Time: {formatDuration(personalBest.duration)}</span>
+                <span className="whitespace-nowrap">{t('leaderboard.label.score')} {personalBest.score}</span>
+                <span className="whitespace-nowrap">{t('leaderboard.label.time')} {formatDuration(personalBest.duration)}</span>
                 {personalBest.createdAt && (
-                  <span className="whitespace-nowrap">Date: {safelyFormatDate(personalBest.createdAt, 'PP', dateLocale)}</span>
+                  <span className="whitespace-nowrap">{t('leaderboard.label.date')} {safelyFormatDate(personalBest.createdAt, 'PP', dateLocale)}</span>
                 )}
               </div>
             </div>

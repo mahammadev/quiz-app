@@ -5,10 +5,12 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --font-poppins: var(--font-poppins), 'Poppins', sans-serif;
+  --font-montserrat: var(--font-montserrat), 'Montserrat', sans-serif;
   --font-inter: var(--font-inter), 'Inter', sans-serif;
+  --font-playfair: var(--font-playfair), 'Playfair Display', Georgia, serif;
+  --font-dm-sans: var(--font-dm-sans), 'DM Sans', sans-serif;
   --font-times: 'Times New Roman', Times, serif;
-  --font-sans: var(--font-poppins);
+  --font-sans: var(--font-montserrat);
   --font-mono: 'Geist Mono', 'Geist Mono Fallback';
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -61,10 +63,10 @@
 }
 
 /* Font family classes - applied to html, cascades to all children */
-html.font-poppins,
-html.font-poppins body,
-html.font-poppins * {
-  font-family: var(--font-poppins), 'Poppins', sans-serif !important;
+html.font-montserrat,
+html.font-montserrat body,
+html.font-montserrat * {
+  font-family: var(--font-montserrat), 'Montserrat', sans-serif !important;
 }
 
 html.font-inter,
@@ -80,9 +82,9 @@ html.font-times * {
 }
 
 /* Exclude monospace elements from font override */
-html.font-poppins code,
-html.font-poppins pre,
-html.font-poppins kbd,
+html.font-montserrat code,
+html.font-montserrat pre,
+html.font-montserrat kbd,
 html.font-inter code,
 html.font-inter pre,
 html.font-inter kbd,
@@ -94,6 +96,7 @@ html.font-times kbd {
 
 /* Mobile-friendly touch targets and responsive utilities */
 @media (max-width: 640px) {
+
   /* Ensure minimum touch target sizes */
   .btn-primary,
   button:not(.h-6):not(.h-8),
@@ -111,7 +114,8 @@ html.font-times kbd {
   input[type="text"],
   input[type="email"],
   textarea {
-    font-size: 16px; /* Prevents zoom on iOS */
+    font-size: 16px;
+    /* Prevents zoom on iOS */
   }
 
   /* Better spacing for cards on mobile */

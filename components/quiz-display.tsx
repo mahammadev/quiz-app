@@ -11,7 +11,8 @@ import { Alert, AlertDescription } from './ui/alert'
 import { useQuery, useMutation } from 'convex/react'
 import { api } from '@/convex/_generated/api'
 import { Question } from '@/lib/schema'
-import { hashQuestion } from '@/lib/utils'
+import { hashQuestion, smoothScrollTo } from '@/lib/utils'
+import { Language, getTranslation } from '@/lib/translations'
 import { useUser } from '@clerk/nextjs'
 
 export type IncorrectAnswer = {
@@ -48,7 +49,7 @@ function QuizDisplay({
   shuffleAnswers: boolean
   studyMode?: boolean
   showOnlyCorrect?: boolean
-  language?: 'en' | 'az'
+  language?: Language
   quizId?: string
   allQuestions?: Question[]
 }) {
@@ -68,7 +69,7 @@ function QuizDisplay({
 
   const globalFlags = useMemo(() => {
     const flagMap: Record<string, { reason: string; id: string; upvotes: number }> = {}
-    flags?.forEach((f: any) => {
+    flags?.forEach((f) => {
       flagMap[f.question] = { reason: f.reason, id: f._id, upvotes: f.upvotes }
     })
     return flagMap
@@ -106,36 +107,7 @@ function QuizDisplay({
     setCurrentQuestionIndex(0)
   }, [questions])
 
-  const t = {
-    en: {
-      finish: 'Finish',
-      questionOf: 'Question',
-      of: 'of',
-      score: 'Score',
-      studyMode: 'Study Mode - Review Correct Answers',
-      done: 'Done',
-      flagTitle: 'Flag this question as wrong',
-      flagReasonPlaceholder: 'Type the reason...',
-      flagSubmit: 'Flag',
-      flagged: 'Flagged as wrong',
-      flagReason: 'Reason',
-    },
-    az: {
-      finish: 'Bitir',
-      questionOf: 'Sual',
-      of: 'dən',
-      score: 'Bal',
-      studyMode: 'Öyrənmə Rejimi - Düzgün Cavabları Nəzərdən Keçirin',
-      done: 'Tamamlandı',
-      flagTitle: 'Bu sualı səhv kimi işarələ',
-      flagReasonPlaceholder: 'Səbəbi yazın...',
-      flagSubmit: 'İşarələ',
-      flagged: 'Səhv kimi işarələnib',
-      flagReason: 'Səbəb',
-    }
-  }
-
-  const getText = (key: keyof typeof t.en) => t[language][key]
+  const getText = (key: string, params?: Record<string, string | number>) => getTranslation(language as any, `quiz.${key}`, params)
 
   const shuffledAnswersMap = useMemo(() => {
     if (!shuffleAnswers) return new Map()
@@ -165,38 +137,8 @@ function QuizDisplay({
     if (correct && user) {
       const questionId = hashQuestion(question.question)
       resolveMistake({
-        clerkId: user.id,
         questionId: questionId
       }).catch(err => console.error('Failed to resolve mistake:', err))
-    }
-
-    const smoothScrollTo = (element: HTMLElement) => {
-      const targetPosition = element.getBoundingClientRect().top + window.pageYOffset
-      const startPosition = window.pageYOffset
-      const distance = targetPosition - startPosition - (window.innerHeight / 2) + (element.offsetHeight / 2)
-      const duration = 1000
-      let start: number | null = null
-
-      const easeInOutCubic = (t: number): number => {
-        return t < 0.5
-          ? 4 * t * t * t
-          : 1 - Math.pow(-2 * t + 2, 3) / 2
-      }
-
-      const animation = (currentTime: number) => {
-        if (start === null) start = currentTime
-        const timeElapsed = currentTime - start
-        const progress = Math.min(timeElapsed / duration, 1)
-        const ease = easeInOutCubic(progress)
-
-        window.scrollTo(0, startPosition + distance * ease)
-
-        if (timeElapsed < duration) {
-          requestAnimationFrame(animation)
-        }
-      }
-
-      requestAnimationFrame(animation)
     }
 
     setTimeout(() => {
@@ -211,7 +153,7 @@ function QuizDisplay({
   }
 
   const handleFlagSubmit = async (index: number) => {
-    if (!tempFlagReason.trim() || !quizId) return
+    if (!tempFlagReason.trim() || !quizId || !user) return
 
     const questionText = questions[index].question
     try {
@@ -219,6 +161,7 @@ function QuizDisplay({
         quizId,
         question: questionText,
         reason: tempFlagReason,
+        creatorId: user.id,
       })
       setFlaggingIndex(null)
       setTempFlagReason('')
@@ -311,7 +254,7 @@ function QuizDisplay({
                   aria-label="Go back"
                 >
                   <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
-                  <span className="text-sm hidden sm:inline">Geri</span>
+                  <span className="text-sm hidden sm:inline">{getTranslation(language as any, 'nav.back')}</span>
                 </button>
               )}
               <span className="text-sm sm:text-base font-semibold text-foreground">
@@ -398,7 +341,7 @@ function QuizDisplay({
                 aria-label="Go back"
               >
                 <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
-                <span className="text-sm hidden sm:inline">Geri</span>
+                <span className="text-sm hidden sm:inline">{getTranslation(language as any, 'nav.back')}</span>
               </button>
             )}
             <span className="text-sm sm:text-base text-foreground">
@@ -442,7 +385,7 @@ function QuizDisplay({
                     <AlertTriangle className="h-4 w-4" />
                     <AlertDescription className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 w-full">
                       <span className="break-words">
-                        <span className="font-semibold">{t[language].flagged}:</span> {state.flagReason}
+                        <span className="font-semibold">{getText('flagged')}:</span> {state.flagReason}
                       </span>
                       <Button
                         variant="ghost"
@@ -468,7 +411,7 @@ function QuizDisplay({
                     className="text-muted-foreground hover:text-amber-500 hover:bg-amber-50/50"
                   >
                     <Flag className="w-4 h-4 mr-2" />
-                    {t[language].flagTitle}
+                    {getText('flagTitle')}
                   </Button>
                 )}
                 {flaggingIndex === questionIndex && (
@@ -478,7 +421,7 @@ function QuizDisplay({
                         <div className="flex flex-col sm:flex-row gap-2">
                           <Input
                             autoFocus
-                            placeholder={t[language].flagReasonPlaceholder}
+                            placeholder={getText('flagReasonPlaceholder')}
                             value={tempFlagReason}
                             onChange={(e) => setTempFlagReason(e.target.value)}
                             onKeyDown={(e) => {
@@ -493,7 +436,7 @@ function QuizDisplay({
                               onClick={() => handleFlagSubmit(questionIndex)}
                               className="bg-amber-600 hover:bg-amber-700 text-white flex-1 sm:flex-none h-11"
                             >
-                              {t[language].flagSubmit}
+                              {getText('flagSubmit')}
                             </Button>
                             <Button
                               variant="ghost"
@@ -504,7 +447,7 @@ function QuizDisplay({
                               }}
                               className="flex-1 sm:flex-none h-11"
                             >
-                              Cancel
+                              {getTranslation(language as any, 'common.cancel')}
                             </Button>
                           </div>
                         </div>

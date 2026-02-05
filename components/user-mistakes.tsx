@@ -18,7 +18,7 @@ type UserMistakesProps = {
 
 export function UserMistakes({ language, onRedo }: UserMistakesProps) {
     const { user } = useUser()
-    const mistakes = useQuery(api.mistakes.getMistakes, user ? { clerkId: user.id } : "skip")
+    const mistakes = useQuery(api.mistakes.getMistakes, user ? {} : "skip")
     const clearMistake = useMutation(api.mistakes.clearMistake)
     const allQuizzes = useQuery(api.quizzes.list)
 
@@ -94,7 +94,7 @@ export function UserMistakes({ language, onRedo }: UserMistakesProps) {
             // Actually I added resolveMistake in server, but let's stick to cleaning by ID if possible.
             // Let's use the new resolveMistake mutation for clarity if we have questionId.
         }
-        await clearMistake({ clerkId: user.id, quizId: mistake.quizId, question: mistake.question })
+        await clearMistake({ quizId: mistake.quizId, question: mistake.question })
     }
 
     return (

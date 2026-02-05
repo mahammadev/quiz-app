@@ -3,6 +3,9 @@
   "style": "new-york",
   "rsc": true,
   "tsx": true,
+  "registries": {
+    "@react-bits": "https://reactbits.dev/r/{name}.json"
+  },
   "tailwind": {
     "config": "",
     "css": "app/globals.css",

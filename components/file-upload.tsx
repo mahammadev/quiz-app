@@ -3,7 +3,7 @@
 import type React from "react"
 
 import { useState, useRef } from "react"
-import { Upload, Save } from "lucide-react"
+import { Upload, Save, Sparkles } from "lucide-react"
 import { getTranslation, type Language } from "@/lib/translations"
 import { type Question, parseQuestions } from "@/lib/quiz"
 import QuizLibrary from "./quiz-library"
@@ -15,6 +15,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Alert, AlertDescription } from "@/components/ui/alert"
+import { AITextGenerator } from "./ai-text-generator"
 
 export default function FileUpload({
   onFileLoaded,
@@ -32,6 +33,7 @@ export default function FileUpload({
   const [pasteMode, setPasteMode] = useState(false)
   const [pastedText, setPastedText] = useState("")
   const [showUpload, setShowUpload] = useState(false)
+  const [aiGeneratorMode, setAiGeneratorMode] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const [parsedQuestions, setParsedQuestions] = useState<Question[] | null>(null)
@@ -118,18 +120,47 @@ export default function FileUpload({
           {getTranslation(language, "library.saved")}
         </h2>
         {enableUpload && (
-          <Button
-            onClick={() => {
-              setShowUpload(true)
-              setPasteMode(false)
-              setError("")
-            }}
-            className="cursor-target"
-          >
-            {getTranslation(language, "upload.title")}
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              onClick={() => {
+                setShowUpload(true)
+                setAiGeneratorMode(false)
+                setPasteMode(false)
+                setError("")
+              }}
+              variant="outline"
+              className="cursor-target"
+            >
+              {getTranslation(language, "upload.title")}
+            </Button>
+            <Button
+              onClick={() => {
+                setAiGeneratorMode(true)
+                setShowUpload(false)
+                setError("")
+              }}
+              className="cursor-target gap-2"
+            >
+              <Sparkles className="h-4 w-4" />
+              AI Generate
+            </Button>
+          </div>
         )}
       </div>
+
+      {/* AI Generator Mode */}
+      {aiGeneratorMode && (
+        <AITextGenerator
+          language={language}
+          onQuestionsGenerated={(questions) => {
+            setParsedQuestions(questions)
+            setQuizName("AI Generated Quiz")
+            setAiGeneratorMode(false)
+            setShowUpload(true)
+          }}
+          onCancel={() => setAiGeneratorMode(false)}
+        />
+      )}
 
       {enableUpload && showUpload && (
         <div className="space-y-4">

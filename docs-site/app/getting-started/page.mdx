@@ -1,0 +1,80 @@
+# Getting Started
+
+This guide will help you set up QuizCreator on your local machine.
+
+## Prerequisites
+
+- Node.js 18+ installed
+- npm, yarn, or pnpm
+- A Convex account (free tier)
+- A Clerk account (free tier)
+
+## Installation
+
+1. **Clone the repository**
+
+```bash
+git clone https://github.com/your-username/quizcreator.git
+cd quizcreator
+```
+
+2. **Install dependencies**
+
+```bash
+npm install
+```
+
+3. **Set up Convex**
+
+```bash
+npx convex dev
+```
+
+This will:
+- Create a new Convex project
+- Generate `.env.local` with your Convex URL
+- Push your schema to Convex
+
+4. **Set up Clerk**
+
+Go to [Clerk Dashboard](https://dashboard.clerk.com/) and:
+- Create a new application
+- Copy your Publishable Key and Secret Key
+- Add them to your `.env.local`:
+
+```env
+NEXT_PUBLIC_CONVEX_URL=your_convex_url
+CLERK_PUBLISHABLE_KEY=pk_test_...
+CLERK_SECRET_KEY=sk_test_...
+```
+
+5. **Run the development server**
+
+```bash
+npm run dev
+```
+
+Open [http://localhost:3000](http://localhost:3000) to see the app.
+
+## Environment Variables
+
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `NEXT_PUBLIC_CONVEX_URL` | Yes | Your Convex deployment URL |
+| `CLERK_PUBLISHABLE_KEY` | Yes | Clerk publishable key |
+| `CLERK_SECRET_KEY` | Yes | Clerk secret key |
+| `GOOGLE_AI_API_KEY` | Optional | For AI quiz generation |
+| `STRIPE_SECRET_KEY` | Optional | For payments |
+
+## Building for Production
+
+```bash
+npm run build
+npm start
+```
+
+## Next Steps
+
+- [Creating Quizzes](/guides/quiz-creation) - Learn how to create your first quiz
+- [Organizations](/guides/organizations) - Set up teams and invite users
+- [AI Features](/guides/ai-features) - Enable AI-powered quiz generation

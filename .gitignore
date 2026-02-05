@@ -4,7 +4,12 @@ node_modules
 /.pnp
 .pnp.js
 .env.local
-
+.agents
+.agent
+.codex
+.github
+.claude
+.opencode
 # Testing
 /coverage
 .test-dist

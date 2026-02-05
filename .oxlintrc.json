@@ -1,0 +1,13 @@
+{
+    "rules": {
+        "correctness": "warn",
+        "suspicious": "warn",
+        "pedantic": "off",
+        "nursery": "off"
+    },
+    "env": {
+        "browser": true,
+        "es2021": true,
+        "node": true
+    }
+}

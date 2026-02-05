@@ -1,24 +1,15 @@
 'use client'
 
-import React, { createContext, useContext, useState, useEffect, useMemo } from 'react'
+import React, { createContext, useContext, useState, useEffect } from 'react'
 import { usePathname } from 'next/navigation'
-import { useQuery, useMutation } from 'convex/react'
+import { useMutation } from 'convex/react'
 import { api } from '@/convex/_generated/api'
 import { useUser } from '@clerk/nextjs'
 
-type ActiveUser = {
-    id: string
-    name: string
-    activity?: string
-    path?: string
-    userAgent?: string
-    ip?: string
-    lastSeen?: number
-}
+// NOTE: Presence tracking simplified - removed admin-only online users list
+// Will be re-implemented for School tier with org-scoped visibility
 
 type ActiveUserContextType = {
-    onlineUsers: ActiveUser[]
-    isLoading: boolean
     setActivity: (activity: string) => void
 }
 
@@ -30,12 +21,7 @@ export function ActiveUserProvider({ children }: { children: React.ReactNode }) 
     const [activity, setActivity] = useState<string>('')
     const [ipAddress, setIpAddress] = useState<string | null>(null)
 
-    const isAdmin = isLoaded && user?.publicMetadata?.role === 'admin'
-
     const updatePresence = useMutation(api.presence.update)
-    const rawOnlineUsers = useQuery(api.presence.getOnlineUsersAdmin)
-
-    const isLoading = rawOnlineUsers === undefined
 
     useEffect(() => {
         if (!pathname) return
@@ -63,21 +49,9 @@ export function ActiveUserProvider({ children }: { children: React.ReactNode }) 
         return () => {
             isMounted = false
         }
-    }, [user])
+    }, [user, isLoaded])
 
-    const onlineUsers = useMemo(() => {
-        return (rawOnlineUsers ?? []).map((u: any) => ({
-            id: u._id,
-            name: u.name,
-            activity: u.activity,
-            path: u.path,
-            userAgent: u.userAgent,
-            ip: u.ip,
-            lastSeen: u.lastSeen,
-        }))
-    }, [rawOnlineUsers])
-
-    // Update presence every 20 seconds
+    // Update presence every 20 seconds (for analytics, not for UI display)
     useEffect(() => {
         if (!user?.id) return
 
@@ -101,11 +75,7 @@ export function ActiveUserProvider({ children }: { children: React.ReactNode }) 
     }, [user, updatePresence, activity, pathname, ipAddress])
 
     return (
-        <ActiveUserContext.Provider value={{
-            onlineUsers,
-            isLoading,
-            setActivity,
-        }}>
+        <ActiveUserContext.Provider value={{ setActivity }}>
             {children}
         </ActiveUserContext.Provider>
     )
