@@ -8,6 +8,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { useQuery } from 'convex/react'
 import { api } from '@/convex/_generated/api'
 import { Question } from '@/lib/schema'
+import { useUser } from '@clerk/nextjs'
 
 export default function QuizLibrary({
   onSelectQuiz,
@@ -16,8 +17,9 @@ export default function QuizLibrary({
   onSelectQuiz: (questions: Question[], id?: string) => void
   language?: Language
 }) {
-  const savedQuizzes = useQuery(api.quizzes.list)
-  const isLoading = savedQuizzes === undefined
+  const { isSignedIn } = useUser()
+  const savedQuizzes = useQuery(api.quizzes.list, isSignedIn ? {} : 'skip')
+  const isLoading = savedQuizzes === undefined && isSignedIn
 
   if (isLoading) {
     return (

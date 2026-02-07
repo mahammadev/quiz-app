@@ -113,3 +113,28 @@ export const updateRole = mutation({
         await ctx.db.patch(args.memberId, { role: args.newRole });
     },
 });
+
+/**
+ * Get the current user's role in an organization by slug
+ */
+export const getMyRole = query({
+    args: { orgSlug: v.string() },
+    handler: async (ctx, args) => {
+        const userId = await getCurrentUserId(ctx);
+
+        const org = await ctx.db
+            .query("organizations")
+            .withIndex("by_slug", (q) => q.eq("slug", args.orgSlug))
+            .unique();
+
+        if (!org) return null;
+
+        const membership = await ctx.db
+            .query("orgMembers")
+            .withIndex("by_org_user", (q) => q.eq("orgId", org._id).eq("userId", userId))
+            .unique();
+
+        return membership?.role || null;
+    },
+});
+

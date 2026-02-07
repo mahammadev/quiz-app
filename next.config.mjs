@@ -10,7 +10,8 @@ const nextConfig = {
   },
   // Enable experimental optimizations
   experimental: {
-    optimizeCss: true, // Optimize CSS loading
+    // optimizeCss: true, // Potential conflict with Turbopack in experimental Next.js versions
+    memoryLimit: 512, // MB - Reduce memory footprint
   },
 }
 

@@ -20,7 +20,7 @@ interface NavbarProps {
 
 const Navbar: React.FC<NavbarProps> = ({ mode, onModeChange, language, onLanguageChange }) => {
   return (
-    <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-lg border-b border-slate-100">
+    <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border">
       <div className="container mx-auto px-6 py-4 flex items-center justify-between">
         <div className="flex items-center gap-8">
           <motion.div
@@ -28,15 +28,15 @@ const Navbar: React.FC<NavbarProps> = ({ mode, onModeChange, language, onLanguag
             animate={{ opacity: 1, x: 0 }}
             className="text-xl font-bold tracking-tight flex items-center gap-2.5"
           >
-            <span className="bg-blue-600 text-white rounded-xl p-2">
+            <span className="bg-primary text-primary-foreground rounded-xl p-2">
               <Sparkles className="w-5 h-5" />
             </span>
-            <span className="font-[family-name:var(--font-dm-sans)] font-bold text-slate-900">MHMMD</span>
+            <span className="font-[family-name:var(--font-dm-sans)] font-bold text-foreground">Qavra</span>
           </motion.div>
 
           <button
             onClick={() => onModeChange(mode === "learner" ? "school" : "learner")}
-            className="flex items-center gap-2 px-3 py-1.5 text-sm font-semibold text-slate-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
+            className="flex items-center gap-2 px-3 py-1.5 text-sm font-semibold text-muted-foreground hover:text-primary hover:bg-accent rounded-lg transition-all"
           >
             {mode === "learner" ? (
               <>
@@ -54,13 +54,13 @@ const Navbar: React.FC<NavbarProps> = ({ mode, onModeChange, language, onLanguag
           <nav className="hidden md:flex items-center gap-6">
             <button
               onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })}
-              className="text-sm font-medium text-slate-500 hover:text-slate-900 transition-colors"
+              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
             >
               {getTranslation(language, 'landing.header.features')}
             </button>
             <button
               onClick={() => document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' })}
-              className="text-sm font-medium text-slate-500 hover:text-slate-900 transition-colors"
+              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
             >
               {getTranslation(language, 'landing.header.pricing')}
             </button>
@@ -68,14 +68,14 @@ const Navbar: React.FC<NavbarProps> = ({ mode, onModeChange, language, onLanguag
         </div>
         <div className="flex items-center gap-3">
           {/* Language Switcher */}
-          <div className="flex items-center bg-slate-100 rounded-full p-1">
+          <div className="flex items-center bg-muted rounded-full p-1">
             {(['az', 'en', 'ru'] as Language[]).map((lang) => (
               <button
                 key={lang}
                 onClick={() => onLanguageChange(lang)}
                 className={`px-3 py-1.5 text-xs font-bold rounded-full transition-all ${language === lang
-                    ? 'bg-white text-slate-900 shadow-sm'
-                    : 'text-slate-500 hover:text-slate-900'
+                    ? 'bg-background text-foreground shadow-sm'
+                    : 'text-muted-foreground hover:text-foreground'
                 }`}
               >
                 {lang.toUpperCase()}
@@ -86,13 +86,13 @@ const Navbar: React.FC<NavbarProps> = ({ mode, onModeChange, language, onLanguag
           <SignInButton mode="modal">
             <Button
               variant="ghost"
-              className="hidden sm:inline-flex text-slate-600 hover:text-slate-900"
+              className="hidden sm:inline-flex text-muted-foreground hover:text-foreground"
             >
               {getTranslation(language, 'landing.auth.signin')}
             </Button>
           </SignInButton>
           <SignInButton mode="modal">
-            <Button className="bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-sm">
+            <Button className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold shadow-sm">
               {getTranslation(language, 'landing.auth.getstarted')}
             </Button>
           </SignInButton>

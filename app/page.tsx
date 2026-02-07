@@ -4,7 +4,7 @@ import DashboardClient from "@/components/dashboard-client";
 
 /**
  * Root page component.
- * This is a React Server Component that uses Clerk's server-side auth() 
+ * This is a React Server Component that uses Clerk's server-side auth()
  * to determine whether to render the Landing Page or the Dashboard.
  */
 export default async function Home() {
@@ -12,6 +12,7 @@ export default async function Home() {
 
   return (
     <main className="min-h-screen bg-background text-foreground transition-colors duration-300 overflow-x-hidden">
+      <div className="hidden">App Origin: QuizCreator Root</div>
       {userId ? <DashboardClient /> : <LandingPage />}
     </main>
   );

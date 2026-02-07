@@ -1,0 +1,624 @@
+{
+  "nodes": [
+    {
+      "id": "node-1770389355497",
+      "data": {
+        "label": "landing page"
+      },
+      "position": {
+        "x": 1479.275214598284,
+        "y": -325.7671064131676
+      },
+      "className": "p-3 rounded-md border-2 bg-card text-card-foreground shadow-sm",
+      "measured": {
+        "width": 150,
+        "height": 40
+      },
+      "selected": false,
+      "dragging": false,
+      "type": "input"
+    },
+    {
+      "id": "node-1770389383696",
+      "data": {
+        "label": "student view"
+      },
+      "position": {
+        "x": 1236.6227288555272,
+        "y": -179.64472109961176
+      },
+      "className": "p-3 rounded-md border-2 bg-card text-card-foreground shadow-sm",
+      "measured": {
+        "width": 150,
+        "height": 40
+      },
+      "selected": false,
+      "dragging": false
+    },
+    {
+      "id": "node-1770389389500",
+      "data": {
+        "label": "org view (student, teacher, organisation owner)"
+      },
+      "position": {
+        "x": 1693.9964345747148,
+        "y": -183.4461399439952
+      },
+      "className": "p-3 rounded-md border-2 bg-card text-card-foreground shadow-sm",
+      "measured": {
+        "width": 150,
+        "height": 76
+      },
+      "selected": false,
+      "dragging": false
+    },
+    {
+      "id": "node-1770389416032",
+      "data": {
+        "label": "logged in?"
+      },
+      "position": {
+        "x": 1218.2624828964488,
+        "y": -93.22215153904237
+      },
+      "className": "p-3 rounded-md border-2 bg-card text-card-foreground shadow-sm",
+      "measured": {
+        "width": 150,
+        "height": 40
+      },
+      "selected": false,
+      "dragging": false
+    },
+    {
+      "id": "node-1770389427614",
+      "data": {
+        "label": "no"
+      },
+      "position": {
+        "x": 1137.7423037602905,
+        "y": -5.652012505160002
+      },
+      "className": "p-3 rounded-md border-2 bg-card text-card-foreground shadow-sm",
+      "measured": {
+        "width": 150,
+        "height": 40
+      },
+      "selected": false,
+      "dragging": false
+    },
+    {
+      "id": "node-1770389427736",
+      "data": {
+        "label": "yes"
+      },
+      "position": {
+        "x": 1316.093041863827,
+        "y": -5.9701700134406686
+      },
+      "className": "p-3 rounded-md border-2 bg-card text-card-foreground shadow-sm",
+      "measured": {
+        "width": 150,
+        "height": 40
+      },
+      "selected": false,
+      "dragging": false
+    },
+    {
+      "id": "node-1770389461569",
+      "data": {
+        "label": "student dashboard (non org)"
+      },
+      "position": {
+        "x": 1317.619790208739,
+        "y": 71.54683665402577
+      },
+      "className": "p-3 rounded-md border-2 bg-card text-card-foreground shadow-sm",
+      "measured": {
+        "width": 150,
+        "height": 58
+      },
+      "selected": false,
+      "dragging": false
+    },
+    {
+      "id": "node-1770389538938",
+      "data": {
+        "label": "my quizes"
+      },
+      "position": {
+        "x": 1136.9652543983725,
+        "y": 156.0422765530887
+      },
+      "className": "p-3 rounded-md border-2 bg-card text-card-foreground shadow-sm",
+      "measured": {
+        "width": 150,
+        "height": 40
+      },
+      "selected": false,
+      "dragging": false
+    },
+    {
+      "id": "node-1770389636242",
+      "data": {
+        "label": "Create Questions"
+      },
+      "position": {
+        "x": 1242.0192140106853,
+        "y": 240.00801712085376
+      },
+      "className": "p-3 rounded-md border-2 bg-card text-card-foreground shadow-sm",
+      "measured": {
+        "width": 150,
+        "height": 58
+      },
+      "selected": false,
+      "dragging": false
+    },
+    {
+      "id": "node-1770389686763",
+      "data": {
+        "label": "Mistakes"
+      },
+      "position": {
+        "x": 1410.205622104119,
+        "y": 292.87813807252576
+      },
+      "className": "p-3 rounded-md border-2 bg-card text-card-foreground shadow-sm",
+      "measured": {
+        "width": 150,
+        "height": 40
+      },
+      "selected": false,
+      "dragging": false
+    },
+    {
+      "id": "node-1770389785197",
+      "data": {
+        "label": "admin portal(for the owners of the saas to register new orgs, not for consumers.)"
+      },
+      "position": {
+        "x": 2175.477692126775,
+        "y": -370.8213584680417
+      },
+      "className": "p-3 rounded-md border-2 bg-card text-card-foreground shadow-sm",
+      "measured": {
+        "width": 150,
+        "height": 94
+      },
+      "selected": false,
+      "dragging": false
+    },
+    {
+      "id": "node-1770390289663",
+      "data": {
+        "label": "Check Role (db: orgMembers)"
+      },
+      "position": {
+        "x": 1693,
+        "y": -33
+      },
+      "className": "p-3 rounded-md border-2 bg-card text-card-foreground shadow-sm",
+      "measured": {
+        "width": 150,
+        "height": 40
+      },
+      "selected": false,
+      "dragging": false,
+      "type": "default"
+    },
+    {
+      "id": "node-1770390289664",
+      "data": {
+        "label": "Org Admin Dashboard"
+      },
+      "position": {
+        "x": 1293,
+        "y": 117
+      },
+      "className": "p-3 rounded-md border-2 bg-card text-card-foreground shadow-sm",
+      "measured": {
+        "width": 150,
+        "height": 40
+      },
+      "selected": false,
+      "dragging": false,
+      "type": "default"
+    },
+    {
+      "id": "node-1770390289667",
+      "data": {
+        "label": "Manage Members"
+      },
+      "position": {
+        "x": 1193,
+        "y": 267
+      },
+      "className": "p-3 rounded-md border-2 bg-card text-card-foreground shadow-sm",
+      "measured": {
+        "width": 150,
+        "height": 40
+      },
+      "selected": false,
+      "dragging": false,
+      "type": "default"
+    },
+    {
+      "id": "node-1770390289668",
+      "data": {
+        "label": "Org Settings"
+      },
+      "position": {
+        "x": 1343,
+        "y": 267
+      },
+      "className": "p-3 rounded-md border-2 bg-card text-card-foreground shadow-sm",
+      "measured": {
+        "width": 150,
+        "height": 40
+      },
+      "selected": false,
+      "dragging": false,
+      "type": "default"
+    },
+    {
+      "id": "node-1770390289669",
+      "data": {
+        "label": "Billing"
+      },
+      "position": {
+        "x": 1493,
+        "y": 267
+      },
+      "className": "p-3 rounded-md border-2 bg-card text-card-foreground shadow-sm",
+      "measured": {
+        "width": 150,
+        "height": 40
+      },
+      "selected": false,
+      "dragging": false,
+      "type": "default"
+    },
+    {
+      "id": "node-1770390289665",
+      "data": {
+        "label": "Teacher Dashboard"
+      },
+      "position": {
+        "x": 1693,
+        "y": 117
+      },
+      "className": "p-3 rounded-md border-2 bg-card text-card-foreground shadow-sm",
+      "measured": {
+        "width": 150,
+        "height": 40
+      },
+      "selected": false,
+      "dragging": false,
+      "type": "default"
+    },
+    {
+      "id": "node-1770390289670",
+      "data": {
+        "label": "Manage Classes"
+      },
+      "position": {
+        "x": 1593,
+        "y": 267
+      },
+      "className": "p-3 rounded-md border-2 bg-card text-card-foreground shadow-sm",
+      "measured": {
+        "width": 150,
+        "height": 40
+      },
+      "selected": false,
+      "dragging": false,
+      "type": "default"
+    },
+    {
+      "id": "node-1770390289671",
+      "data": {
+        "label": "Create Quizzes"
+      },
+      "position": {
+        "x": 1743,
+        "y": 267
+      },
+      "className": "p-3 rounded-md border-2 bg-card text-card-foreground shadow-sm",
+      "measured": {
+        "width": 150,
+        "height": 40
+      },
+      "selected": false,
+      "dragging": false,
+      "type": "default"
+    },
+    {
+      "id": "node-1770390289672",
+      "data": {
+        "label": "View Analytics"
+      },
+      "position": {
+        "x": 1893,
+        "y": 267
+      },
+      "className": "p-3 rounded-md border-2 bg-card text-card-foreground shadow-sm",
+      "measured": {
+        "width": 150,
+        "height": 40
+      },
+      "selected": false,
+      "dragging": false,
+      "type": "default"
+    },
+    {
+      "id": "node-1770390289666",
+      "data": {
+        "label": "Org Student Dashboard"
+      },
+      "position": {
+        "x": 2093,
+        "y": 117
+      },
+      "className": "p-3 rounded-md border-2 bg-card text-card-foreground shadow-sm",
+      "measured": {
+        "width": 150,
+        "height": 40
+      },
+      "selected": false,
+      "dragging": false,
+      "type": "default"
+    },
+    {
+      "id": "node-1770390289673",
+      "data": {
+        "label": "My Classes"
+      },
+      "position": {
+        "x": 2043,
+        "y": 267
+      },
+      "className": "p-3 rounded-md border-2 bg-card text-card-foreground shadow-sm",
+      "measured": {
+        "width": 150,
+        "height": 40
+      },
+      "selected": false,
+      "dragging": false,
+      "type": "default"
+    },
+    {
+      "id": "node-1770390289674",
+      "data": {
+        "label": "Assigned Quizzes"
+      },
+      "position": {
+        "x": 2193,
+        "y": 267
+      },
+      "className": "p-3 rounded-md border-2 bg-card text-card-foreground shadow-sm",
+      "measured": {
+        "width": 150,
+        "height": 40
+      },
+      "selected": false,
+      "dragging": false,
+      "type": "default"
+    },
+    {
+      "id": "node-1770393010299-4720",
+      "data": {
+        "label": "Create Class"
+      },
+      "position": {
+        "x": 1893,
+        "y": 217
+      },
+      "className": "p-3 rounded-md border-2 bg-card text-card-foreground shadow-sm",
+      "measured": {
+        "width": 150,
+        "height": 40
+      },
+      "selected": false,
+      "dragging": false
+    },
+    {
+      "id": "node-1770393010300-8432",
+      "data": {
+        "label": "Invite Students (Email/Code)"
+      },
+      "position": {
+        "x": 1893,
+        "y": 317
+      },
+      "className": "p-3 rounded-md border-2 bg-card text-card-foreground shadow-sm",
+      "measured": {
+        "width": 150,
+        "height": 40
+      },
+      "selected": false,
+      "dragging": false
+    },
+    {
+      "id": "node-1770393010300-9596",
+      "data": {
+        "label": "Join Class (Enter Code)"
+      },
+      "position": {
+        "x": 1893,
+        "y": 217
+      },
+      "className": "p-3 rounded-md border-2 bg-card text-card-foreground shadow-sm",
+      "measured": {
+        "width": 150,
+        "height": 40
+      },
+      "selected": false,
+      "dragging": false
+    }
+  ],
+  "edges": [
+    {
+      "source": "node-1770389355497",
+      "target": "node-1770389383696",
+      "animated": true,
+      "id": "xy-edge__node-1770389355497-node-1770389383696"
+    },
+    {
+      "source": "node-1770389355497",
+      "target": "node-1770389389500",
+      "animated": true,
+      "id": "xy-edge__node-1770389355497-node-1770389389500"
+    },
+    {
+      "source": "node-1770389383696",
+      "target": "node-1770389416032",
+      "animated": true,
+      "id": "xy-edge__node-1770389383696-node-1770389416032"
+    },
+    {
+      "source": "node-1770389416032",
+      "target": "node-1770389427614",
+      "animated": true,
+      "id": "xy-edge__node-1770389416032-node-1770389427614"
+    },
+    {
+      "source": "node-1770389416032",
+      "target": "node-1770389427736",
+      "animated": true,
+      "id": "xy-edge__node-1770389416032-node-1770389427736"
+    },
+    {
+      "source": "node-1770389427736",
+      "target": "node-1770389461569",
+      "animated": true,
+      "id": "xy-edge__node-1770389427736-node-1770389461569"
+    },
+    {
+      "source": "node-1770389461569",
+      "target": "node-1770389538938",
+      "animated": true,
+      "id": "xy-edge__node-1770389461569-node-1770389538938"
+    },
+    {
+      "source": "node-1770389427614",
+      "target": "node-1770389416032",
+      "animated": true,
+      "id": "xy-edge__node-1770389427614-node-1770389416032",
+      "selected": false,
+      "label": "redirect to login page or landing page"
+    },
+    {
+      "source": "node-1770389461569",
+      "target": "node-1770389636242",
+      "animated": true,
+      "id": "xy-edge__node-1770389461569-node-1770389636242"
+    },
+    {
+      "source": "node-1770389461569",
+      "target": "node-1770389686763",
+      "animated": true,
+      "id": "xy-edge__node-1770389461569-node-1770389686763"
+    },
+    {
+      "source": "node-1770389389500",
+      "target": "node-1770390289663",
+      "animated": true,
+      "id": "xy-edge__node-1770389389500-node-1770390289663"
+    },
+    {
+      "source": "node-1770390289663",
+      "target": "node-1770390289664",
+      "animated": true,
+      "id": "xy-edge__node-1770390289663-node-1770390289664",
+      "label": "Admin"
+    },
+    {
+      "source": "node-1770390289664",
+      "target": "node-1770390289667",
+      "animated": true,
+      "id": "xy-edge__node-1770390289664-node-1770390289667"
+    },
+    {
+      "source": "node-1770390289664",
+      "target": "node-1770390289668",
+      "animated": true,
+      "id": "xy-edge__node-1770390289664-node-1770390289668"
+    },
+    {
+      "source": "node-1770390289664",
+      "target": "node-1770390289669",
+      "animated": true,
+      "id": "xy-edge__node-1770390289664-node-1770390289669"
+    },
+    {
+      "source": "node-1770390289663",
+      "target": "node-1770390289665",
+      "animated": true,
+      "id": "xy-edge__node-1770390289663-node-1770390289665",
+      "label": "Teacher"
+    },
+    {
+      "source": "node-1770390289665",
+      "target": "node-1770390289670",
+      "animated": true,
+      "id": "xy-edge__node-1770390289665-node-1770390289670"
+    },
+    {
+      "source": "node-1770390289665",
+      "target": "node-1770390289671",
+      "animated": true,
+      "id": "xy-edge__node-1770390289665-node-1770390289671"
+    },
+    {
+      "source": "node-1770390289665",
+      "target": "node-1770390289672",
+      "animated": true,
+      "id": "xy-edge__node-1770390289665-node-1770390289672"
+    },
+    {
+      "source": "node-1770390289663",
+      "target": "node-1770390289666",
+      "animated": true,
+      "id": "xy-edge__node-1770390289663-node-1770390289666",
+      "label": "Student"
+    },
+    {
+      "source": "node-1770390289666",
+      "target": "node-1770390289673",
+      "animated": true,
+      "id": "xy-edge__node-1770390289666-node-1770390289673"
+    },
+    {
+      "source": "node-1770390289666",
+      "target": "node-1770390289674",
+      "animated": true,
+      "id": "xy-edge__node-1770390289666-node-1770390289674"
+    },
+    {
+      "source": "node-1770390289665",
+      "target": "node-1770393010299-4720",
+      "animated": true,
+      "id": "edge-node-1770393010300-9021"
+    },
+    {
+      "source": "node-1770393010299-4720",
+      "target": "node-1770393010300-8432",
+      "animated": true,
+      "id": "edge-node-1770393010300-2154"
+    },
+    {
+      "source": "node-1770390289666",
+      "target": "node-1770393010300-9596",
+      "animated": true,
+      "id": "edge-node-1770393010300-7623"
+    },
+    {
+      "source": "node-1770393010300-8432",
+      "target": "node-1770393010300-9596",
+      "animated": true,
+      "id": "edge-node-1770393010300-3496",
+      "label": "Student uses code"
+    }
+  ],
+  "last_updated": "2026-02-06T15:50:10.000Z"
+}

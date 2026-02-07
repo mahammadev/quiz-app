@@ -1,0 +1,29 @@
+[BRAND_IDENTITY: QAVRA]
+
+[PHILOSOPHY: THE GRASP]
+- THE NAME: "Qavra" (To grasp, to comprehend).
+- THE SYMBOL: The Raven (The smartest bird, the tool-user).
+- THE LINK: Intelligence, Vision, and the physical act of "grasping" knowledge.
+
+[THE_MARK: "THE GEOMETRIC RAVEN"]
+- CONCEPT: A minimalist silhouette of a Raven (intelligence) constructed from sharp, origami-like folds (structure/knowledge).
+- ICON_TYPE: Abstract Animal Silhouette / Object.
+- VISUAL_VIBE: Think "Apple" or "Twitter" — a singular, memorable shape that doesn't need to explain itself.
+
+[DESIGN_TOKENS]
+- PRIMARY_COLOR: #6442ef (Electric Indigo)
+- ACCENT_COLOR: #efeef6 (Soft Lavender for secondary details)
+- RADIUS_LOGIC: Use the 12px "Qavra-Smooth" rounding on the outer points of the bird, but keep the internal "folds" sharp for contrast.
+
+[COMPONENT: THE MARK]
+- SILHOUETTE: A side-profile of a perched or soaring raven, simplified into 4-5 geometric polygons.
+- SECRET_DETAIL: The negative space between the wing and the body subtly forms the curve of a 'Q'.
+- STYLE: Bold, thick vector lines. No gradients. Solid #6442ef.
+
+[COMPONENT: THE WORDMARK]
+- FONT: Plus Jakarta Sans (Customized).
+- WEIGHT: Extra Bold.
+- TREATMENT: The 'Q' in Qavra should be a simple circle with a 45-degree slash, perfectly echoing the geometry of the Raven icon.
+
+[AI_MASTER_PROMPT]
+"A high-end, iconic brand mark for a company named 'Qavra'. The logo features a minimalist, geometric silhouette of a Raven, designed in a modern origami style. The bird is composed of sharp, clean-cut polygons with slightly rounded outer edges (12px radius style). The color is a single, solid block of Electric Indigo (#6442ef). Next to it, the wordmark 'Qavra' is written in a heavy, professional geometric sans-serif (Plus Jakarta Sans). The design is purely 2D, flat vector, high-contrast, and bold—reminiscent of the Apple or Airbnb logo style. Isolated on a white background, 8k, master-grade branding."

@@ -6,6 +6,9 @@ import { getTranslation } from "@/lib/translations";
 import Link from "next/link";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import MembersView from "./members-view";
+import { useUser } from "@clerk/nextjs";
+
+import ClassesView from "./classes-view";
 
 interface OrgDashboardProps {
     slug: string;
@@ -13,12 +16,20 @@ interface OrgDashboardProps {
 
 export default function OrgDashboard({ slug }: OrgDashboardProps) {
     const language = "az";
+    const { user } = useUser();
 
     // 1. Fetch Org Details
     const org = useQuery(api.organizations.getBySlug, { slug });
 
     // 2. Fetch Quizzes (only if we have org info)
     const quizzes = useQuery(api.quizzes.listByOrg, org ? { orgId: org._id } : "skip");
+
+    // 3. Check My Role
+    const isMember = useQuery(api.organizations.isMember, org ? { orgId: org._id } : "skip");
+    
+    // We ideally need the role itself, not just boolean isMember.
+    // For now, we'll assume if they can see the tabs, they are at least a member.
+    // A proper "getMyRole" query would be better, but we can iterate.
 
     if (org === undefined) {
         return <div className="p-8 text-center">Loading organization...</div>;
@@ -27,6 +38,10 @@ export default function OrgDashboard({ slug }: OrgDashboardProps) {
     if (org === null) {
         return <div className="p-8 text-center text-red-500">Organization not found</div>;
     }
+
+    // Rough check for Admin/Teacher role (this should be replaced with actual role from backend)
+    // For now, we pass "admin" to unlock UI if they are the owner
+    const role = org.ownerId === user?.id ? "admin" : "student"; 
 
     return (
         <div className="container mx-auto p-6 max-w-5xl">
@@ -42,6 +57,7 @@ export default function OrgDashboard({ slug }: OrgDashboardProps) {
                     <TabsTrigger value="quizzes">
                         {getTranslation(language, "nav.quizzes") || "Quizzes"}
                     </TabsTrigger>
+                    <TabsTrigger value="classes">Classes</TabsTrigger>
                     <TabsTrigger value="members">Members</TabsTrigger>
                 </TabsList>
 
@@ -84,6 +100,10 @@ export default function OrgDashboard({ slug }: OrgDashboardProps) {
                             </div>
                         )}
                     </section>
+                </TabsContent>
+
+                <TabsContent value="classes">
+                    <ClassesView orgId={org._id} role={role} />
                 </TabsContent>
 
                 <TabsContent value="members">

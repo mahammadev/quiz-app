@@ -8,8 +8,11 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useUser } from "@clerk/nextjs";
 
-export default function InvitePage({ params }: { params: { token: string } }) {
-    const { token } = params;
+import { use } from "react";
+// ...
+export default function InvitePage({ params }: { params: Promise<{ token: string }> }) {
+    const { token } = use(params);
+
     const { user, isLoaded } = useUser();
     const router = useRouter();
 

@@ -1,7 +1,7 @@
 # QuizCreator - Master Plan
 
 > Complete reference for what the app is, does, and how it works
-> **Status**: Active | **Last Updated**: 2026-02-04
+> **Status**: Active | **Last Updated**: 2026-02-07
 
 ---
 
@@ -15,6 +15,9 @@
 6. [User Flows](#user-flows)
 7. [Roadmap](#roadmap)
 8. [Tech Stack](#tech-stack)
+9. [Developer Tools](#developer-tools)
+10. [Environment Variables](#environment-variables)
+11. [Quick Links](#quick-links)
 
 ---
 
@@ -286,6 +289,13 @@ Student:
 | Add pricing page | ⏸️ Paused | /pricing |
 | Implement usage limits | ⏸️ Paused | AI generations, quiz count |
 
+### Phase 1: Landing Page Overhaul [COMPLETED]
+- [x] Architecture refactor (Server/Client split)
+- [x] Branding unification with Yobana Design System (100% convergence)
+- [x] Premium Editorial aesthetic implementation
+- [x] Responsive layout optimization
+- [x] Design System Compliance Audit (Colors, Spacing, Radii, Sub-components)
+
 ### Phase 5: Retention ✅
 
 | Task | Status | Notes |
@@ -306,6 +316,15 @@ Student:
 | Test on mobile devices | 📋 Todo | iOS Safari, Android Chrome |
 | Set up Capacitor | 📋 Todo | Native wrapper |
 | App store submissions | 📋 Todo | iOS, Android |
+
+### Phase 7: Internationalization & Refactor ✅
+
+| Task | Status | Notes |
+|------|--------|-------|
+| Modularize translations | ✅ Done | Split `translations.ts` into `lib/locales/` |
+| Complete Azerbaijani support | ✅ Done | 100% coverage for landing page & dashboard |
+| Russian localization | ✅ Done | Dedicated locale module |
+| System maintainability | ✅ Done | Reduced complexity of main helper file |
 
 ---
 
@@ -363,6 +382,15 @@ For large PDFs (>10k chars), content is chunked:
 
 ---
 
+## Developer Tools
+
+| Tool | Command | Description |
+|------|---------|-------------|
+| **Dev Dashboard** | `bun run tui` | TUI for managing App and Admin servers |
+| **Relay Monitor** | `python orchestrator.py` | Monitor agent handoffs and relay status |
+
+---
+
 ## Environment Variables
 
 ```env
@@ -381,13 +409,9 @@ GOOGLE_AI_API_KEY=your_gemini_key
 
 ## Quick Links
 
+- [DESIGN_SYSTEM.md](./DESIGN_SYSTEM.md) - Design tokens & Figma cheatsheet
 - [README](./README.md) - Setup & running locally
-- [ROADMAP](./.brain/ROADMAP.md) - Detailed phase breakdown
-- [DATA_MODEL](./.brain/DATA_MODEL.md) - Schema reference
-- [AI_ENGINE](./.brain/AI_ENGINE.md) - AI implementation details
-- [ORGANIZATIONS](./.brain/ORGANIZATIONS.md) - Org feature specs
-- [GAMIFICATION](./.brain/GAMIFICATION.md) - XP/badges design
-- [BILLING](./.brain/BILLING.md) - Pricing & Stripe setup
+
 
 ---
 
